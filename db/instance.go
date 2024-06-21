@@ -1,12 +1,12 @@
 package db
 
 import (
+	"fmt"
 	"log"
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
-	"xorm.io/core"
 	"xorm.io/xorm"
 )
 
@@ -15,28 +15,56 @@ var Repo *xorm.Engine
 func ConnectDatabase() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatal("Erro ao carregar o arquivo .env")
 	}
 
-	databaseURL := os.Getenv("DB")
-	if databaseURL == "" {
-		log.Fatal("DB environment variable not set")
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
+	dbName := os.Getenv("DB_NAME")
+
+	if user == "" || password == "" || host == "" || port == "" || dbName == "" {
+		log.Fatal("Variáveis de ambiente do banco de dados não configuradas corretamente")
 	}
 
-	engine, err := xorm.NewEngine("mysql", databaseURL)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		user, password, host, port, dbName)
+
+	engine, err := xorm.NewEngine("mysql", dsn)
 	if err != nil {
-		log.Fatal("Failed to connect to the database: ", err)
+		log.Fatal("Falha ao conectar ao banco de dados: ", err)
 	}
 
-	engine.SetTableMapper(core.SnakeMapper{})
-	engine.SetColumnMapper(core.SameMapper{})
+	err = engine.Ping()
+	if err != nil {
+		log.Fatal("Falha ao pingar o banco de dados: ", err)
+	}
 
 	engine.ShowSQL(true)
+	Repo = engine
 
-	err = Migrate(engine)
-	if err != nil {
-		log.Fatal("Failed to migrate database: ", err)
+	fmt.Println("Conexão com o banco de dados estabelecida com sucesso")
+}
+
+func Migrate(engine *xorm.Engine) error {
+	tables := []interface{}{
+		new(AssetsInventory),
+		new(ThreatEventCatalogue),
+		new(Frequency),
+		new(ThreatEventAssets),
+		new(LossHigh),
+		new(RiskCalculator),
+		new(Relevance),
+		new(ControlLibrary),
+		new(ControlImplementation),
+		new(AggregatedControlStrength),
 	}
 
-	Repo = engine
+	for _, table := range tables {
+		if err := engine.Sync2(table); err != nil {
+			return fmt.Errorf("falha ao migrar a tabela %T: %v", table, err)
+		}
+	}
+	return nil
 }
