@@ -19,6 +19,7 @@ import (
 
 func main() {
 	r := middleware.SetupRouter()
+
 	db.ConnectDatabase()
 	if err := db.Migrate(db.Repo); err != nil {
 		log.Fatal("Failed to migrate database: ", err)

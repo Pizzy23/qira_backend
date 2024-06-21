@@ -27,7 +27,9 @@ func SetupRouter() *gin.Engine {
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
+	r.Use(CORSConfig())
 	r.Use(ResponseHandler())
+
 	r.Use(func(c *gin.Context) {
 		c.Set("db", db.Repo)
 		c.Next()
