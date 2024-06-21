@@ -48,7 +48,7 @@ func CreateEventService(c *gin.Context, event interfaces.InputThreatEventCatalog
 }
 
 func PullAllEventService(c *gin.Context) {
-	var events []interfaces.ThreatEventCatalogue
+	var events []db.ThreatEventCatalogue
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Error", "Database connection not found")
