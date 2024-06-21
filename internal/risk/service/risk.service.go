@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 	"qira/db"
-	"qira/internal/interfaces"
 
 	"github.com/gin-gonic/gin"
 	"xorm.io/xorm"
@@ -24,7 +23,7 @@ func CreateRiskService(c *gin.Context, Risk db.RiskCalculator) error {
 }
 
 func PullAllRisk(c *gin.Context) {
-	var Risks []interfaces.InputRiskCalculator
+	var Risks []db.RiskCalculator
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Error", "Database connection not found")
@@ -33,7 +32,7 @@ func PullAllRisk(c *gin.Context) {
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &Risks); err != nil {
-		c.Set("Error", "Error")
+		c.Set("Error", err)
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -42,7 +41,7 @@ func PullAllRisk(c *gin.Context) {
 }
 
 func PullRiskId(c *gin.Context, id int) {
-	var Risk interfaces.InputRiskCalculator
+	var Risk db.RiskCalculator
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Error", "Database connection not found")

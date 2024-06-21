@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 	"qira/db"
-	"qira/internal/interfaces"
 
 	"github.com/gin-gonic/gin"
 	"xorm.io/xorm"
@@ -24,7 +23,7 @@ func CreateLossHighService(c *gin.Context, LossHigh db.LossHigh) error {
 }
 
 func PullAllLossHigh(c *gin.Context) {
-	var lossHighs []interfaces.InputLossHigh
+	var lossHighs []db.LossHigh
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Error", "Database connection not found")
@@ -33,7 +32,7 @@ func PullAllLossHigh(c *gin.Context) {
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &lossHighs); err != nil {
-		c.Set("Error", "Error")
+		c.Set("Error", err)
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -42,7 +41,7 @@ func PullAllLossHigh(c *gin.Context) {
 }
 
 func PullLossHighId(c *gin.Context, id int) {
-	var lossHigh interfaces.InputLossHigh
+	var lossHigh db.LossHigh
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Error", "Database connection not found")

@@ -48,7 +48,7 @@ func CreateEventService(c *gin.Context, event interfaces.InputThreatEventCatalog
 }
 
 func PullAllEventService(c *gin.Context) {
-	var events []interfaces.InputThreatEventCatalogue
+	var events []interfaces.ThreatEventCatalogue
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Error", "Database connection not found")
@@ -57,7 +57,7 @@ func PullAllEventService(c *gin.Context) {
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &events); err != nil {
-		c.Set("Error", "Error")
+		c.Set("Error", err)
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -66,7 +66,7 @@ func PullAllEventService(c *gin.Context) {
 }
 
 func PullEventIdService(c *gin.Context, id int) {
-	var event interfaces.InputThreatEventCatalogue
+	var event db.ThreatEventCatalogue
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Error", "Database connection not found")

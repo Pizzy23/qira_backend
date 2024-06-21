@@ -293,3 +293,7 @@ type InputThreatEventAndAsset struct {
 	Event InputThreatEventAssets `json:"event"`
 	Asset InputAssetsInventory   `json:"Asset"`
 }
+type ThreatEventAndAsset struct {
+	Event ThreatEventAssets `json:"event"`
+	Asset AssetsInventory   `json:"Asset"`
+}

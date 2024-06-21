@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 	"qira/db"
-	"qira/internal/interfaces"
 
 	"github.com/gin-gonic/gin"
 	"xorm.io/xorm"
@@ -24,7 +23,7 @@ func CreateAssetService(c *gin.Context, asset db.AssetsInventory) error {
 }
 
 func PullAllAsset(c *gin.Context) {
-	var assets []interfaces.AssetsInventory
+	var assets []db.AssetsInventory
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Error", "Database connection not found")
@@ -33,7 +32,7 @@ func PullAllAsset(c *gin.Context) {
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &assets); err != nil {
-		c.Set("Error", "Error")
+		c.Set("Error", err)
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -42,7 +41,7 @@ func PullAllAsset(c *gin.Context) {
 }
 
 func PullAssetId(c *gin.Context, id int) {
-	var asset interfaces.AssetsInventory
+	var asset db.AssetsInventory
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Error", "Database connection not found")

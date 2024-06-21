@@ -11,7 +11,7 @@ import (
 )
 
 func PullEventService(c *gin.Context) {
-	var allInOne interfaces.InputThreatEventAndAsset
+	var allInOne interfaces.ThreatEventAndAsset
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Error", "Database connection not found")
@@ -19,12 +19,12 @@ func PullEventService(c *gin.Context) {
 		return
 	}
 
-	eventChan := make(chan interfaces.InputThreatEventAssets)
-	assetChan := make(chan interfaces.InputAssetsInventory)
+	eventChan := make(chan interfaces.ThreatEventAssets)
+	assetChan := make(chan interfaces.AssetsInventory)
 	errChan := make(chan error, 2)
 
 	go func() {
-		var event interfaces.InputThreatEventAssets
+		var event interfaces.ThreatEventAssets
 		if err := db.Read(engine.(*xorm.Engine), &event, nil); err != nil {
 			errChan <- err
 		} else {
@@ -34,7 +34,7 @@ func PullEventService(c *gin.Context) {
 	}()
 
 	go func() {
-		var asset interfaces.InputAssetsInventory
+		var asset interfaces.AssetsInventory
 		if err := db.Read(engine.(*xorm.Engine), &asset, nil); err != nil {
 			errChan <- err
 		} else {
@@ -64,7 +64,7 @@ func CreateEventService(c *gin.Context, input db.ThreatEventAssets) error {
 		return errors.New("database connection not found")
 	}
 
-	event := interfaces.ThreatEventAssets{
+	event := db.ThreatEventAssets{
 		ThreatID:      input.ThreatID,
 		ThreatEvent:   input.ThreatEvent,
 		AffectedAsset: input.AffectedAsset,
