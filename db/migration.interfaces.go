@@ -32,10 +32,10 @@ type Frequency struct { //Criar ameaça, ai cria a frequencia junto 0, Editar a 
 }
 
 type ThreatEventAssets struct { // Vai selecionar Assets, Oque foi afetado Pode ser varios afetados
-	ID            int    `json:"id"`
-	ThreatID      int    `json:"threat_id"`
-	ThreatEvent   string `json:"threat_event"`
-	AffectedAsset string `json:"affected_asset"`
+	ID            int      `json:"id"`
+	ThreatID      int      `json:"threat_id"`
+	ThreatEvent   string   `json:"threat_event"`
+	AffectedAsset []string `json:"affected_asset"`
 }
 
 type LossHigh struct { //Vinculado ao Events com maximo e min de perca.
@@ -69,6 +69,61 @@ type RiskCalculator struct { //so da input :)
 
 type Relevance struct { //Cria tudo RELEVANCE
 	ID                         int `json:"id"`
+	AuthenticationAttack       int `json:"authentication_attack"`
+	AuthorisationAttack        int `json:"authorisation_attack"`
+	CommunicationAttack        int `json:"communication_attack"`
+	DenialOfServiceAttack      int `json:"denial_of_service_attack"`
+	InformationLeakageAttack   int `json:"information_leakage_attack"`
+	MalwareAttack              int `json:"malware_attack"`
+	MisconfigurationAttack     int `json:"misconfiguration_attack"`
+	MisuseAttack               int `json:"misuse_attack"`
+	PhysicalAttack             int `json:"physical_attack"`
+	ReconnaissanceActivities   int `json:"reconnaissance_activities"`
+	SocialEngineeringAttack    int `json:"social_engineering_attack"`
+	SoftwareExploitationAttack int `json:"software_exploitation_attack"`
+	SupplyChainAttack          int `json:"supply_chain_attack"`
+	PeopleFailure              int `json:"people_failure"`
+	ProcessFailure             int `json:"process_failure"`
+	TechnologyFailure          int `json:"technology_failure"`
+	BiologicalEvent            int `json:"biological_event"`
+	MeteorologicalEvent        int `json:"meteorological_event"`
+	GeologicalEvent            int `json:"geological_event"`
+	HydrologicalEvent          int `json:"hydrological_event"`
+	NaturalHazardEvent         int `json:"natural_hazard_event"`
+	InfrastructureFailureEvent int `json:"infrastructure_failure_event"`
+	AirborneParticlesEvent     int `json:"airborne_particles_event"`
+}
+
+type Strength struct {
+	ID                         int `json:"id"`
+	ControlID                  int `json:"controlId"`
+	AuthenticationAttack       int `json:"authentication_attack"`
+	AuthorisationAttack        int `json:"authorisation_attack"`
+	CommunicationAttack        int `json:"communication_attack"`
+	DenialOfServiceAttack      int `json:"denial_of_service_attack"`
+	InformationLeakageAttack   int `json:"information_leakage_attack"`
+	MalwareAttack              int `json:"malware_attack"`
+	MisconfigurationAttack     int `json:"misconfiguration_attack"`
+	MisuseAttack               int `json:"misuse_attack"`
+	PhysicalAttack             int `json:"physical_attack"`
+	ReconnaissanceActivities   int `json:"reconnaissance_activities"`
+	SocialEngineeringAttack    int `json:"social_engineering_attack"`
+	SoftwareExploitationAttack int `json:"software_exploitation_attack"`
+	SupplyChainAttack          int `json:"supply_chain_attack"`
+	PeopleFailure              int `json:"people_failure"`
+	ProcessFailure             int `json:"process_failure"`
+	TechnologyFailure          int `json:"technology_failure"`
+	BiologicalEvent            int `json:"biological_event"`
+	MeteorologicalEvent        int `json:"meteorological_event"`
+	GeologicalEvent            int `json:"geological_event"`
+	HydrologicalEvent          int `json:"hydrological_event"`
+	NaturalHazardEvent         int `json:"natural_hazard_event"`
+	InfrastructureFailureEvent int `json:"infrastructure_failure_event"`
+	AirborneParticlesEvent     int `json:"airborne_particles_event"`
+}
+type Propused struct {
+	ID                         int `json:"id"`
+	ControlID                  int `json:"controlId"`
 	AuthenticationAttack       int `json:"authentication_attack"`
 	AuthorisationAttack        int `json:"authorisation_attack"`
 	CommunicationAttack        int `json:"communication_attack"`

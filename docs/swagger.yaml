@@ -71,27 +71,6 @@ definitions:
       threat_event_id:
         type: integer
     type: object
-  interfaces.InputAssetsInventory:
-    properties:
-      business_value:
-        type: integer
-      criticality:
-        type: string
-      description:
-        type: string
-      location:
-        type: string
-      name:
-        type: string
-      replacement_cost:
-        type: number
-      responsible:
-        type: string
-      target_environment:
-        type: string
-      users:
-        type: string
-    type: object
   interfaces.InputControlImplementation:
     properties:
       controlId:
@@ -762,7 +741,7 @@ paths:
             $ref: '#/definitions/interfaces.AssetsInventory'
       summary: Retrieve Asset by ID
       tags:
-      - inventory
+      - Inventory
   /api/assets:
     get:
       consumes:
@@ -786,7 +765,7 @@ paths:
             type: array
       summary: Retrieve All Assets
       tags:
-      - inventory
+      - Inventory
   /api/catalogue:
     post:
       consumes:
@@ -881,7 +860,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/interfaces.InputAssetsInventory'
+          $ref: '#/definitions/interfaces.AssetsInventory'
       - default: Bearer <token>
         description: Auth Token
         in: header

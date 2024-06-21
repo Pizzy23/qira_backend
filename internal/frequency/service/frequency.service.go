@@ -22,7 +22,7 @@ func CreateFrequencyService(c *gin.Context, data interfaces.InputFrequency) erro
 	return nil
 }
 
-func EditFrequencyService(c *gin.Context, freq interfaces.InputFrequency) error {
+func EditFrequencyService(c *gin.Context, freq db.Frequency) error {
 	var frequencyTable *db.Frequency
 	engine, exists := c.Get("db")
 	if !exists {

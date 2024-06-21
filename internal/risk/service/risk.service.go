@@ -10,7 +10,7 @@ import (
 	"xorm.io/xorm"
 )
 
-func CreateRiskService(c *gin.Context, Risk interfaces.InputRiskCalculator) error {
+func CreateRiskService(c *gin.Context, Risk db.RiskCalculator) error {
 	engine, exists := c.Get("db")
 	if !exists {
 		return errors.New("database connection not found")

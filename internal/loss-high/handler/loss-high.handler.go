@@ -2,7 +2,7 @@ package losshigh
 
 import (
 	"net/http"
-	"qira/internal/interfaces"
+	"qira/db"
 	losshigh "qira/internal/loss-high/service"
 	erros "qira/middleware/interfaces/errors"
 	"strconv"
@@ -15,12 +15,12 @@ import (
 // @Tags losshigh
 // @Accept json
 // @Produce json
-// @Param request body interfaces.InputLossHigh true "Data for create new LossHigh"
+// @Param request body db.LossHigh true "Data for create new LossHigh"
 // @Param Authorization header string true "Auth Token" default(Bearer <token>)
-// @Success 200 {object} interfaces.LossHigh "LossHigh Create"
+// @Success 200 {object} db.LossHigh "LossHigh Create"
 // @Router /api/create-losshigh [post]
 func CreateLossHigh(c *gin.Context) {
-	var LossHigh interfaces.InputLossHigh
+	var LossHigh db.LossHigh
 
 	if err := c.ShouldBindJSON(&LossHigh); err != nil {
 		c.JSON(erros.StatusNotAcceptable, gin.H{"error": "Parameters are invalid, need a JSON"})

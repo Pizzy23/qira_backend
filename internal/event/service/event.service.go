@@ -58,7 +58,7 @@ func PullEventService(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-func CreateEventService(c *gin.Context, input interfaces.InputThreatEventAssets) error {
+func CreateEventService(c *gin.Context, input db.ThreatEventAssets) error {
 	engine, exists := c.Get("db")
 	if !exists {
 		return errors.New("database connection not found")

@@ -10,7 +10,7 @@ import (
 	"xorm.io/xorm"
 )
 
-func CreateLossHighService(c *gin.Context, LossHigh interfaces.InputLossHigh) error {
+func CreateLossHighService(c *gin.Context, LossHigh db.LossHigh) error {
 	engine, exists := c.Get("db")
 	if !exists {
 		return errors.New("database connection not found")

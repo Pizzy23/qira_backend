@@ -2,6 +2,7 @@ package control
 
 import (
 	"errors"
+	"qira/db"
 	"qira/internal/interfaces"
 )
 
@@ -10,7 +11,7 @@ func setTypes(data interfaces.InputControlls) (interface{}, error) {
 	var table interface{}
 	switch data.ControlType {
 	case "Relevance":
-		table = &interfaces.Relevance{
+		table = &db.Relevance{
 			AuthenticationAttack:       data.AuthenticationAttack,
 			AuthorisationAttack:        data.AuthorisationAttack,
 			CommunicationAttack:        data.CommunicationAttack,
@@ -36,7 +37,7 @@ func setTypes(data interfaces.InputControlls) (interface{}, error) {
 			AirborneParticlesEvent:     data.AirborneParticlesEvent,
 		}
 	case "Strength":
-		table = &interfaces.Strength{
+		table = &db.Strength{
 			AuthenticationAttack:       data.AuthenticationAttack,
 			AuthorisationAttack:        data.AuthorisationAttack,
 			CommunicationAttack:        data.CommunicationAttack,
@@ -62,7 +63,7 @@ func setTypes(data interfaces.InputControlls) (interface{}, error) {
 			AirborneParticlesEvent:     data.AirborneParticlesEvent,
 		}
 	case "Propused":
-		table = &interfaces.Propused{
+		table = &db.Propused{
 			AuthenticationAttack:       data.AuthenticationAttack,
 			AuthorisationAttack:        data.AuthorisationAttack,
 			CommunicationAttack:        data.CommunicationAttack,

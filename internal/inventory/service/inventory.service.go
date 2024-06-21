@@ -10,7 +10,7 @@ import (
 	"xorm.io/xorm"
 )
 
-func CreateAssetService(c *gin.Context, asset interfaces.InputAssetsInventory) error {
+func CreateAssetService(c *gin.Context, asset db.AssetsInventory) error {
 	engine, exists := c.Get("db")
 	if !exists {
 		return errors.New("database connection not found")

@@ -53,7 +53,7 @@ func CreatePropusedService(c *gin.Context, data interfaces.InputControlls) error
 	return nil
 }
 
-func CreateLibraryService(c *gin.Context, data interfaces.InputControlLibrary) error {
+func CreateLibraryService(c *gin.Context, data db.ControlLibrary) error {
 	engine, exists := c.Get("db")
 	if !exists {
 		return errors.New("database connection not found")
@@ -66,7 +66,7 @@ func CreateLibraryService(c *gin.Context, data interfaces.InputControlLibrary) e
 
 }
 
-func CreateImplementationService(c *gin.Context, data interfaces.InputControlImplementation) error {
+func CreateImplementationService(c *gin.Context, data db.ControlImplementation) error {
 	engine, exists := c.Get("db")
 	if !exists {
 		return errors.New("database connection not found")

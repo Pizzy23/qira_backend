@@ -2,8 +2,8 @@ package frequency
 
 import (
 	"net/http"
+	"qira/db"
 	frequency "qira/internal/frequency/service"
-	"qira/internal/interfaces"
 	erros "qira/middleware/interfaces/errors"
 	"strconv"
 
@@ -15,12 +15,12 @@ import (
 // @Tags Frequency
 // @Accept json
 // @Produce json
-// @Param request body interfaces.InputFrequency true "Edit Frequency"
+// @Param request body db.Frequency true "Edit Frequency"
 // @Param Authorization header string true "Auth Token" default(Bearer <token>)
-// @Success 200 {object} interfaces.Frequency "Your Frequency is by add"
+// @Success 200 {object} db.Frequency "Your Frequency is by add"
 // @Router /api/frequency [put]
 func EditFrequency(c *gin.Context) {
-	var frequencyInput interfaces.InputFrequency
+	var frequencyInput db.Frequency
 
 	if err := c.ShouldBindJSON(&frequencyInput); err != nil {
 		c.JSON(erros.StatusNotAcceptable, gin.H{"error": "Parameters are invalid, need a JSON"})

@@ -2,6 +2,7 @@ package control
 
 import (
 	"net/http"
+	"qira/db"
 	control "qira/internal/control/service"
 	"qira/internal/interfaces"
 	erros "qira/middleware/interfaces/errors"
@@ -96,12 +97,12 @@ func CreatePropused(c *gin.Context) {
 // @Tags Control
 // @Accept json
 // @Produce json
-// @Param request body interfaces.InputControlLibrary true "Data for create new Risk"
+// @Param request body db.ControlLibrary true "Data for create new Risk"
 // @Param Authorization header string true "Auth Token" default(Bearer <token>)
-// @Success 200 {object} interfaces.ControlLibrary "Risk Create"
+// @Success 200 {object} db.ControlLibrary "Risk Create"
 // @Router /api/create-library [post]
 func CreateLibrary(c *gin.Context) {
-	var library interfaces.InputControlLibrary
+	var library db.ControlLibrary
 	if err := c.ShouldBindJSON(&library); err != nil {
 		c.Set("Error", "Parameters are invalid, need a JSON")
 		c.Status(http.StatusBadRequest)
@@ -123,12 +124,12 @@ func CreateLibrary(c *gin.Context) {
 // @Tags Control
 // @Accept json
 // @Produce json
-// @Param request body interfaces.InputControlImplementation true "Data for create new Risk"
+// @Param request body db.ControlImplementation true "Data for create new Risk"
 // @Param Authorization header string true "Auth Token" default(Bearer <token>)
 // @Success 200 {object} interfaces.ControlImplementation "Risk Create"
 // @Router /api/create-implementation [post]
 func CreateImplementation(c *gin.Context) {
-	var implementation interfaces.InputControlImplementation
+	var implementation db.ControlImplementation
 
 	if err := c.ShouldBindJSON(&implementation); err != nil {
 		c.Set("Error", "Parameters are invalid, need a JSON")

@@ -2,7 +2,7 @@ package risk
 
 import (
 	"net/http"
-	"qira/internal/interfaces"
+	"qira/db"
 	risk "qira/internal/risk/service"
 	erros "qira/middleware/interfaces/errors"
 	"strconv"
@@ -15,12 +15,12 @@ import (
 // @Tags Risk
 // @Accept json
 // @Produce json
-// @Param request body interfaces.InputRiskCalculator true "Data for create new Risk"
+// @Param request body db.RiskCalculator true "Data for create new Risk"
 // @Param Authorization header string true "Auth Token" default(Bearer <token>)
-// @Success 200 {object} interfaces.RiskCalculator "Risk Create"
+// @Success 200 {object} db.RiskCalculator "Risk Create"
 // @Router /api/create-Risk [post]
 func CreateRisk(c *gin.Context) {
-	var riskInput interfaces.InputRiskCalculator
+	var riskInput db.RiskCalculator
 
 	if err := c.ShouldBindJSON(&riskInput); err != nil {
 		c.JSON(erros.StatusNotAcceptable, gin.H{"error": "Parameters are invalid, need a JSON"})

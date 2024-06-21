@@ -365,7 +365,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "inventory"
+                    "Inventory"
                 ],
                 "summary": "Retrieve Asset by ID",
                 "parameters": [
@@ -405,7 +405,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "inventory"
+                    "Inventory"
                 ],
                 "summary": "Retrieve All Assets",
                 "parameters": [
@@ -575,7 +575,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/interfaces.InputAssetsInventory"
+                            "$ref": "#/definitions/interfaces.AssetsInventory"
                         }
                     },
                     {
@@ -1407,38 +1407,6 @@ const docTemplate = `{
                 },
                 "threat_event_id": {
                     "type": "integer"
-                }
-            }
-        },
-        "interfaces.InputAssetsInventory": {
-            "type": "object",
-            "properties": {
-                "business_value": {
-                    "type": "integer"
-                },
-                "criticality": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "location": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "replacement_cost": {
-                    "type": "number"
-                },
-                "responsible": {
-                    "type": "string"
-                },
-                "target_environment": {
-                    "type": "string"
-                },
-                "users": {
-                    "type": "string"
                 }
             }
         },
