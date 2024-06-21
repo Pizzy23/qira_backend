@@ -1,0 +1,1373 @@
+definitions:
+  interfaces.AssetsInventory:
+    properties:
+      business_value:
+        type: integer
+      criticality:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      location:
+        type: string
+      name:
+        type: string
+      replacement_cost:
+        type: number
+      responsible:
+        type: string
+      target_environment:
+        type: string
+      users:
+        type: string
+    type: object
+  interfaces.ControlImplementation:
+    properties:
+      controlId:
+        type: integer
+      current_implementation:
+        type: integer
+      current_percent_value:
+        type: string
+      id:
+        type: integer
+      projected_cost:
+        type: number
+      proposed_implementation:
+        type: integer
+      proposed_percent_value:
+        type: string
+    type: object
+  interfaces.ControlLibrary:
+    properties:
+      control_reference:
+        type: string
+      control_type:
+        type: string
+      controlId:
+        type: integer
+      id:
+        type: integer
+      in_scope:
+        type: string
+      information:
+        type: string
+    type: object
+  interfaces.Frequency:
+    properties:
+      id:
+        type: integer
+      max_frequency:
+        type: integer
+      min_frequency:
+        type: integer
+      most_common_frequency:
+        type: integer
+      support_information:
+        type: string
+      threat_event:
+        type: string
+      threat_event_id:
+        type: integer
+    type: object
+  interfaces.InputAssetsInventory:
+    properties:
+      business_value:
+        type: integer
+      criticality:
+        type: string
+      description:
+        type: string
+      location:
+        type: string
+      name:
+        type: string
+      replacement_cost:
+        type: number
+      responsible:
+        type: string
+      target_environment:
+        type: string
+      users:
+        type: string
+    type: object
+  interfaces.InputControlImplementation:
+    properties:
+      controlId:
+        type: integer
+      current_implementation:
+        type: integer
+      current_percent_value:
+        type: string
+      projected_cost:
+        type: number
+      proposed_implementation:
+        type: integer
+      proposed_percent_value:
+        type: string
+    type: object
+  interfaces.InputControlLibrary:
+    properties:
+      control_reference:
+        type: string
+      control_type:
+        type: string
+      controlId:
+        type: integer
+      in_scope:
+        type: string
+      information:
+        type: string
+    type: object
+  interfaces.InputControlls:
+    properties:
+      airborne_particles_event:
+        type: integer
+      authentication_attack:
+        type: integer
+      authorisation_attack:
+        type: integer
+      biological_event:
+        type: integer
+      communication_attack:
+        type: integer
+      controlId:
+        type: integer
+      controlType:
+        type: string
+      denial_of_service_attack:
+        type: integer
+      geological_event:
+        type: integer
+      hydrological_event:
+        type: integer
+      information_leakage_attack:
+        type: integer
+      infrastructure_failure_event:
+        type: integer
+      malware_attack:
+        type: integer
+      meteorological_event:
+        type: integer
+      misconfiguration_attack:
+        type: integer
+      misuse_attack:
+        type: integer
+      natural_hazard_event:
+        type: integer
+      people_failure:
+        type: integer
+      physical_attack:
+        type: integer
+      process_failure:
+        type: integer
+      reconnaissance_activities:
+        type: integer
+      social_engineering_attack:
+        type: integer
+      software_exploitation_attack:
+        type: integer
+      supply_chain_attack:
+        type: integer
+      technology_failure:
+        type: integer
+    type: object
+  interfaces.InputFrequency:
+    properties:
+      max_frequency:
+        type: integer
+      min_frequency:
+        type: integer
+      most_common_frequency:
+        type: integer
+      support_information:
+        type: string
+      threat_event:
+        type: string
+      threat_event_id:
+        type: integer
+    type: object
+  interfaces.InputLossHigh:
+    properties:
+      assets:
+        items:
+          type: string
+        type: array
+      loss_type:
+        type: string
+      maximum_loss:
+        type: number
+      minimum_loss:
+        type: number
+      most_likely_loss:
+        type: number
+      threat_event:
+        type: string
+      threat_event_id:
+        type: integer
+    type: object
+  interfaces.InputRiskCalculator:
+    properties:
+      estimate_frequency:
+        type: number
+      estimate_loss:
+        type: number
+      estimate_risk:
+        type: number
+      max_frequency:
+        type: integer
+      max_loss:
+        type: integer
+      max_risk:
+        type: integer
+      min_frequency:
+        type: integer
+      min_loss:
+        type: integer
+      min_risk:
+        type: integer
+      mode_frequency:
+        type: integer
+      mode_loss:
+        type: integer
+      mode_risk:
+        type: integer
+      threat_event:
+        type: string
+      threat_event_id:
+        type: integer
+    type: object
+  interfaces.InputThreatEventAssets:
+    properties:
+      affected_asset:
+        items:
+          type: string
+        type: array
+      threat_event:
+        type: string
+      threat_id:
+        type: integer
+    type: object
+  interfaces.InputThreatEventCatalogue:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      in_scope:
+        type: string
+      threat_event:
+        type: string
+      threat_group:
+        type: string
+    type: object
+  interfaces.LossHigh:
+    properties:
+      assets:
+        items:
+          type: string
+        type: array
+      id:
+        type: integer
+      loss_type:
+        type: string
+      maximum_loss:
+        type: number
+      minimum_loss:
+        type: number
+      most_likely_loss:
+        type: number
+      threat_event:
+        type: string
+      threat_event_id:
+        type: integer
+    type: object
+  interfaces.Propused:
+    properties:
+      airborne_particles_event:
+        type: integer
+      authentication_attack:
+        type: integer
+      authorisation_attack:
+        type: integer
+      biological_event:
+        type: integer
+      communication_attack:
+        type: integer
+      controlId:
+        type: integer
+      denial_of_service_attack:
+        type: integer
+      geological_event:
+        type: integer
+      hydrological_event:
+        type: integer
+      id:
+        type: integer
+      information_leakage_attack:
+        type: integer
+      infrastructure_failure_event:
+        type: integer
+      malware_attack:
+        type: integer
+      meteorological_event:
+        type: integer
+      misconfiguration_attack:
+        type: integer
+      misuse_attack:
+        type: integer
+      natural_hazard_event:
+        type: integer
+      people_failure:
+        type: integer
+      physical_attack:
+        type: integer
+      process_failure:
+        type: integer
+      reconnaissance_activities:
+        type: integer
+      social_engineering_attack:
+        type: integer
+      software_exploitation_attack:
+        type: integer
+      supply_chain_attack:
+        type: integer
+      technology_failure:
+        type: integer
+    type: object
+  interfaces.Relevance:
+    properties:
+      airborne_particles_event:
+        type: integer
+      authentication_attack:
+        type: integer
+      authorisation_attack:
+        type: integer
+      biological_event:
+        type: integer
+      communication_attack:
+        type: integer
+      denial_of_service_attack:
+        type: integer
+      geological_event:
+        type: integer
+      hydrological_event:
+        type: integer
+      id:
+        type: integer
+      information_leakage_attack:
+        type: integer
+      infrastructure_failure_event:
+        type: integer
+      malware_attack:
+        type: integer
+      meteorological_event:
+        type: integer
+      misconfiguration_attack:
+        type: integer
+      misuse_attack:
+        type: integer
+      natural_hazard_event:
+        type: integer
+      people_failure:
+        type: integer
+      physical_attack:
+        type: integer
+      process_failure:
+        type: integer
+      reconnaissance_activities:
+        type: integer
+      social_engineering_attack:
+        type: integer
+      software_exploitation_attack:
+        type: integer
+      supply_chain_attack:
+        type: integer
+      technology_failure:
+        type: integer
+    type: object
+  interfaces.RiskCalculator:
+    properties:
+      estimate_frequency:
+        type: number
+      estimate_loss:
+        type: number
+      estimate_risk:
+        type: number
+      id:
+        type: integer
+      max_frequency:
+        type: integer
+      max_loss:
+        type: integer
+      max_risk:
+        type: integer
+      min_frequency:
+        type: integer
+      min_loss:
+        type: integer
+      min_risk:
+        type: integer
+      mode_frequency:
+        type: integer
+      mode_loss:
+        type: integer
+      mode_risk:
+        type: integer
+      threat_event:
+        type: string
+      threat_event_id:
+        type: integer
+    type: object
+  interfaces.Strength:
+    properties:
+      airborne_particles_event:
+        type: integer
+      authentication_attack:
+        type: integer
+      authorisation_attack:
+        type: integer
+      biological_event:
+        type: integer
+      communication_attack:
+        type: integer
+      controlId:
+        type: integer
+      denial_of_service_attack:
+        type: integer
+      geological_event:
+        type: integer
+      hydrological_event:
+        type: integer
+      id:
+        type: integer
+      information_leakage_attack:
+        type: integer
+      infrastructure_failure_event:
+        type: integer
+      malware_attack:
+        type: integer
+      meteorological_event:
+        type: integer
+      misconfiguration_attack:
+        type: integer
+      misuse_attack:
+        type: integer
+      natural_hazard_event:
+        type: integer
+      people_failure:
+        type: integer
+      physical_attack:
+        type: integer
+      process_failure:
+        type: integer
+      reconnaissance_activities:
+        type: integer
+      social_engineering_attack:
+        type: integer
+      software_exploitation_attack:
+        type: integer
+      supply_chain_attack:
+        type: integer
+      technology_failure:
+        type: integer
+    type: object
+  interfaces.ThreatEventAssets:
+    properties:
+      affected_asset:
+        items:
+          type: string
+        type: array
+      id:
+        type: integer
+      threat_event:
+        type: string
+      threat_id:
+        type: integer
+    type: object
+  interfaces.ThreatEventCatalogue:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      in_scope:
+        type: string
+      threat_event:
+        type: string
+      threat_group:
+        type: string
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact: {}
+  description: This is a server for app.
+  title: Qira
+  version: "1.0"
+paths:
+  /api/Risk:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all Risks
+      parameters:
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All Risks
+          schema:
+            items:
+              $ref: '#/definitions/interfaces.RiskCalculator'
+            type: array
+      summary: Retrieve All Risks
+      tags:
+      - Risk
+  /api/Risk/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve an Risk by its ID
+      parameters:
+      - description: Risk ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Risk Details
+          schema:
+            $ref: '#/definitions/interfaces.RiskCalculator'
+      summary: Retrieve Risk by ID
+      tags:
+      - Risk
+  /api/all-catalogue:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all Event
+      parameters:
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All Event
+          schema:
+            $ref: '#/definitions/interfaces.ThreatEventCatalogue'
+      summary: Retrieve All Catalogue
+      tags:
+      - Catalogue
+  /api/all-event:
+    get:
+      consumes:
+      - application/json
+      description: Event
+      parameters:
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Your Frequency is by add
+          schema:
+            $ref: '#/definitions/interfaces.ThreatEventAssets'
+      summary: Event
+      tags:
+      - Event
+  /api/all-frequency:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all Event
+      parameters:
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All Frequency
+          schema:
+            $ref: '#/definitions/interfaces.Frequency'
+      summary: Retrieve All Frequency
+      tags:
+      - Frequency
+  /api/all-implementation:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all Implementation
+      parameters:
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All Implementation
+          schema:
+            $ref: '#/definitions/interfaces.ControlImplementation'
+      summary: Retrieve All Implementation
+      tags:
+      - Control
+  /api/all-library:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all library
+      parameters:
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All Event
+          schema:
+            $ref: '#/definitions/interfaces.ControlLibrary'
+      summary: Retrieve All library
+      tags:
+      - Control
+  /api/all-propused:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all Propused
+      parameters:
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All Propused
+          schema:
+            $ref: '#/definitions/interfaces.Propused'
+      summary: Retrieve All Propused
+      tags:
+      - Control
+  /api/all-relevance:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all Relevance
+      parameters:
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All Event
+          schema:
+            $ref: '#/definitions/interfaces.Relevance'
+      summary: Retrieve All Relevance
+      tags:
+      - Control
+  /api/all-strength:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all Strength
+      parameters:
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All Event
+          schema:
+            $ref: '#/definitions/interfaces.Strength'
+      summary: Retrieve All Strength
+      tags:
+      - Control
+  /api/asset/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve an asset by its ID
+      parameters:
+      - description: Asset ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Asset Details
+          schema:
+            $ref: '#/definitions/interfaces.AssetsInventory'
+      summary: Retrieve Asset by ID
+      tags:
+      - inventory
+  /api/assets:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all assets
+      parameters:
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All Assets
+          schema:
+            items:
+              $ref: '#/definitions/interfaces.AssetsInventory'
+            type: array
+      summary: Retrieve All Assets
+      tags:
+      - inventory
+  /api/catalogue:
+    post:
+      consumes:
+      - application/json
+      description: Create New Event Catalogue
+      parameters:
+      - description: Data for create new Event
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.InputThreatEventCatalogue'
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All Assets
+          schema:
+            $ref: '#/definitions/interfaces.ThreatEventCatalogue'
+      summary: Create New Catalogue
+      tags:
+      - Catalogue
+  /api/catalogue/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve an Event by its ID
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Event Details
+          schema:
+            $ref: '#/definitions/interfaces.AssetsInventory'
+      summary: Retrieve Catalogue by ID
+      tags:
+      - Catalogue
+  /api/create-Risk:
+    post:
+      consumes:
+      - application/json
+      description: Create new Risk
+      parameters:
+      - description: Data for create new Risk
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.InputRiskCalculator'
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Risk Create
+          schema:
+            $ref: '#/definitions/interfaces.RiskCalculator'
+      summary: Create Risk
+      tags:
+      - Risk
+  /api/create-asset:
+    post:
+      consumes:
+      - application/json
+      description: Create new Asset
+      parameters:
+      - description: Data for create new Asset
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.InputAssetsInventory'
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Asset Create
+          schema:
+            $ref: '#/definitions/interfaces.AssetsInventory'
+      summary: Create Asset
+      tags:
+      - Inventory
+  /api/create-implementation:
+    post:
+      consumes:
+      - application/json
+      description: Create new Control Implementation
+      parameters:
+      - description: Data for create new Risk
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.InputControlImplementation'
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Risk Create
+          schema:
+            $ref: '#/definitions/interfaces.ControlImplementation'
+      summary: Create Control Implementation
+      tags:
+      - Control
+  /api/create-library:
+    post:
+      consumes:
+      - application/json
+      description: Create new Control Library
+      parameters:
+      - description: Data for create new Risk
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.InputControlLibrary'
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Risk Create
+          schema:
+            $ref: '#/definitions/interfaces.ControlLibrary'
+      summary: Create Control Library
+      tags:
+      - Control
+  /api/create-losshigh:
+    post:
+      consumes:
+      - application/json
+      description: Create new LossHigh
+      parameters:
+      - description: Data for create new LossHigh
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.InputLossHigh'
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: LossHigh Create
+          schema:
+            $ref: '#/definitions/interfaces.LossHigh'
+      summary: Create LossHigh
+      tags:
+      - losshigh
+  /api/create-propused:
+    post:
+      consumes:
+      - application/json
+      description: Create new Control Propused
+      parameters:
+      - description: Data for create new Risk
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.InputControlls'
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Risk Create
+          schema:
+            $ref: '#/definitions/interfaces.Propused'
+      summary: Create Control Propused
+      tags:
+      - Control
+  /api/create-relevance:
+    post:
+      consumes:
+      - application/json
+      description: Create new Control Relevance
+      parameters:
+      - description: Data for create new Risk
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.InputControlls'
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Risk Create
+          schema:
+            $ref: '#/definitions/interfaces.Relevance'
+      summary: Create Control Relevance
+      tags:
+      - Control
+  /api/create-strength:
+    post:
+      consumes:
+      - application/json
+      description: Create new Control Strength
+      parameters:
+      - description: Data for create new Risk
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.InputControlls'
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Risk Create
+          schema:
+            $ref: '#/definitions/interfaces.Strength'
+      summary: Create Control Strength
+      tags:
+      - Control
+  /api/event:
+    post:
+      consumes:
+      - application/json
+      description: Create Event
+      parameters:
+      - description: Data for create new Event
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.InputThreatEventAssets'
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Event created successfully
+          schema:
+            $ref: '#/definitions/interfaces.ThreatEventAssets'
+      summary: Create Event
+      tags:
+      - Event
+  /api/frequency:
+    put:
+      consumes:
+      - application/json
+      description: Edit Frequency
+      parameters:
+      - description: Edit Frequency
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.InputFrequency'
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Your Frequency is by add
+          schema:
+            $ref: '#/definitions/interfaces.Frequency'
+      summary: Edit Frequency
+      tags:
+      - Frequency
+  /api/frequency/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve one Frequency
+      parameters:
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of One Frequency
+          schema:
+            $ref: '#/definitions/interfaces.Frequency'
+      summary: Retrieve one Frequency
+      tags:
+      - Frequency
+  /api/implementation/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve an Implementation by its ID
+      parameters:
+      - description: Implementation ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Implementation Details
+          schema:
+            $ref: '#/definitions/interfaces.ControlImplementation'
+      summary: Retrieve Implementation by ID
+      tags:
+      - Control
+  /api/library/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve an library by its ID
+      parameters:
+      - description: library ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Event Details
+          schema:
+            $ref: '#/definitions/interfaces.ControlLibrary'
+      summary: Retrieve Library by ID
+      tags:
+      - Control
+  /api/losshigh:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all LossHighs
+      parameters:
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All LossHighs
+          schema:
+            items:
+              $ref: '#/definitions/interfaces.LossHigh'
+            type: array
+      summary: Retrieve All LossHighs
+      tags:
+      - losshigh
+  /api/losshigh/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve an LossHigh by its ID
+      parameters:
+      - description: LossHigh ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: LossHigh Details
+          schema:
+            $ref: '#/definitions/interfaces.LossHigh'
+      summary: Retrieve LossHigh by ID
+      tags:
+      - losshigh
+  /api/propused/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve an Propused by its ID
+      parameters:
+      - description: Propused ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Propused Details
+          schema:
+            $ref: '#/definitions/interfaces.Propused'
+      summary: Retrieve Propused by ID
+      tags:
+      - Control
+  /api/relevance/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve an Relevance by its ID
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Event Details
+          schema:
+            $ref: '#/definitions/interfaces.Relevance'
+      summary: Retrieve Relevance by ID
+      tags:
+      - Control
+  /api/strength/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve an Event by its ID
+      parameters:
+      - description: Strength ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: Bearer <token>
+        description: Auth Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Event Details
+          schema:
+            $ref: '#/definitions/interfaces.Strength'
+      summary: Retrieve Strength by ID
+      tags:
+      - Control
+  /api/test-token:
+    post:
+      consumes:
+      - application/json
+      description: Cria um toke para auth do usuario
+      parameters:
+      - default: Bearer <token>
+        description: Token de autenticação
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'token make:'
+          schema:
+            type: string
+      summary: Test Token
+      tags:
+      - Auth
+  /token:
+    get:
+      consumes:
+      - application/json
+      description: Cria um toke para auth do usuario
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'token make:'
+          schema:
+            type: string
+      summary: Criar token de auth
+      tags:
+      - Auth
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"
