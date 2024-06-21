@@ -533,7 +533,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/interfaces.InputRiskCalculator"
+                            "$ref": "#/definitions/db.RiskCalculator"
                         }
                     },
                     {
@@ -549,7 +549,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Risk Create",
                         "schema": {
-                            "$ref": "#/definitions/interfaces.RiskCalculator"
+                            "$ref": "#/definitions/db.RiskCalculator"
                         }
                     }
                 }
@@ -575,7 +575,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/interfaces.AssetsInventory"
+                            "$ref": "#/definitions/db.AssetsInventory"
                         }
                     },
                     {
@@ -591,7 +591,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Asset Create",
                         "schema": {
-                            "$ref": "#/definitions/interfaces.AssetsInventory"
+                            "$ref": "#/definitions/db.AssetsInventory"
                         }
                     }
                 }
@@ -617,7 +617,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/interfaces.InputControlImplementation"
+                            "$ref": "#/definitions/db.ControlImplementation"
                         }
                     },
                     {
@@ -659,7 +659,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/interfaces.InputControlLibrary"
+                            "$ref": "#/definitions/db.ControlLibrary"
                         }
                     },
                     {
@@ -675,7 +675,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Risk Create",
                         "schema": {
-                            "$ref": "#/definitions/interfaces.ControlLibrary"
+                            "$ref": "#/definitions/db.ControlLibrary"
                         }
                     }
                 }
@@ -701,7 +701,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/interfaces.InputLossHigh"
+                            "$ref": "#/definitions/db.LossHigh"
                         }
                     },
                     {
@@ -717,7 +717,7 @@ const docTemplate = `{
                     "200": {
                         "description": "LossHigh Create",
                         "schema": {
-                            "$ref": "#/definitions/interfaces.LossHigh"
+                            "$ref": "#/definitions/db.LossHigh"
                         }
                     }
                 }
@@ -869,7 +869,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/interfaces.InputThreatEventAssets"
+                            "$ref": "#/definitions/db.ThreatEventAssets"
                         }
                     },
                     {
@@ -885,7 +885,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Event created successfully",
                         "schema": {
-                            "$ref": "#/definitions/interfaces.ThreatEventAssets"
+                            "$ref": "#/definitions/db.ThreatEventAssets"
                         }
                     }
                 }
@@ -911,7 +911,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/interfaces.InputFrequency"
+                            "$ref": "#/definitions/db.Frequency"
                         }
                     },
                     {
@@ -927,7 +927,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Your Frequency is by add",
                         "schema": {
-                            "$ref": "#/definitions/interfaces.Frequency"
+                            "$ref": "#/definitions/db.Frequency"
                         }
                     }
                 }
@@ -1300,6 +1300,218 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "db.AssetsInventory": {
+            "type": "object",
+            "properties": {
+                "business_value": {
+                    "type": "integer"
+                },
+                "criticality": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "replacement_cost": {
+                    "type": "number"
+                },
+                "responsible": {
+                    "type": "string"
+                },
+                "target_environment": {
+                    "type": "string"
+                },
+                "users": {
+                    "type": "string"
+                }
+            }
+        },
+        "db.ControlImplementation": {
+            "type": "object",
+            "properties": {
+                "controlId": {
+                    "type": "integer"
+                },
+                "current_implementation": {
+                    "type": "integer"
+                },
+                "current_percent_value": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "projected_cost": {
+                    "type": "number"
+                },
+                "proposed_implementation": {
+                    "type": "integer"
+                },
+                "proposed_percent_value": {
+                    "type": "string"
+                }
+            }
+        },
+        "db.ControlLibrary": {
+            "type": "object",
+            "properties": {
+                "controlId": {
+                    "type": "integer"
+                },
+                "control_reference": {
+                    "type": "string"
+                },
+                "control_type": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "in_scope": {
+                    "type": "string"
+                },
+                "information": {
+                    "type": "string"
+                }
+            }
+        },
+        "db.Frequency": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "max_frequency": {
+                    "type": "integer"
+                },
+                "min_frequency": {
+                    "type": "integer"
+                },
+                "most_common_frequency": {
+                    "type": "integer"
+                },
+                "support_information": {
+                    "type": "string"
+                },
+                "threat_event": {
+                    "type": "string"
+                },
+                "threat_event_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.LossHigh": {
+            "type": "object",
+            "properties": {
+                "assets": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "loss_type": {
+                    "type": "string"
+                },
+                "maximum_loss": {
+                    "type": "number"
+                },
+                "minimum_loss": {
+                    "type": "number"
+                },
+                "most_likely_loss": {
+                    "type": "number"
+                },
+                "threat_event": {
+                    "type": "string"
+                },
+                "threat_event_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.RiskCalculator": {
+            "type": "object",
+            "properties": {
+                "estimate_frequency": {
+                    "type": "number"
+                },
+                "estimate_loss": {
+                    "type": "number"
+                },
+                "estimate_risk": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "max_frequency": {
+                    "type": "integer"
+                },
+                "max_loss": {
+                    "type": "integer"
+                },
+                "max_risk": {
+                    "type": "integer"
+                },
+                "min_frequency": {
+                    "type": "integer"
+                },
+                "min_loss": {
+                    "type": "integer"
+                },
+                "min_risk": {
+                    "type": "integer"
+                },
+                "mode_frequency": {
+                    "type": "integer"
+                },
+                "mode_loss": {
+                    "type": "integer"
+                },
+                "mode_risk": {
+                    "type": "integer"
+                },
+                "threat_event": {
+                    "type": "string"
+                },
+                "threat_event_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.ThreatEventAssets": {
+            "type": "object",
+            "properties": {
+                "affected_asset": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "threat_event": {
+                    "type": "string"
+                },
+                "threat_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "interfaces.AssetsInventory": {
             "type": "object",
             "properties": {
@@ -1410,49 +1622,6 @@ const docTemplate = `{
                 }
             }
         },
-        "interfaces.InputControlImplementation": {
-            "type": "object",
-            "properties": {
-                "controlId": {
-                    "type": "integer"
-                },
-                "current_implementation": {
-                    "type": "integer"
-                },
-                "current_percent_value": {
-                    "type": "string"
-                },
-                "projected_cost": {
-                    "type": "number"
-                },
-                "proposed_implementation": {
-                    "type": "integer"
-                },
-                "proposed_percent_value": {
-                    "type": "string"
-                }
-            }
-        },
-        "interfaces.InputControlLibrary": {
-            "type": "object",
-            "properties": {
-                "controlId": {
-                    "type": "integer"
-                },
-                "control_reference": {
-                    "type": "string"
-                },
-                "control_type": {
-                    "type": "string"
-                },
-                "in_scope": {
-                    "type": "string"
-                },
-                "information": {
-                    "type": "string"
-                }
-            }
-        },
         "interfaces.InputControlls": {
             "type": "object",
             "properties": {
@@ -1529,122 +1698,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "technology_failure": {
-                    "type": "integer"
-                }
-            }
-        },
-        "interfaces.InputFrequency": {
-            "type": "object",
-            "properties": {
-                "max_frequency": {
-                    "type": "integer"
-                },
-                "min_frequency": {
-                    "type": "integer"
-                },
-                "most_common_frequency": {
-                    "type": "integer"
-                },
-                "support_information": {
-                    "type": "string"
-                },
-                "threat_event": {
-                    "type": "string"
-                },
-                "threat_event_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "interfaces.InputLossHigh": {
-            "type": "object",
-            "properties": {
-                "assets": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "loss_type": {
-                    "type": "string"
-                },
-                "maximum_loss": {
-                    "type": "number"
-                },
-                "minimum_loss": {
-                    "type": "number"
-                },
-                "most_likely_loss": {
-                    "type": "number"
-                },
-                "threat_event": {
-                    "type": "string"
-                },
-                "threat_event_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "interfaces.InputRiskCalculator": {
-            "type": "object",
-            "properties": {
-                "estimate_frequency": {
-                    "type": "number"
-                },
-                "estimate_loss": {
-                    "type": "number"
-                },
-                "estimate_risk": {
-                    "type": "number"
-                },
-                "max_frequency": {
-                    "type": "integer"
-                },
-                "max_loss": {
-                    "type": "integer"
-                },
-                "max_risk": {
-                    "type": "integer"
-                },
-                "min_frequency": {
-                    "type": "integer"
-                },
-                "min_loss": {
-                    "type": "integer"
-                },
-                "min_risk": {
-                    "type": "integer"
-                },
-                "mode_frequency": {
-                    "type": "integer"
-                },
-                "mode_loss": {
-                    "type": "integer"
-                },
-                "mode_risk": {
-                    "type": "integer"
-                },
-                "threat_event": {
-                    "type": "string"
-                },
-                "threat_event_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "interfaces.InputThreatEventAssets": {
-            "type": "object",
-            "properties": {
-                "affected_asset": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "threat_event": {
-                    "type": "string"
-                },
-                "threat_id": {
                     "type": "integer"
                 }
             }

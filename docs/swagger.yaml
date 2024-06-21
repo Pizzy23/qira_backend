@@ -1,4 +1,143 @@
 definitions:
+  db.AssetsInventory:
+    properties:
+      business_value:
+        type: integer
+      criticality:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      location:
+        type: string
+      name:
+        type: string
+      replacement_cost:
+        type: number
+      responsible:
+        type: string
+      target_environment:
+        type: string
+      users:
+        type: string
+    type: object
+  db.ControlImplementation:
+    properties:
+      controlId:
+        type: integer
+      current_implementation:
+        type: integer
+      current_percent_value:
+        type: string
+      id:
+        type: integer
+      projected_cost:
+        type: number
+      proposed_implementation:
+        type: integer
+      proposed_percent_value:
+        type: string
+    type: object
+  db.ControlLibrary:
+    properties:
+      control_reference:
+        type: string
+      control_type:
+        type: string
+      controlId:
+        type: integer
+      id:
+        type: integer
+      in_scope:
+        type: string
+      information:
+        type: string
+    type: object
+  db.Frequency:
+    properties:
+      id:
+        type: integer
+      max_frequency:
+        type: integer
+      min_frequency:
+        type: integer
+      most_common_frequency:
+        type: integer
+      support_information:
+        type: string
+      threat_event:
+        type: string
+      threat_event_id:
+        type: integer
+    type: object
+  db.LossHigh:
+    properties:
+      assets:
+        items:
+          type: string
+        type: array
+      id:
+        type: integer
+      loss_type:
+        type: string
+      maximum_loss:
+        type: number
+      minimum_loss:
+        type: number
+      most_likely_loss:
+        type: number
+      threat_event:
+        type: string
+      threat_event_id:
+        type: integer
+    type: object
+  db.RiskCalculator:
+    properties:
+      estimate_frequency:
+        type: number
+      estimate_loss:
+        type: number
+      estimate_risk:
+        type: number
+      id:
+        type: integer
+      max_frequency:
+        type: integer
+      max_loss:
+        type: integer
+      max_risk:
+        type: integer
+      min_frequency:
+        type: integer
+      min_loss:
+        type: integer
+      min_risk:
+        type: integer
+      mode_frequency:
+        type: integer
+      mode_loss:
+        type: integer
+      mode_risk:
+        type: integer
+      threat_event:
+        type: string
+      threat_event_id:
+        type: integer
+    type: object
+  db.ThreatEventAssets:
+    properties:
+      affected_asset:
+        items:
+          type: string
+        type: array
+      id:
+        type: integer
+      threat_event:
+        type: string
+      threat_id:
+        type: integer
+    type: object
   interfaces.AssetsInventory:
     properties:
       business_value:
@@ -71,34 +210,6 @@ definitions:
       threat_event_id:
         type: integer
     type: object
-  interfaces.InputControlImplementation:
-    properties:
-      controlId:
-        type: integer
-      current_implementation:
-        type: integer
-      current_percent_value:
-        type: string
-      projected_cost:
-        type: number
-      proposed_implementation:
-        type: integer
-      proposed_percent_value:
-        type: string
-    type: object
-  interfaces.InputControlLibrary:
-    properties:
-      control_reference:
-        type: string
-      control_type:
-        type: string
-      controlId:
-        type: integer
-      in_scope:
-        type: string
-      information:
-        type: string
-    type: object
   interfaces.InputControlls:
     properties:
       airborne_particles_event:
@@ -150,82 +261,6 @@ definitions:
       supply_chain_attack:
         type: integer
       technology_failure:
-        type: integer
-    type: object
-  interfaces.InputFrequency:
-    properties:
-      max_frequency:
-        type: integer
-      min_frequency:
-        type: integer
-      most_common_frequency:
-        type: integer
-      support_information:
-        type: string
-      threat_event:
-        type: string
-      threat_event_id:
-        type: integer
-    type: object
-  interfaces.InputLossHigh:
-    properties:
-      assets:
-        items:
-          type: string
-        type: array
-      loss_type:
-        type: string
-      maximum_loss:
-        type: number
-      minimum_loss:
-        type: number
-      most_likely_loss:
-        type: number
-      threat_event:
-        type: string
-      threat_event_id:
-        type: integer
-    type: object
-  interfaces.InputRiskCalculator:
-    properties:
-      estimate_frequency:
-        type: number
-      estimate_loss:
-        type: number
-      estimate_risk:
-        type: number
-      max_frequency:
-        type: integer
-      max_loss:
-        type: integer
-      max_risk:
-        type: integer
-      min_frequency:
-        type: integer
-      min_loss:
-        type: integer
-      min_risk:
-        type: integer
-      mode_frequency:
-        type: integer
-      mode_loss:
-        type: integer
-      mode_risk:
-        type: integer
-      threat_event:
-        type: string
-      threat_event_id:
-        type: integer
-    type: object
-  interfaces.InputThreatEventAssets:
-    properties:
-      affected_asset:
-        items:
-          type: string
-        type: array
-      threat_event:
-        type: string
-      threat_id:
         type: integer
     type: object
   interfaces.InputThreatEventCatalogue:
@@ -832,7 +867,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/interfaces.InputRiskCalculator'
+          $ref: '#/definitions/db.RiskCalculator'
       - default: Bearer <token>
         description: Auth Token
         in: header
@@ -845,7 +880,7 @@ paths:
         "200":
           description: Risk Create
           schema:
-            $ref: '#/definitions/interfaces.RiskCalculator'
+            $ref: '#/definitions/db.RiskCalculator'
       summary: Create Risk
       tags:
       - Risk
@@ -860,7 +895,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/interfaces.AssetsInventory'
+          $ref: '#/definitions/db.AssetsInventory'
       - default: Bearer <token>
         description: Auth Token
         in: header
@@ -873,7 +908,7 @@ paths:
         "200":
           description: Asset Create
           schema:
-            $ref: '#/definitions/interfaces.AssetsInventory'
+            $ref: '#/definitions/db.AssetsInventory'
       summary: Create Asset
       tags:
       - Inventory
@@ -888,7 +923,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/interfaces.InputControlImplementation'
+          $ref: '#/definitions/db.ControlImplementation'
       - default: Bearer <token>
         description: Auth Token
         in: header
@@ -916,7 +951,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/interfaces.InputControlLibrary'
+          $ref: '#/definitions/db.ControlLibrary'
       - default: Bearer <token>
         description: Auth Token
         in: header
@@ -929,7 +964,7 @@ paths:
         "200":
           description: Risk Create
           schema:
-            $ref: '#/definitions/interfaces.ControlLibrary'
+            $ref: '#/definitions/db.ControlLibrary'
       summary: Create Control Library
       tags:
       - Control
@@ -944,7 +979,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/interfaces.InputLossHigh'
+          $ref: '#/definitions/db.LossHigh'
       - default: Bearer <token>
         description: Auth Token
         in: header
@@ -957,7 +992,7 @@ paths:
         "200":
           description: LossHigh Create
           schema:
-            $ref: '#/definitions/interfaces.LossHigh'
+            $ref: '#/definitions/db.LossHigh'
       summary: Create LossHigh
       tags:
       - losshigh
@@ -1056,7 +1091,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/interfaces.InputThreatEventAssets'
+          $ref: '#/definitions/db.ThreatEventAssets'
       - default: Bearer <token>
         description: Auth Token
         in: header
@@ -1069,7 +1104,7 @@ paths:
         "200":
           description: Event created successfully
           schema:
-            $ref: '#/definitions/interfaces.ThreatEventAssets'
+            $ref: '#/definitions/db.ThreatEventAssets'
       summary: Create Event
       tags:
       - Event
@@ -1084,7 +1119,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/interfaces.InputFrequency'
+          $ref: '#/definitions/db.Frequency'
       - default: Bearer <token>
         description: Auth Token
         in: header
@@ -1097,7 +1132,7 @@ paths:
         "200":
           description: Your Frequency is by add
           schema:
-            $ref: '#/definitions/interfaces.Frequency'
+            $ref: '#/definitions/db.Frequency'
       summary: Edit Frequency
       tags:
       - Frequency
