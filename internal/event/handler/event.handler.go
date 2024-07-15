@@ -13,8 +13,7 @@ import (
 // @Tags Event
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Auth Token" default(Bearer <token>)
-// @Success 200 {object} interfaces.ThreatEventAssets "Your Frequency is by add"
+// @Success 200 {object} db.ThreatEventAssets "Your Frequency is by add"
 // @Router /api/all-event [get]
 func PullAllForEvent(c *gin.Context) {
 	event.PullEventService(c)
@@ -26,7 +25,6 @@ func PullAllForEvent(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body db.ThreatEventAssets true "Data for create new Event"
-// @Param Authorization header string true "Auth Token" default(Bearer <token>)
 // @Success 200 {object} db.ThreatEventAssets "Event created successfully"
 // @Router /api/event [post]
 func CreateEvent(c *gin.Context) {

@@ -12,11 +12,10 @@ import (
 
 // @Summary Create LossHigh
 // @Description Create new LossHigh
-// @Tags losshigh
+// @Tags Losshigh
 // @Accept json
 // @Produce json
 // @Param request body db.LossHigh true "Data for create new LossHigh"
-// @Param Authorization header string true "Auth Token" default(Bearer <token>)
 // @Success 200 {object} db.LossHigh "LossHigh Create"
 // @Router /api/create-losshigh [post]
 func CreateLossHigh(c *gin.Context) {
@@ -38,11 +37,10 @@ func CreateLossHigh(c *gin.Context) {
 
 // @Summary Retrieve All LossHighs
 // @Description Retrieve all LossHighs
-// @Tags losshigh
+// @Tags Losshigh
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Auth Token" default(Bearer <token>)
-// @Success 200 {object} []interfaces.LossHigh "List of All LossHighs"
+// @Success 200 {object} []db.LossHigh "List of All LossHighs"
 // @Router /api/losshigh [get]
 func PullAllLoss(c *gin.Context) {
 	losshigh.PullAllLossHigh(c)
@@ -50,12 +48,11 @@ func PullAllLoss(c *gin.Context) {
 
 // @Summary Retrieve LossHigh by ID
 // @Description Retrieve an LossHigh by its ID
-// @Tags losshigh
+// @Tags Losshigh
 // @Accept json
 // @Produce json
 // @Param id path int true "LossHigh ID"
-// @Param Authorization header string true "Auth Token" default(Bearer <token>)
-// @Success 200 {object} interfaces.LossHigh "LossHigh Details"
+// @Success 200 {object} db.LossHigh "LossHigh Details"
 // @Router /api/losshigh/{id} [get]
 func PullLosstId(c *gin.Context) {
 	idParam := c.Param("id")

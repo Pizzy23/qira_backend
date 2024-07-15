@@ -2,7 +2,7 @@ package inventory
 
 import (
 	"net/http"
-	"qira/db"
+	"qira/internal/interfaces"
 	inventory "qira/internal/inventory/service"
 	erros "qira/middleware/interfaces/errors"
 	"strconv"
@@ -15,12 +15,11 @@ import (
 // @Tags Inventory
 // @Accept json
 // @Produce json
-// @Param request body db.AssetsInventory true "Data for create new Asset"
-// @Param Authorization header string true "Auth Token" default(Bearer <token>)
-// @Success 200 {object} db.AssetsInventory "Asset Create"
+// @Param request body interfaces.InputAssetsInventory true "Data for create new Asset"
+// @Success 200 {object} db.AssetInventory "Asset Create"
 // @Router /api/create-asset [post]
 func CreateAsset(c *gin.Context) {
-	var asset db.AssetsInventory
+	var asset interfaces.InputAssetsInventory
 
 	if err := c.ShouldBindJSON(&asset); err != nil {
 		c.JSON(erros.StatusNotAcceptable, gin.H{"error": "Parameters are invalid, need a JSON"})
@@ -41,8 +40,7 @@ func CreateAsset(c *gin.Context) {
 // @Tags Inventory
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Auth Token" default(Bearer <token>)
-// @Success 200 {object} []interfaces.AssetsInventory "List of All Assets"
+// @Success 200 {object} []db.AssetInventory "List of All Assets"
 // @Router /api/assets [get]
 func PullAllAsset(c *gin.Context) {
 	inventory.PullAllAsset(c)
@@ -54,8 +52,7 @@ func PullAllAsset(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "Asset ID"
-// @Param Authorization header string true "Auth Token" default(Bearer <token>)
-// @Success 200 {object} interfaces.AssetsInventory "Asset Details"
+// @Success 200 {object} db.AssetInventory "Asset Details"
 // @Router /api/asset/{id} [get]
 func PullAssetId(c *gin.Context) {
 	idParam := c.Param("id")

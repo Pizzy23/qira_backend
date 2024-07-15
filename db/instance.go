@@ -49,16 +49,19 @@ func ConnectDatabase() {
 
 func Migrate(engine *xorm.Engine) error {
 	tables := []interface{}{
-		new(AssetsInventory),
-		new(ThreatEventCatalogue),
+		new(AssetInventory),
+		new(ThreatEventCatalog),
 		new(Frequency),
-		new(ThreatEventAssets),
+		new(LinkThreat),
 		new(LossHigh),
-		new(RiskCalculator),
+		new(RiskCalculation),
 		new(Relevance),
 		new(ControlLibrary),
-		new(ControlImplementation),
-		new(AggregatedControlStrength),
+		new(Propused),
+		new(Strength),
+		new(RiskController),
+		new(Implements),
+		new(AggregatedStrength),
 	}
 
 	for _, table := range tables {

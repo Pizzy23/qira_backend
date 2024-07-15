@@ -2,7 +2,7 @@ package risk
 
 import (
 	"net/http"
-	"qira/db"
+	"qira/internal/interfaces"
 	risk "qira/internal/risk/service"
 	erros "qira/middleware/interfaces/errors"
 	"strconv"
@@ -15,21 +15,23 @@ import (
 // @Tags Risk
 // @Accept json
 // @Produce json
-// @Param request body db.RiskCalculator true "Data for create new Risk"
-// @Param Authorization header string true "Auth Token" default(Bearer <token>)
-// @Success 200 {object} db.RiskCalculator "Risk Create"
+// @Param request body interfaces.RiskCalc true "Data for create new Risk"
+// @Success 200 {object} db.RiskCalculation "Risk Create"
 // @Router /api/create-Risk [post]
 func CreateRisk(c *gin.Context) {
-	var riskInput db.RiskCalculator
+	var riskInput interfaces.RiskCalc
 
 	if err := c.ShouldBindJSON(&riskInput); err != nil {
 		c.JSON(erros.StatusNotAcceptable, gin.H{"error": "Parameters are invalid, need a JSON"})
 		return
 	}
 
-	if err := risk.CreateRiskService(c, riskInput); err != nil {
+	if risk, err := risk.CreateRiskService(c, riskInput); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
+	} else if risk != nil {
+		c.Set("Response", risk)
+		c.Status(http.StatusOK)
 	}
 	c.Set("Response", "Risk created successfully")
 	c.Status(http.StatusOK)
@@ -41,8 +43,7 @@ func CreateRisk(c *gin.Context) {
 // @Tags Risk
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Auth Token" default(Bearer <token>)
-// @Success 200 {object} []interfaces.RiskCalculator "List of All Risks"
+// @Success 200 {object} []db.RiskCalculation "List of All Risks"
 // @Router /api/Risk [get]
 func PullAllRisk(c *gin.Context) {
 	risk.PullAllRisk(c)
@@ -54,8 +55,7 @@ func PullAllRisk(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "Risk ID"
-// @Param Authorization header string true "Auth Token" default(Bearer <token>)
-// @Success 200 {object} interfaces.RiskCalculator "Risk Details"
+// @Success 200 {object} db.RiskCalculation "Risk Details"
 // @Router /api/Risk/{id} [get]
 func PullRiskId(c *gin.Context) {
 	idParam := c.Param("id")

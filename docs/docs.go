@@ -28,23 +28,13 @@ const docTemplate = `{
                     "Risk"
                 ],
                 "summary": "Retrieve All Risks",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "List of All Risks",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/interfaces.RiskCalculator"
+                                "$ref": "#/definitions/db.RiskCalculation"
                             }
                         }
                     }
@@ -71,21 +61,13 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Risk Details",
                         "schema": {
-                            "$ref": "#/definitions/interfaces.RiskCalculator"
+                            "$ref": "#/definitions/db.RiskCalculation"
                         }
                     }
                 }
@@ -104,21 +86,34 @@ const docTemplate = `{
                     "Catalogue"
                 ],
                 "summary": "Retrieve All Catalogue",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "List of All Event",
                         "schema": {
-                            "$ref": "#/definitions/interfaces.ThreatEventCatalogue"
+                            "$ref": "#/definitions/db.ThreatEventCatalog"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/all-control": {
+            "get": {
+                "description": "Retrieve all Event",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Control"
+                ],
+                "summary": "Retrieve All Control",
+                "responses": {
+                    "200": {
+                        "description": "List of All Event",
+                        "schema": {
+                            "$ref": "#/definitions/db.ControlLibrary"
                         }
                     }
                 }
@@ -137,21 +132,11 @@ const docTemplate = `{
                     "Event"
                 ],
                 "summary": "Event",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Your Frequency is by add",
                         "schema": {
-                            "$ref": "#/definitions/interfaces.ThreatEventAssets"
+                            "$ref": "#/definitions/db.ThreatEventAssets"
                         }
                     }
                 }
@@ -170,21 +155,14 @@ const docTemplate = `{
                     "Frequency"
                 ],
                 "summary": "Retrieve All Frequency",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "List of All Frequency",
                         "schema": {
-                            "$ref": "#/definitions/interfaces.Frequency"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.Frequency"
+                            }
                         }
                     }
                 }
@@ -202,154 +180,12 @@ const docTemplate = `{
                 "tags": [
                     "Control"
                 ],
-                "summary": "Retrieve All Implementation",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
+                "summary": "Retrieve All Implementation Implementation",
                 "responses": {
                     "200": {
                         "description": "List of All Implementation",
                         "schema": {
-                            "$ref": "#/definitions/interfaces.ControlImplementation"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/all-library": {
-            "get": {
-                "description": "Retrieve all library",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Control"
-                ],
-                "summary": "Retrieve All library",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "List of All Event",
-                        "schema": {
-                            "$ref": "#/definitions/interfaces.ControlLibrary"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/all-propused": {
-            "get": {
-                "description": "Retrieve all Propused",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Control"
-                ],
-                "summary": "Retrieve All Propused",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "List of All Propused",
-                        "schema": {
-                            "$ref": "#/definitions/interfaces.Propused"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/all-relevance": {
-            "get": {
-                "description": "Retrieve all Relevance",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Control"
-                ],
-                "summary": "Retrieve All Relevance",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "List of All Event",
-                        "schema": {
-                            "$ref": "#/definitions/interfaces.Relevance"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/all-strength": {
-            "get": {
-                "description": "Retrieve all Strength",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Control"
-                ],
-                "summary": "Retrieve All Strength",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "List of All Event",
-                        "schema": {
-                            "$ref": "#/definitions/interfaces.Strength"
+                            "$ref": "#/definitions/db.ControlLibrary"
                         }
                     }
                 }
@@ -375,21 +211,13 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Asset Details",
                         "schema": {
-                            "$ref": "#/definitions/interfaces.AssetsInventory"
+                            "$ref": "#/definitions/db.AssetInventory"
                         }
                     }
                 }
@@ -408,23 +236,13 @@ const docTemplate = `{
                     "Inventory"
                 ],
                 "summary": "Retrieve All Assets",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "List of All Assets",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/interfaces.AssetsInventory"
+                                "$ref": "#/definitions/db.AssetInventory"
                             }
                         }
                     }
@@ -453,21 +271,13 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/interfaces.InputThreatEventCatalogue"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "List of All Assets",
+                        "description": "List of All Events catalogues",
                         "schema": {
-                            "$ref": "#/definitions/interfaces.ThreatEventCatalogue"
+                            "$ref": "#/definitions/db.ThreatEventCatalog"
                         }
                     }
                 }
@@ -493,13 +303,71 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Event Details",
+                        "schema": {
+                            "$ref": "#/definitions/db.ThreatEventCatalog"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/control": {
+            "post": {
+                "description": "Create New Event Control",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Control"
+                ],
+                "summary": "Create New Control",
+                "parameters": [
                     {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
+                        "description": "Data for create new Event",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/interfaces.InputControlLibrary"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of All Assets",
+                        "schema": {
+                            "$ref": "#/definitions/db.ControlLibrary"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/control/{id}": {
+            "get": {
+                "description": "Retrieve an Event by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Control"
+                ],
+                "summary": "Retrieve Control by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -507,7 +375,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Event Details",
                         "schema": {
-                            "$ref": "#/definitions/interfaces.AssetsInventory"
+                            "$ref": "#/definitions/db.ControlLibrary"
                         }
                     }
                 }
@@ -533,23 +401,15 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/db.RiskCalculator"
+                            "$ref": "#/definitions/interfaces.RiskCalc"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Risk Create",
                         "schema": {
-                            "$ref": "#/definitions/db.RiskCalculator"
+                            "$ref": "#/definitions/db.RiskCalculation"
                         }
                     }
                 }
@@ -575,107 +435,15 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/db.AssetsInventory"
+                            "$ref": "#/definitions/interfaces.InputAssetsInventory"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Asset Create",
                         "schema": {
-                            "$ref": "#/definitions/db.AssetsInventory"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/create-implementation": {
-            "post": {
-                "description": "Create new Control Implementation",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Control"
-                ],
-                "summary": "Create Control Implementation",
-                "parameters": [
-                    {
-                        "description": "Data for create new Risk",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/db.ControlImplementation"
-                        }
-                    },
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Risk Create",
-                        "schema": {
-                            "$ref": "#/definitions/interfaces.ControlImplementation"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/create-library": {
-            "post": {
-                "description": "Create new Control Library",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Control"
-                ],
-                "summary": "Create Control Library",
-                "parameters": [
-                    {
-                        "description": "Data for create new Risk",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/db.ControlLibrary"
-                        }
-                    },
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Risk Create",
-                        "schema": {
-                            "$ref": "#/definitions/db.ControlLibrary"
+                            "$ref": "#/definitions/db.AssetInventory"
                         }
                     }
                 }
@@ -703,14 +471,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/db.LossHigh"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -723,9 +483,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/create-propused": {
+        "/api/create-revelance": {
             "post": {
-                "description": "Create new Control Propused",
+                "description": "Create new Relevance",
                 "consumes": [
                     "application/json"
                 ],
@@ -733,117 +493,25 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Control"
+                    "losshigh"
                 ],
-                "summary": "Create Control Propused",
+                "summary": "Create Relevance",
                 "parameters": [
                     {
-                        "description": "Data for create new Risk",
+                        "description": "Data for create new Relevance",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/interfaces.InputControlls"
+                            "$ref": "#/definitions/db.RelevanceDinamicInput"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Risk Create",
+                        "description": "LossHigh Create",
                         "schema": {
-                            "$ref": "#/definitions/interfaces.Propused"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/create-relevance": {
-            "post": {
-                "description": "Create new Control Relevance",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Control"
-                ],
-                "summary": "Create Control Relevance",
-                "parameters": [
-                    {
-                        "description": "Data for create new Risk",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/interfaces.InputControlls"
-                        }
-                    },
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Risk Create",
-                        "schema": {
-                            "$ref": "#/definitions/interfaces.Relevance"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/create-strength": {
-            "post": {
-                "description": "Create new Control Strength",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Control"
-                ],
-                "summary": "Create Control Strength",
-                "parameters": [
-                    {
-                        "description": "Data for create new Risk",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/interfaces.InputControlls"
-                        }
-                    },
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Risk Create",
-                        "schema": {
-                            "$ref": "#/definitions/interfaces.Strength"
+                            "$ref": "#/definitions/db.LossHigh"
                         }
                     }
                 }
@@ -871,14 +539,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/db.ThreatEventAssets"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -911,16 +571,8 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/db.Frequency"
+                            "$ref": "#/definitions/interfaces.InputFrequency"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -946,21 +598,45 @@ const docTemplate = `{
                     "Frequency"
                 ],
                 "summary": "Retrieve one Frequency",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "List of One Frequency",
                         "schema": {
-                            "$ref": "#/definitions/interfaces.Frequency"
+                            "$ref": "#/definitions/db.Frequency"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/implementation": {
+            "post": {
+                "description": "Create New Event Implementation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Control"
+                ],
+                "summary": "Create New Implementation",
+                "parameters": [
+                    {
+                        "description": "Data for create new Event",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/interfaces.ImplementsInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of All Assets",
+                        "schema": {
+                            "$ref": "#/definitions/db.ControlLibrary"
                         }
                     }
                 }
@@ -986,61 +662,13 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Implementation Details",
                         "schema": {
-                            "$ref": "#/definitions/interfaces.ControlImplementation"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/library/{id}": {
-            "get": {
-                "description": "Retrieve an library by its ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Control"
-                ],
-                "summary": "Retrieve Library by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "library ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Event Details",
-                        "schema": {
-                            "$ref": "#/definitions/interfaces.ControlLibrary"
+                            "$ref": "#/definitions/db.ControlLibrary"
                         }
                     }
                 }
@@ -1059,23 +687,13 @@ const docTemplate = `{
                     "losshigh"
                 ],
                 "summary": "Retrieve All LossHighs",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "List of All LossHighs",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/interfaces.LossHigh"
+                                "$ref": "#/definitions/db.LossHigh"
                             }
                         }
                     }
@@ -1102,29 +720,21 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "LossHigh Details",
                         "schema": {
-                            "$ref": "#/definitions/interfaces.LossHigh"
+                            "$ref": "#/definitions/db.LossHigh"
                         }
                     }
                 }
             }
         },
-        "/api/propused/{id}": {
+        "/api/revelance": {
             "get": {
-                "description": "Retrieve an Propused by its ID",
+                "description": "Retrieve all Revelances",
                 "consumes": [
                     "application/json"
                 ],
@@ -1132,39 +742,25 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Control"
+                    "Revelance"
                 ],
-                "summary": "Retrieve Propused by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Propused ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
+                "summary": "Retrieve All Revelances",
                 "responses": {
                     "200": {
-                        "description": "Propused Details",
+                        "description": "List of All Revelances",
                         "schema": {
-                            "$ref": "#/definitions/interfaces.Propused"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.RelevanceDinamic"
+                            }
                         }
                     }
                 }
             }
         },
-        "/api/relevance/{id}": {
+        "/api/revelance/{id}": {
             "get": {
-                "description": "Retrieve an Relevance by its ID",
+                "description": "Retrieve an Revelance by its ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -1172,71 +768,23 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Control"
+                    "Revelance"
                 ],
-                "summary": "Retrieve Relevance by ID",
+                "summary": "Retrieve Revelance by ID",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Event ID",
+                        "description": "Revelance ID",
                         "name": "id",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Event Details",
+                        "description": "Revelance Details",
                         "schema": {
-                            "$ref": "#/definitions/interfaces.Relevance"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/strength/{id}": {
-            "get": {
-                "description": "Retrieve an Event by its ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Control"
-                ],
-                "summary": "Retrieve Strength by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Strength ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Auth Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Event Details",
-                        "schema": {
-                            "$ref": "#/definitions/interfaces.Strength"
+                            "$ref": "#/definitions/db.RelevanceDinamic"
                         }
                     }
                 }
@@ -1300,10 +848,10 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "db.AssetsInventory": {
+        "db.AssetInventory": {
             "type": "object",
             "properties": {
-                "business_value": {
+                "businessValue": {
                     "type": "integer"
                 },
                 "criticality": {
@@ -1321,13 +869,13 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "replacement_cost": {
+                "replacementCost": {
                     "type": "number"
                 },
                 "responsible": {
                     "type": "string"
                 },
-                "target_environment": {
+                "roleInTargetEnvironment": {
                     "type": "string"
                 },
                 "users": {
@@ -1335,49 +883,20 @@ const docTemplate = `{
                 }
             }
         },
-        "db.ControlImplementation": {
-            "type": "object",
-            "properties": {
-                "controlId": {
-                    "type": "integer"
-                },
-                "current_implementation": {
-                    "type": "integer"
-                },
-                "current_percent_value": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "projected_cost": {
-                    "type": "number"
-                },
-                "proposed_implementation": {
-                    "type": "integer"
-                },
-                "proposed_percent_value": {
-                    "type": "string"
-                }
-            }
-        },
         "db.ControlLibrary": {
             "type": "object",
             "properties": {
-                "controlId": {
-                    "type": "integer"
-                },
-                "control_reference": {
+                "controlReference": {
                     "type": "string"
                 },
-                "control_type": {
+                "controlType": {
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
-                "in_scope": {
-                    "type": "string"
+                "inScope": {
+                    "type": "boolean"
                 },
                 "information": {
                     "type": "string"
@@ -1390,22 +909,22 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "max_frequency": {
-                    "type": "integer"
+                "maxFrequency": {
+                    "type": "number"
                 },
-                "min_frequency": {
-                    "type": "integer"
+                "minFrequency": {
+                    "type": "number"
                 },
-                "most_common_frequency": {
-                    "type": "integer"
+                "mostLikelyFrequency": {
+                    "type": "number"
                 },
-                "support_information": {
+                "supportingInformation": {
                     "type": "string"
                 },
-                "threat_event": {
+                "threatEvent": {
                     "type": "string"
                 },
-                "threat_event_id": {
+                "threatEventID": {
                     "type": "integer"
                 }
             }
@@ -1414,80 +933,75 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "assets": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                    "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
-                "loss_type": {
+                "lossType": {
                     "type": "string"
                 },
-                "maximum_loss": {
+                "maximumLoss": {
                     "type": "number"
                 },
-                "minimum_loss": {
+                "minimumLoss": {
                     "type": "number"
                 },
-                "most_likely_loss": {
+                "mostLikelyLoss": {
                     "type": "number"
                 },
-                "threat_event": {
+                "threatEvent": {
                     "type": "string"
                 },
-                "threat_event_id": {
+                "threatEventID": {
                     "type": "integer"
                 }
             }
         },
-        "db.RiskCalculator": {
+        "db.RelevanceDinamic": {
             "type": "object",
             "properties": {
-                "estimate_frequency": {
-                    "type": "number"
+                "controlId": {
+                    "type": "integer"
                 },
-                "estimate_loss": {
-                    "type": "number"
-                },
-                "estimate_risk": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.RelevanceDinamicInput": {
+            "type": "object",
+            "properties": {
+                "controlId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.RiskCalculation": {
+            "type": "object",
+            "properties": {
+                "estimate": {
                     "type": "number"
                 },
                 "id": {
                     "type": "integer"
                 },
-                "max_frequency": {
-                    "type": "integer"
+                "max": {
+                    "type": "number"
                 },
-                "max_loss": {
-                    "type": "integer"
+                "min": {
+                    "type": "number"
                 },
-                "max_risk": {
-                    "type": "integer"
+                "mode": {
+                    "type": "number"
                 },
-                "min_frequency": {
-                    "type": "integer"
-                },
-                "min_loss": {
-                    "type": "integer"
-                },
-                "min_risk": {
-                    "type": "integer"
-                },
-                "mode_frequency": {
-                    "type": "integer"
-                },
-                "mode_loss": {
-                    "type": "integer"
-                },
-                "mode_risk": {
-                    "type": "integer"
-                },
-                "threat_event": {
+                "riskType": {
                     "type": "string"
                 },
-                "threat_event_id": {
+                "threatEvent": {
+                    "type": "string"
+                },
+                "threatEventID": {
                     "type": "integer"
                 }
             }
@@ -1496,10 +1010,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "affected_asset": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                    "type": "string"
                 },
                 "id": {
                     "type": "integer"
@@ -1512,7 +1023,44 @@ const docTemplate = `{
                 }
             }
         },
-        "interfaces.AssetsInventory": {
+        "db.ThreatEventCatalog": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "inScope": {
+                    "type": "boolean"
+                },
+                "threatEvent": {
+                    "type": "string"
+                },
+                "threatGroup": {
+                    "type": "string"
+                }
+            }
+        },
+        "interfaces.ImplementsInput": {
+            "type": "object",
+            "properties": {
+                "controlId": {
+                    "type": "integer"
+                },
+                "cost": {
+                    "type": "integer"
+                },
+                "current": {
+                    "type": "integer"
+                },
+                "proposed": {
+                    "type": "integer"
+                }
+            }
+        },
+        "interfaces.InputAssetsInventory": {
             "type": "object",
             "properties": {
                 "business_value": {
@@ -1523,9 +1071,6 @@ const docTemplate = `{
                 },
                 "description": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "location": {
                     "type": "string"
@@ -1547,33 +1092,7 @@ const docTemplate = `{
                 }
             }
         },
-        "interfaces.ControlImplementation": {
-            "type": "object",
-            "properties": {
-                "controlId": {
-                    "type": "integer"
-                },
-                "current_implementation": {
-                    "type": "integer"
-                },
-                "current_percent_value": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "projected_cost": {
-                    "type": "number"
-                },
-                "proposed_implementation": {
-                    "type": "integer"
-                },
-                "proposed_percent_value": {
-                    "type": "string"
-                }
-            }
-        },
-        "interfaces.ControlLibrary": {
+        "interfaces.InputControlLibrary": {
             "type": "object",
             "properties": {
                 "controlId": {
@@ -1585,9 +1104,6 @@ const docTemplate = `{
                 "control_type": {
                     "type": "string"
                 },
-                "id": {
-                    "type": "integer"
-                },
                 "in_scope": {
                     "type": "string"
                 },
@@ -1596,12 +1112,9 @@ const docTemplate = `{
                 }
             }
         },
-        "interfaces.Frequency": {
+        "interfaces.InputFrequency": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer"
-                },
                 "max_frequency": {
                     "type": "integer"
                 },
@@ -1618,86 +1131,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "threat_event_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "interfaces.InputControlls": {
-            "type": "object",
-            "properties": {
-                "airborne_particles_event": {
-                    "type": "integer"
-                },
-                "authentication_attack": {
-                    "type": "integer"
-                },
-                "authorisation_attack": {
-                    "type": "integer"
-                },
-                "biological_event": {
-                    "type": "integer"
-                },
-                "communication_attack": {
-                    "type": "integer"
-                },
-                "controlId": {
-                    "type": "integer"
-                },
-                "controlType": {
-                    "type": "string"
-                },
-                "denial_of_service_attack": {
-                    "type": "integer"
-                },
-                "geological_event": {
-                    "type": "integer"
-                },
-                "hydrological_event": {
-                    "type": "integer"
-                },
-                "information_leakage_attack": {
-                    "type": "integer"
-                },
-                "infrastructure_failure_event": {
-                    "type": "integer"
-                },
-                "malware_attack": {
-                    "type": "integer"
-                },
-                "meteorological_event": {
-                    "type": "integer"
-                },
-                "misconfiguration_attack": {
-                    "type": "integer"
-                },
-                "misuse_attack": {
-                    "type": "integer"
-                },
-                "natural_hazard_event": {
-                    "type": "integer"
-                },
-                "people_failure": {
-                    "type": "integer"
-                },
-                "physical_attack": {
-                    "type": "integer"
-                },
-                "process_failure": {
-                    "type": "integer"
-                },
-                "reconnaissance_activities": {
-                    "type": "integer"
-                },
-                "social_engineering_attack": {
-                    "type": "integer"
-                },
-                "software_exploitation_attack": {
-                    "type": "integer"
-                },
-                "supply_chain_attack": {
-                    "type": "integer"
-                },
-                "technology_failure": {
                     "type": "integer"
                 }
             }
@@ -1712,7 +1145,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "in_scope": {
-                    "type": "string"
+                    "type": "boolean"
                 },
                 "threat_event": {
                     "type": "string"
@@ -1722,361 +1155,10 @@ const docTemplate = `{
                 }
             }
         },
-        "interfaces.LossHigh": {
+        "interfaces.RiskCalc": {
             "type": "object",
             "properties": {
-                "assets": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "loss_type": {
-                    "type": "string"
-                },
-                "maximum_loss": {
-                    "type": "number"
-                },
-                "minimum_loss": {
-                    "type": "number"
-                },
-                "most_likely_loss": {
-                    "type": "number"
-                },
-                "threat_event": {
-                    "type": "string"
-                },
-                "threat_event_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "interfaces.Propused": {
-            "type": "object",
-            "properties": {
-                "airborne_particles_event": {
-                    "type": "integer"
-                },
-                "authentication_attack": {
-                    "type": "integer"
-                },
-                "authorisation_attack": {
-                    "type": "integer"
-                },
-                "biological_event": {
-                    "type": "integer"
-                },
-                "communication_attack": {
-                    "type": "integer"
-                },
-                "controlId": {
-                    "type": "integer"
-                },
-                "denial_of_service_attack": {
-                    "type": "integer"
-                },
-                "geological_event": {
-                    "type": "integer"
-                },
-                "hydrological_event": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "information_leakage_attack": {
-                    "type": "integer"
-                },
-                "infrastructure_failure_event": {
-                    "type": "integer"
-                },
-                "malware_attack": {
-                    "type": "integer"
-                },
-                "meteorological_event": {
-                    "type": "integer"
-                },
-                "misconfiguration_attack": {
-                    "type": "integer"
-                },
-                "misuse_attack": {
-                    "type": "integer"
-                },
-                "natural_hazard_event": {
-                    "type": "integer"
-                },
-                "people_failure": {
-                    "type": "integer"
-                },
-                "physical_attack": {
-                    "type": "integer"
-                },
-                "process_failure": {
-                    "type": "integer"
-                },
-                "reconnaissance_activities": {
-                    "type": "integer"
-                },
-                "social_engineering_attack": {
-                    "type": "integer"
-                },
-                "software_exploitation_attack": {
-                    "type": "integer"
-                },
-                "supply_chain_attack": {
-                    "type": "integer"
-                },
-                "technology_failure": {
-                    "type": "integer"
-                }
-            }
-        },
-        "interfaces.Relevance": {
-            "type": "object",
-            "properties": {
-                "airborne_particles_event": {
-                    "type": "integer"
-                },
-                "authentication_attack": {
-                    "type": "integer"
-                },
-                "authorisation_attack": {
-                    "type": "integer"
-                },
-                "biological_event": {
-                    "type": "integer"
-                },
-                "communication_attack": {
-                    "type": "integer"
-                },
-                "denial_of_service_attack": {
-                    "type": "integer"
-                },
-                "geological_event": {
-                    "type": "integer"
-                },
-                "hydrological_event": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "information_leakage_attack": {
-                    "type": "integer"
-                },
-                "infrastructure_failure_event": {
-                    "type": "integer"
-                },
-                "malware_attack": {
-                    "type": "integer"
-                },
-                "meteorological_event": {
-                    "type": "integer"
-                },
-                "misconfiguration_attack": {
-                    "type": "integer"
-                },
-                "misuse_attack": {
-                    "type": "integer"
-                },
-                "natural_hazard_event": {
-                    "type": "integer"
-                },
-                "people_failure": {
-                    "type": "integer"
-                },
-                "physical_attack": {
-                    "type": "integer"
-                },
-                "process_failure": {
-                    "type": "integer"
-                },
-                "reconnaissance_activities": {
-                    "type": "integer"
-                },
-                "social_engineering_attack": {
-                    "type": "integer"
-                },
-                "software_exploitation_attack": {
-                    "type": "integer"
-                },
-                "supply_chain_attack": {
-                    "type": "integer"
-                },
-                "technology_failure": {
-                    "type": "integer"
-                }
-            }
-        },
-        "interfaces.RiskCalculator": {
-            "type": "object",
-            "properties": {
-                "estimate_frequency": {
-                    "type": "number"
-                },
-                "estimate_loss": {
-                    "type": "number"
-                },
-                "estimate_risk": {
-                    "type": "number"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "max_frequency": {
-                    "type": "integer"
-                },
-                "max_loss": {
-                    "type": "integer"
-                },
-                "max_risk": {
-                    "type": "integer"
-                },
-                "min_frequency": {
-                    "type": "integer"
-                },
-                "min_loss": {
-                    "type": "integer"
-                },
-                "min_risk": {
-                    "type": "integer"
-                },
-                "mode_frequency": {
-                    "type": "integer"
-                },
-                "mode_loss": {
-                    "type": "integer"
-                },
-                "mode_risk": {
-                    "type": "integer"
-                },
-                "threat_event": {
-                    "type": "string"
-                },
-                "threat_event_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "interfaces.Strength": {
-            "type": "object",
-            "properties": {
-                "airborne_particles_event": {
-                    "type": "integer"
-                },
-                "authentication_attack": {
-                    "type": "integer"
-                },
-                "authorisation_attack": {
-                    "type": "integer"
-                },
-                "biological_event": {
-                    "type": "integer"
-                },
-                "communication_attack": {
-                    "type": "integer"
-                },
-                "controlId": {
-                    "type": "integer"
-                },
-                "denial_of_service_attack": {
-                    "type": "integer"
-                },
-                "geological_event": {
-                    "type": "integer"
-                },
-                "hydrological_event": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "information_leakage_attack": {
-                    "type": "integer"
-                },
-                "infrastructure_failure_event": {
-                    "type": "integer"
-                },
-                "malware_attack": {
-                    "type": "integer"
-                },
-                "meteorological_event": {
-                    "type": "integer"
-                },
-                "misconfiguration_attack": {
-                    "type": "integer"
-                },
-                "misuse_attack": {
-                    "type": "integer"
-                },
-                "natural_hazard_event": {
-                    "type": "integer"
-                },
-                "people_failure": {
-                    "type": "integer"
-                },
-                "physical_attack": {
-                    "type": "integer"
-                },
-                "process_failure": {
-                    "type": "integer"
-                },
-                "reconnaissance_activities": {
-                    "type": "integer"
-                },
-                "social_engineering_attack": {
-                    "type": "integer"
-                },
-                "software_exploitation_attack": {
-                    "type": "integer"
-                },
-                "supply_chain_attack": {
-                    "type": "integer"
-                },
-                "technology_failure": {
-                    "type": "integer"
-                }
-            }
-        },
-        "interfaces.ThreatEventAssets": {
-            "type": "object",
-            "properties": {
-                "affected_asset": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "threat_event": {
-                    "type": "string"
-                },
-                "threat_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "interfaces.ThreatEventCatalogue": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "in_scope": {
-                    "type": "string"
-                },
-                "threat_event": {
-                    "type": "string"
-                },
-                "threat_group": {
+                "metric": {
                     "type": "string"
                 }
             }

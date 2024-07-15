@@ -1,6 +1,8 @@
 package db
 
 import (
+	"fmt"
+
 	"xorm.io/xorm"
 )
 
@@ -31,5 +33,11 @@ func GetByID(engine *xorm.Engine, table interface{}, id int64) (bool, error) {
 
 func GetAll(engine *xorm.Engine, tableSlice interface{}) error {
 	err := engine.Find(tableSlice)
+	return err
+}
+
+func CreateColumn(engine *xorm.Engine, tableName interface{}, columnName string, typeTable string) error {
+	query := fmt.Sprintf("ALTER TABLE `%s` ADD COLUMN `%s` %s DEFAULT 0", tableName, columnName, typeTable)
+	_, err := engine.Exec(query)
 	return err
 }

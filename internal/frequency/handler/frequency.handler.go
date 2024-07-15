@@ -2,8 +2,8 @@ package frequency
 
 import (
 	"net/http"
-	"qira/db"
 	frequency "qira/internal/frequency/service"
+	"qira/internal/interfaces"
 	erros "qira/middleware/interfaces/errors"
 	"strconv"
 
@@ -15,12 +15,11 @@ import (
 // @Tags Frequency
 // @Accept json
 // @Produce json
-// @Param request body db.Frequency true "Edit Frequency"
-// @Param Authorization header string true "Auth Token" default(Bearer <token>)
+// @Param request body interfaces.InputFrequency true "Edit Frequency"
 // @Success 200 {object} db.Frequency "Your Frequency is by add"
 // @Router /api/frequency [put]
 func EditFrequency(c *gin.Context) {
-	var frequencyInput db.Frequency
+	var frequencyInput interfaces.InputFrequency
 
 	if err := c.ShouldBindJSON(&frequencyInput); err != nil {
 		c.JSON(erros.StatusNotAcceptable, gin.H{"error": "Parameters are invalid, need a JSON"})
@@ -41,8 +40,7 @@ func EditFrequency(c *gin.Context) {
 // @Tags Frequency
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Auth Token" default(Bearer <token>)
-// @Success 200 {object} interfaces.Frequency "List of All Frequency"
+// @Success 200 {object} []db.Frequency "List of All Frequency"
 // @Router /api/all-frequency [get]
 func PullAllFrequency(c *gin.Context) {
 	frequency.PullAllEventService(c)
@@ -53,8 +51,7 @@ func PullAllFrequency(c *gin.Context) {
 // @Tags Frequency
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Auth Token" default(Bearer <token>)
-// @Success 200 {object} interfaces.Frequency "List of One Frequency"
+// @Success 200 {object} db.Frequency "List of One Frequency"
 // @Router /api/frequency/{id} [get]
 func PullFrequencyById(c *gin.Context) {
 	idParam := c.Param("id")

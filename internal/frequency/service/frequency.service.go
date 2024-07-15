@@ -10,7 +10,7 @@ import (
 	"xorm.io/xorm"
 )
 
-func CreateFrequencyService(c *gin.Context, data interfaces.InputFrequency) error {
+func CreateFrequencyService(c *gin.Context, data db.Frequency) error {
 	engine, exists := c.Get("db")
 	if !exists {
 		return errors.New("database connection not found")
@@ -22,7 +22,7 @@ func CreateFrequencyService(c *gin.Context, data interfaces.InputFrequency) erro
 	return nil
 }
 
-func EditFrequencyService(c *gin.Context, freq db.Frequency) error {
+func EditFrequencyService(c *gin.Context, freq interfaces.InputFrequency) error {
 	var frequencyTable *db.Frequency
 	engine, exists := c.Get("db")
 	if !exists {

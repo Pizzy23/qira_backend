@@ -15,8 +15,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param request body interfaces.InputThreatEventCatalogue true "Data for create new Event"
-// @Param Authorization header string true "Auth Token" default(Bearer <token>)
-// @Success 200 {object} interfaces.ThreatEventCatalogue "List of All Assets"
+// @Success 200 {object} db.ThreatEventCatalog "List of All Events catalogues"
 // @Router /api/catalogue [post]
 func CreateEvent(c *gin.Context) {
 	var eventCatalogue interfaces.InputThreatEventCatalogue
@@ -32,10 +31,6 @@ func CreateEvent(c *gin.Context) {
 	}
 
 	if err := catalogue.CreateEventService(c, eventCatalogue); err != nil {
-
-		return
-	}
-	if err := catalogue.CreateEventService(c, eventCatalogue); err != nil {
 		c.Set("Error", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
@@ -50,8 +45,7 @@ func CreateEvent(c *gin.Context) {
 // @Tags Catalogue
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Auth Token" default(Bearer <token>)
-// @Success 200 {object} interfaces.ThreatEventCatalogue "List of All Event"
+// @Success 200 {object} db.ThreatEventCatalog "List of All Event"
 // @Router /api/all-catalogue [get]
 func PullAllEvent(c *gin.Context) {
 	catalogue.PullAllEventService(c)
@@ -63,8 +57,7 @@ func PullAllEvent(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "Event ID"
-// @Param Authorization header string true "Auth Token" default(Bearer <token>)
-// @Success 200 {object} interfaces.AssetsInventory "Event Details"
+// @Success 200 {object} db.ThreatEventCatalog "Event Details"
 // @Router /api/catalogue/{id} [get]
 func PullEventId(c *gin.Context) {
 	idParam := c.Param("id")

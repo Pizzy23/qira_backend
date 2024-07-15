@@ -2,147 +2,129 @@ package control
 
 import (
 	"net/http"
-	"qira/db"
 	control "qira/internal/control/service"
 	"qira/internal/interfaces"
-	erros "qira/middleware/interfaces/errors"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
-// @Summary Create Control Relevance
-// @Description Create new Control Relevance
+// @Summary Create New Control
+// @Description Create New Event Control
 // @Tags Control
 // @Accept json
 // @Produce json
-// @Param request body interfaces.InputControlls true "Data for create new Risk"
-// @Param Authorization header string true "Auth Token" default(Bearer <token>)
-// @Success 200 {object} interfaces.Relevance "Risk Create"
-// @Router /api/create-relevance [post]
-func CreateRelevance(c *gin.Context) {
-	var relevance interfaces.InputControlls
-	relevance.ControlType = "Relevance"
-	if err := c.ShouldBindJSON(&relevance); err != nil {
-		c.JSON(erros.StatusNotAcceptable, gin.H{"error": "Parameters are invalid, need a JSON"})
-		return
-	}
+// @Param request body interfaces.InputControlLibrary true "Data for create new Event"
+// @Success 200 {object} db.ControlLibrary "List of All Assets"
+// @Router /api/control [post]
+func CreateControl(c *gin.Context) {
+	var controlInput interfaces.InputControlLibrary
 
-	if err := control.CreateRelevanceService(c, relevance); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	if err := c.ShouldBindJSON(&controlInput); err != nil {
+		c.Set("Error", "Parameters are invalid, need a JSON")
+		c.Status(http.StatusInternalServerError)
 		return
 	}
-	c.Set("Response", "Control Relevance created successfully")
+	if err := c.ShouldBindJSON(&controlInput); err != nil {
+
+		return
+	}
+	if err := control.CreateControlService(c, controlInput); err != nil {
+		c.Set("Error", err.Error())
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+	c.Set("Response", "Event created successfully")
 	c.Status(http.StatusOK)
 
 }
 
-// @Summary Create Control Strength
-// @Description Create new Control Strength
+// @Summary Retrieve All Control
+// @Description Retrieve all Event
 // @Tags Control
 // @Accept json
 // @Produce json
-// @Param request body interfaces.InputControlls true "Data for create new Risk"
-// @Param Authorization header string true "Auth Token" default(Bearer <token>)
-// @Success 200 {object} interfaces.Strength "Risk Create"
-// @Router /api/create-strength [post]
-func CreateStrength(c *gin.Context) {
-	var strength interfaces.InputControlls
-	strength.ControlType = "Strength"
-	if err := c.ShouldBindJSON(&strength); err != nil {
+// @Success 200 {object} db.ControlLibrary "List of All Event"
+// @Router /api/all-control [get]
+func PullAllControl(c *gin.Context) {
+	control.PullAllControl(c)
+}
+
+// @Summary Retrieve Control by ID
+// @Description Retrieve an Event by its ID
+// @Tags Control
+// @Accept json
+// @Produce json
+// @Param id path int true "Event ID"
+// @Success 200 {object} db.ControlLibrary "Event Details"
+// @Router /api/control/{id} [get]
+func PullControlId(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
 		c.Set("Error", "Invalid asset ID")
 		c.Status(http.StatusBadRequest)
 		return
 	}
+	control.PullControlId(c, id)
+}
 
-	if err := control.CreateRelevanceService(c, strength); err != nil {
-		c.Set("Error", err.Error())
-		c.Status(http.StatusBadRequest)
+// @Summary Create New Implementation
+// @Description Create New Event Implementation
+// @Tags Control
+// @Accept json
+// @Produce json
+// @Param request body interfaces.ImplementsInput true "Data for create new Event"
+// @Success 200 {object} db.ControlLibrary "List of All Assets"
+// @Router /api/implementation [post]
+func CreateControlImplementation(c *gin.Context) {
+	var controlInput interfaces.ImplementsInput
+
+	if err := c.ShouldBindJSON(&controlInput); err != nil {
+		c.Set("Error", "Parameters are invalid, need a JSON")
+		c.Status(http.StatusInternalServerError)
 		return
 	}
-	c.Set("Response", "Control Strength created successfully")
+	if err := c.ShouldBindJSON(&controlInput); err != nil {
+
+		return
+	}
+	if err := control.CreateImplementService(c, controlInput); err != nil {
+		c.Set("Error", err.Error())
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+	c.Set("Response", "Event created successfully")
 	c.Status(http.StatusOK)
 
 }
 
-// @Summary Create Control Propused
-// @Description Create new Control Propused
+// @Summary Retrieve All Implementation Implementation
+// @Description Retrieve all Implementation
 // @Tags Control
 // @Accept json
 // @Produce json
-// @Param request body interfaces.InputControlls true "Data for create new Risk"
-// @Param Authorization header string true "Auth Token" default(Bearer <token>)
-// @Success 200 {object} interfaces.Propused "Risk Create"
-// @Router /api/create-propused [post]
-func CreatePropused(c *gin.Context) {
-	var propused interfaces.InputControlls
-	propused.ControlType = "Propused"
-	if err := c.ShouldBindJSON(&propused); err != nil {
-		c.Set("Error", "Parameters are invalid, need a JSON")
-		c.Status(http.StatusBadRequest)
-		return
-	}
-
-	if err := control.CreateRelevanceService(c, propused); err != nil {
-		c.Set("Error", err.Error())
-		c.Status(http.StatusBadRequest)
-		return
-	}
-	c.Set("Response", "Control Propused created successfully")
-	c.Status(http.StatusOK)
-
+// @Success 200 {object} db.ControlLibrary "List of All Implementation"
+// @Router /api/all-implementation [get]
+func PullAllControlImplementation(c *gin.Context) {
+	control.PullAllControl(c)
 }
 
-// @Summary Create Control Library
-// @Description Create new Control Library
+// @Summary Retrieve Implementation by ID
+// @Description Retrieve an Implementation by its ID
 // @Tags Control
 // @Accept json
 // @Produce json
-// @Param request body db.ControlLibrary true "Data for create new Risk"
-// @Param Authorization header string true "Auth Token" default(Bearer <token>)
-// @Success 200 {object} db.ControlLibrary "Risk Create"
-// @Router /api/create-library [post]
-func CreateLibrary(c *gin.Context) {
-	var library db.ControlLibrary
-	if err := c.ShouldBindJSON(&library); err != nil {
-		c.Set("Error", "Parameters are invalid, need a JSON")
+// @Param id path int true "Implementation ID"
+// @Success 200 {object} db.ControlLibrary "Implementation Details"
+// @Router /api/implementation/{id} [get]
+func PullControlImplementationId(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.Set("Error", "Invalid asset ID")
 		c.Status(http.StatusBadRequest)
 		return
 	}
-
-	if err := control.CreateLibraryService(c, library); err != nil {
-		c.Set("Error", err.Error())
-		c.Status(http.StatusBadRequest)
-		return
-	}
-	c.Set("Response", "Control library created successfully")
-	c.Status(http.StatusOK)
-
-}
-
-// @Summary Create Control Implementation
-// @Description Create new Control Implementation
-// @Tags Control
-// @Accept json
-// @Produce json
-// @Param request body db.ControlImplementation true "Data for create new Risk"
-// @Param Authorization header string true "Auth Token" default(Bearer <token>)
-// @Success 200 {object} interfaces.ControlImplementation "Risk Create"
-// @Router /api/create-implementation [post]
-func CreateImplementation(c *gin.Context) {
-	var implementation db.ControlImplementation
-
-	if err := c.ShouldBindJSON(&implementation); err != nil {
-		c.Set("Error", "Parameters are invalid, need a JSON")
-		c.Status(http.StatusBadRequest)
-		return
-	}
-
-	if err := control.CreateImplementationService(c, implementation); err != nil {
-		c.Set("Error", err.Error())
-		c.Status(http.StatusBadRequest)
-		return
-	}
-	c.Set("Response", "Control implementation created successfully")
-	c.Status(http.StatusOK)
-
+	control.PullControlId(c, id)
 }

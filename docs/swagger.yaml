@@ -1,7 +1,7 @@
 definitions:
-  db.AssetsInventory:
+  db.AssetInventory:
     properties:
-      business_value:
+      businessValue:
         type: integer
       criticality:
         type: string
@@ -13,44 +13,25 @@ definitions:
         type: string
       name:
         type: string
-      replacement_cost:
+      replacementCost:
         type: number
       responsible:
         type: string
-      target_environment:
+      roleInTargetEnvironment:
         type: string
       users:
         type: string
     type: object
-  db.ControlImplementation:
-    properties:
-      controlId:
-        type: integer
-      current_implementation:
-        type: integer
-      current_percent_value:
-        type: string
-      id:
-        type: integer
-      projected_cost:
-        type: number
-      proposed_implementation:
-        type: integer
-      proposed_percent_value:
-        type: string
-    type: object
   db.ControlLibrary:
     properties:
-      control_reference:
+      controlReference:
         type: string
-      control_type:
+      controlType:
         type: string
-      controlId:
-        type: integer
       id:
         type: integer
-      in_scope:
-        type: string
+      inScope:
+        type: boolean
       information:
         type: string
     type: object
@@ -58,79 +39,73 @@ definitions:
     properties:
       id:
         type: integer
-      max_frequency:
-        type: integer
-      min_frequency:
-        type: integer
-      most_common_frequency:
-        type: integer
-      support_information:
+      maxFrequency:
+        type: number
+      minFrequency:
+        type: number
+      mostLikelyFrequency:
+        type: number
+      supportingInformation:
         type: string
-      threat_event:
+      threatEvent:
         type: string
-      threat_event_id:
+      threatEventID:
         type: integer
     type: object
   db.LossHigh:
     properties:
       assets:
-        items:
-          type: string
-        type: array
+        type: string
       id:
         type: integer
-      loss_type:
+      lossType:
         type: string
-      maximum_loss:
+      maximumLoss:
         type: number
-      minimum_loss:
+      minimumLoss:
         type: number
-      most_likely_loss:
+      mostLikelyLoss:
         type: number
-      threat_event:
+      threatEvent:
         type: string
-      threat_event_id:
+      threatEventID:
         type: integer
     type: object
-  db.RiskCalculator:
+  db.RelevanceDinamic:
     properties:
-      estimate_frequency:
-        type: number
-      estimate_loss:
-        type: number
-      estimate_risk:
+      controlId:
+        type: integer
+      id:
+        type: integer
+    type: object
+  db.RelevanceDinamicInput:
+    properties:
+      controlId:
+        type: integer
+    type: object
+  db.RiskCalculation:
+    properties:
+      estimate:
         type: number
       id:
         type: integer
-      max_frequency:
-        type: integer
-      max_loss:
-        type: integer
-      max_risk:
-        type: integer
-      min_frequency:
-        type: integer
-      min_loss:
-        type: integer
-      min_risk:
-        type: integer
-      mode_frequency:
-        type: integer
-      mode_loss:
-        type: integer
-      mode_risk:
-        type: integer
-      threat_event:
+      max:
+        type: number
+      min:
+        type: number
+      mode:
+        type: number
+      riskType:
         type: string
-      threat_event_id:
+      threatEvent:
+        type: string
+      threatEventID:
         type: integer
     type: object
   db.ThreatEventAssets:
     properties:
       affected_asset:
-        items:
-          type: string
-        type: array
+        type: string
       id:
         type: integer
       threat_event:
@@ -138,7 +113,31 @@ definitions:
       threat_id:
         type: integer
     type: object
-  interfaces.AssetsInventory:
+  db.ThreatEventCatalog:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      inScope:
+        type: boolean
+      threatEvent:
+        type: string
+      threatGroup:
+        type: string
+    type: object
+  interfaces.ImplementsInput:
+    properties:
+      controlId:
+        type: integer
+      cost:
+        type: integer
+      current:
+        type: integer
+      proposed:
+        type: integer
+    type: object
+  interfaces.InputAssetsInventory:
     properties:
       business_value:
         type: integer
@@ -146,8 +145,6 @@ definitions:
         type: string
       description:
         type: string
-      id:
-        type: integer
       location:
         type: string
       name:
@@ -161,24 +158,7 @@ definitions:
       users:
         type: string
     type: object
-  interfaces.ControlImplementation:
-    properties:
-      controlId:
-        type: integer
-      current_implementation:
-        type: integer
-      current_percent_value:
-        type: string
-      id:
-        type: integer
-      projected_cost:
-        type: number
-      proposed_implementation:
-        type: integer
-      proposed_percent_value:
-        type: string
-    type: object
-  interfaces.ControlLibrary:
+  interfaces.InputControlLibrary:
     properties:
       control_reference:
         type: string
@@ -186,17 +166,13 @@ definitions:
         type: string
       controlId:
         type: integer
-      id:
-        type: integer
       in_scope:
         type: string
       information:
         type: string
     type: object
-  interfaces.Frequency:
+  interfaces.InputFrequency:
     properties:
-      id:
-        type: integer
       max_frequency:
         type: integer
       min_frequency:
@@ -208,59 +184,6 @@ definitions:
       threat_event:
         type: string
       threat_event_id:
-        type: integer
-    type: object
-  interfaces.InputControlls:
-    properties:
-      airborne_particles_event:
-        type: integer
-      authentication_attack:
-        type: integer
-      authorisation_attack:
-        type: integer
-      biological_event:
-        type: integer
-      communication_attack:
-        type: integer
-      controlId:
-        type: integer
-      controlType:
-        type: string
-      denial_of_service_attack:
-        type: integer
-      geological_event:
-        type: integer
-      hydrological_event:
-        type: integer
-      information_leakage_attack:
-        type: integer
-      infrastructure_failure_event:
-        type: integer
-      malware_attack:
-        type: integer
-      meteorological_event:
-        type: integer
-      misconfiguration_attack:
-        type: integer
-      misuse_attack:
-        type: integer
-      natural_hazard_event:
-        type: integer
-      people_failure:
-        type: integer
-      physical_attack:
-        type: integer
-      process_failure:
-        type: integer
-      reconnaissance_activities:
-        type: integer
-      social_engineering_attack:
-        type: integer
-      software_exploitation_attack:
-        type: integer
-      supply_chain_attack:
-        type: integer
-      technology_failure:
         type: integer
     type: object
   interfaces.InputThreatEventCatalogue:
@@ -270,247 +193,15 @@ definitions:
       id:
         type: integer
       in_scope:
-        type: string
+        type: boolean
       threat_event:
         type: string
       threat_group:
         type: string
     type: object
-  interfaces.LossHigh:
+  interfaces.RiskCalc:
     properties:
-      assets:
-        items:
-          type: string
-        type: array
-      id:
-        type: integer
-      loss_type:
-        type: string
-      maximum_loss:
-        type: number
-      minimum_loss:
-        type: number
-      most_likely_loss:
-        type: number
-      threat_event:
-        type: string
-      threat_event_id:
-        type: integer
-    type: object
-  interfaces.Propused:
-    properties:
-      airborne_particles_event:
-        type: integer
-      authentication_attack:
-        type: integer
-      authorisation_attack:
-        type: integer
-      biological_event:
-        type: integer
-      communication_attack:
-        type: integer
-      controlId:
-        type: integer
-      denial_of_service_attack:
-        type: integer
-      geological_event:
-        type: integer
-      hydrological_event:
-        type: integer
-      id:
-        type: integer
-      information_leakage_attack:
-        type: integer
-      infrastructure_failure_event:
-        type: integer
-      malware_attack:
-        type: integer
-      meteorological_event:
-        type: integer
-      misconfiguration_attack:
-        type: integer
-      misuse_attack:
-        type: integer
-      natural_hazard_event:
-        type: integer
-      people_failure:
-        type: integer
-      physical_attack:
-        type: integer
-      process_failure:
-        type: integer
-      reconnaissance_activities:
-        type: integer
-      social_engineering_attack:
-        type: integer
-      software_exploitation_attack:
-        type: integer
-      supply_chain_attack:
-        type: integer
-      technology_failure:
-        type: integer
-    type: object
-  interfaces.Relevance:
-    properties:
-      airborne_particles_event:
-        type: integer
-      authentication_attack:
-        type: integer
-      authorisation_attack:
-        type: integer
-      biological_event:
-        type: integer
-      communication_attack:
-        type: integer
-      denial_of_service_attack:
-        type: integer
-      geological_event:
-        type: integer
-      hydrological_event:
-        type: integer
-      id:
-        type: integer
-      information_leakage_attack:
-        type: integer
-      infrastructure_failure_event:
-        type: integer
-      malware_attack:
-        type: integer
-      meteorological_event:
-        type: integer
-      misconfiguration_attack:
-        type: integer
-      misuse_attack:
-        type: integer
-      natural_hazard_event:
-        type: integer
-      people_failure:
-        type: integer
-      physical_attack:
-        type: integer
-      process_failure:
-        type: integer
-      reconnaissance_activities:
-        type: integer
-      social_engineering_attack:
-        type: integer
-      software_exploitation_attack:
-        type: integer
-      supply_chain_attack:
-        type: integer
-      technology_failure:
-        type: integer
-    type: object
-  interfaces.RiskCalculator:
-    properties:
-      estimate_frequency:
-        type: number
-      estimate_loss:
-        type: number
-      estimate_risk:
-        type: number
-      id:
-        type: integer
-      max_frequency:
-        type: integer
-      max_loss:
-        type: integer
-      max_risk:
-        type: integer
-      min_frequency:
-        type: integer
-      min_loss:
-        type: integer
-      min_risk:
-        type: integer
-      mode_frequency:
-        type: integer
-      mode_loss:
-        type: integer
-      mode_risk:
-        type: integer
-      threat_event:
-        type: string
-      threat_event_id:
-        type: integer
-    type: object
-  interfaces.Strength:
-    properties:
-      airborne_particles_event:
-        type: integer
-      authentication_attack:
-        type: integer
-      authorisation_attack:
-        type: integer
-      biological_event:
-        type: integer
-      communication_attack:
-        type: integer
-      controlId:
-        type: integer
-      denial_of_service_attack:
-        type: integer
-      geological_event:
-        type: integer
-      hydrological_event:
-        type: integer
-      id:
-        type: integer
-      information_leakage_attack:
-        type: integer
-      infrastructure_failure_event:
-        type: integer
-      malware_attack:
-        type: integer
-      meteorological_event:
-        type: integer
-      misconfiguration_attack:
-        type: integer
-      misuse_attack:
-        type: integer
-      natural_hazard_event:
-        type: integer
-      people_failure:
-        type: integer
-      physical_attack:
-        type: integer
-      process_failure:
-        type: integer
-      reconnaissance_activities:
-        type: integer
-      social_engineering_attack:
-        type: integer
-      software_exploitation_attack:
-        type: integer
-      supply_chain_attack:
-        type: integer
-      technology_failure:
-        type: integer
-    type: object
-  interfaces.ThreatEventAssets:
-    properties:
-      affected_asset:
-        items:
-          type: string
-        type: array
-      id:
-        type: integer
-      threat_event:
-        type: string
-      threat_id:
-        type: integer
-    type: object
-  interfaces.ThreatEventCatalogue:
-    properties:
-      description:
-        type: string
-      id:
-        type: integer
-      in_scope:
-        type: string
-      threat_event:
-        type: string
-      threat_group:
+      metric:
         type: string
     type: object
 externalDocs:
@@ -528,13 +219,6 @@ paths:
       consumes:
       - application/json
       description: Retrieve all Risks
-      parameters:
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -542,7 +226,7 @@ paths:
           description: List of All Risks
           schema:
             items:
-              $ref: '#/definitions/interfaces.RiskCalculator'
+              $ref: '#/definitions/db.RiskCalculation'
             type: array
       summary: Retrieve All Risks
       tags:
@@ -558,19 +242,13 @@ paths:
         name: id
         required: true
         type: integer
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
         "200":
           description: Risk Details
           schema:
-            $ref: '#/definitions/interfaces.RiskCalculator'
+            $ref: '#/definitions/db.RiskCalculation'
       summary: Retrieve Risk by ID
       tags:
       - Risk
@@ -579,42 +257,43 @@ paths:
       consumes:
       - application/json
       description: Retrieve all Event
-      parameters:
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
         "200":
           description: List of All Event
           schema:
-            $ref: '#/definitions/interfaces.ThreatEventCatalogue'
+            $ref: '#/definitions/db.ThreatEventCatalog'
       summary: Retrieve All Catalogue
       tags:
       - Catalogue
+  /api/all-control:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all Event
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All Event
+          schema:
+            $ref: '#/definitions/db.ControlLibrary'
+      summary: Retrieve All Control
+      tags:
+      - Control
   /api/all-event:
     get:
       consumes:
       - application/json
       description: Event
-      parameters:
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
         "200":
           description: Your Frequency is by add
           schema:
-            $ref: '#/definitions/interfaces.ThreatEventAssets'
+            $ref: '#/definitions/db.ThreatEventAssets'
       summary: Event
       tags:
       - Event
@@ -623,20 +302,15 @@ paths:
       consumes:
       - application/json
       description: Retrieve all Event
-      parameters:
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
         "200":
           description: List of All Frequency
           schema:
-            $ref: '#/definitions/interfaces.Frequency'
+            items:
+              $ref: '#/definitions/db.Frequency'
+            type: array
       summary: Retrieve All Frequency
       tags:
       - Frequency
@@ -645,109 +319,14 @@ paths:
       consumes:
       - application/json
       description: Retrieve all Implementation
-      parameters:
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
         "200":
           description: List of All Implementation
           schema:
-            $ref: '#/definitions/interfaces.ControlImplementation'
-      summary: Retrieve All Implementation
-      tags:
-      - Control
-  /api/all-library:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve all library
-      parameters:
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of All Event
-          schema:
-            $ref: '#/definitions/interfaces.ControlLibrary'
-      summary: Retrieve All library
-      tags:
-      - Control
-  /api/all-propused:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve all Propused
-      parameters:
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of All Propused
-          schema:
-            $ref: '#/definitions/interfaces.Propused'
-      summary: Retrieve All Propused
-      tags:
-      - Control
-  /api/all-relevance:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve all Relevance
-      parameters:
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of All Event
-          schema:
-            $ref: '#/definitions/interfaces.Relevance'
-      summary: Retrieve All Relevance
-      tags:
-      - Control
-  /api/all-strength:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve all Strength
-      parameters:
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of All Event
-          schema:
-            $ref: '#/definitions/interfaces.Strength'
-      summary: Retrieve All Strength
+            $ref: '#/definitions/db.ControlLibrary'
+      summary: Retrieve All Implementation Implementation
       tags:
       - Control
   /api/asset/{id}:
@@ -761,19 +340,13 @@ paths:
         name: id
         required: true
         type: integer
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
         "200":
           description: Asset Details
           schema:
-            $ref: '#/definitions/interfaces.AssetsInventory'
+            $ref: '#/definitions/db.AssetInventory'
       summary: Retrieve Asset by ID
       tags:
       - Inventory
@@ -782,13 +355,6 @@ paths:
       consumes:
       - application/json
       description: Retrieve all assets
-      parameters:
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -796,7 +362,7 @@ paths:
           description: List of All Assets
           schema:
             items:
-              $ref: '#/definitions/interfaces.AssetsInventory'
+              $ref: '#/definitions/db.AssetInventory'
             type: array
       summary: Retrieve All Assets
       tags:
@@ -813,19 +379,13 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/interfaces.InputThreatEventCatalogue'
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: List of All Assets
+          description: List of All Events catalogues
           schema:
-            $ref: '#/definitions/interfaces.ThreatEventCatalogue'
+            $ref: '#/definitions/db.ThreatEventCatalog'
       summary: Create New Catalogue
       tags:
       - Catalogue
@@ -840,22 +400,59 @@ paths:
         name: id
         required: true
         type: integer
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
         "200":
           description: Event Details
           schema:
-            $ref: '#/definitions/interfaces.AssetsInventory'
+            $ref: '#/definitions/db.ThreatEventCatalog'
       summary: Retrieve Catalogue by ID
       tags:
       - Catalogue
+  /api/control:
+    post:
+      consumes:
+      - application/json
+      description: Create New Event Control
+      parameters:
+      - description: Data for create new Event
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.InputControlLibrary'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All Assets
+          schema:
+            $ref: '#/definitions/db.ControlLibrary'
+      summary: Create New Control
+      tags:
+      - Control
+  /api/control/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve an Event by its ID
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Event Details
+          schema:
+            $ref: '#/definitions/db.ControlLibrary'
+      summary: Retrieve Control by ID
+      tags:
+      - Control
   /api/create-Risk:
     post:
       consumes:
@@ -867,20 +464,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/db.RiskCalculator'
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
+          $ref: '#/definitions/interfaces.RiskCalc'
       produces:
       - application/json
       responses:
         "200":
           description: Risk Create
           schema:
-            $ref: '#/definitions/db.RiskCalculator'
+            $ref: '#/definitions/db.RiskCalculation'
       summary: Create Risk
       tags:
       - Risk
@@ -895,79 +486,17 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/db.AssetsInventory'
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
+          $ref: '#/definitions/interfaces.InputAssetsInventory'
       produces:
       - application/json
       responses:
         "200":
           description: Asset Create
           schema:
-            $ref: '#/definitions/db.AssetsInventory'
+            $ref: '#/definitions/db.AssetInventory'
       summary: Create Asset
       tags:
       - Inventory
-  /api/create-implementation:
-    post:
-      consumes:
-      - application/json
-      description: Create new Control Implementation
-      parameters:
-      - description: Data for create new Risk
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/db.ControlImplementation'
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Risk Create
-          schema:
-            $ref: '#/definitions/interfaces.ControlImplementation'
-      summary: Create Control Implementation
-      tags:
-      - Control
-  /api/create-library:
-    post:
-      consumes:
-      - application/json
-      description: Create new Control Library
-      parameters:
-      - description: Data for create new Risk
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/db.ControlLibrary'
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Risk Create
-          schema:
-            $ref: '#/definitions/db.ControlLibrary'
-      summary: Create Control Library
-      tags:
-      - Control
   /api/create-losshigh:
     post:
       consumes:
@@ -980,12 +509,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/db.LossHigh'
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -996,90 +519,28 @@ paths:
       summary: Create LossHigh
       tags:
       - losshigh
-  /api/create-propused:
+  /api/create-revelance:
     post:
       consumes:
       - application/json
-      description: Create new Control Propused
+      description: Create new Relevance
       parameters:
-      - description: Data for create new Risk
+      - description: Data for create new Relevance
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/interfaces.InputControlls'
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
+          $ref: '#/definitions/db.RelevanceDinamicInput'
       produces:
       - application/json
       responses:
         "200":
-          description: Risk Create
+          description: LossHigh Create
           schema:
-            $ref: '#/definitions/interfaces.Propused'
-      summary: Create Control Propused
+            $ref: '#/definitions/db.LossHigh'
+      summary: Create Relevance
       tags:
-      - Control
-  /api/create-relevance:
-    post:
-      consumes:
-      - application/json
-      description: Create new Control Relevance
-      parameters:
-      - description: Data for create new Risk
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/interfaces.InputControlls'
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Risk Create
-          schema:
-            $ref: '#/definitions/interfaces.Relevance'
-      summary: Create Control Relevance
-      tags:
-      - Control
-  /api/create-strength:
-    post:
-      consumes:
-      - application/json
-      description: Create new Control Strength
-      parameters:
-      - description: Data for create new Risk
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/interfaces.InputControlls'
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Risk Create
-          schema:
-            $ref: '#/definitions/interfaces.Strength'
-      summary: Create Control Strength
-      tags:
-      - Control
+      - losshigh
   /api/event:
     post:
       consumes:
@@ -1092,12 +553,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/db.ThreatEventAssets'
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -1119,13 +574,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/db.Frequency'
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
+          $ref: '#/definitions/interfaces.InputFrequency'
       produces:
       - application/json
       responses:
@@ -1141,23 +590,38 @@ paths:
       consumes:
       - application/json
       description: Retrieve one Frequency
-      parameters:
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
         "200":
           description: List of One Frequency
           schema:
-            $ref: '#/definitions/interfaces.Frequency'
+            $ref: '#/definitions/db.Frequency'
       summary: Retrieve one Frequency
       tags:
       - Frequency
+  /api/implementation:
+    post:
+      consumes:
+      - application/json
+      description: Create New Event Implementation
+      parameters:
+      - description: Data for create new Event
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.ImplementsInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All Assets
+          schema:
+            $ref: '#/definitions/db.ControlLibrary'
+      summary: Create New Implementation
+      tags:
+      - Control
   /api/implementation/{id}:
     get:
       consumes:
@@ -1169,47 +633,14 @@ paths:
         name: id
         required: true
         type: integer
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
         "200":
           description: Implementation Details
           schema:
-            $ref: '#/definitions/interfaces.ControlImplementation'
+            $ref: '#/definitions/db.ControlLibrary'
       summary: Retrieve Implementation by ID
-      tags:
-      - Control
-  /api/library/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve an library by its ID
-      parameters:
-      - description: library ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Event Details
-          schema:
-            $ref: '#/definitions/interfaces.ControlLibrary'
-      summary: Retrieve Library by ID
       tags:
       - Control
   /api/losshigh:
@@ -1217,13 +648,6 @@ paths:
       consumes:
       - application/json
       description: Retrieve all LossHighs
-      parameters:
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -1231,7 +655,7 @@ paths:
           description: List of All LossHighs
           schema:
             items:
-              $ref: '#/definitions/interfaces.LossHigh'
+              $ref: '#/definitions/db.LossHigh'
             type: array
       summary: Retrieve All LossHighs
       tags:
@@ -1247,103 +671,54 @@ paths:
         name: id
         required: true
         type: integer
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
         "200":
           description: LossHigh Details
           schema:
-            $ref: '#/definitions/interfaces.LossHigh'
+            $ref: '#/definitions/db.LossHigh'
       summary: Retrieve LossHigh by ID
       tags:
       - losshigh
-  /api/propused/{id}:
+  /api/revelance:
     get:
       consumes:
       - application/json
-      description: Retrieve an Propused by its ID
-      parameters:
-      - description: Propused ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
+      description: Retrieve all Revelances
       produces:
       - application/json
       responses:
         "200":
-          description: Propused Details
+          description: List of All Revelances
           schema:
-            $ref: '#/definitions/interfaces.Propused'
-      summary: Retrieve Propused by ID
+            items:
+              $ref: '#/definitions/db.RelevanceDinamic'
+            type: array
+      summary: Retrieve All Revelances
       tags:
-      - Control
-  /api/relevance/{id}:
+      - Revelance
+  /api/revelance/{id}:
     get:
       consumes:
       - application/json
-      description: Retrieve an Relevance by its ID
+      description: Retrieve an Revelance by its ID
       parameters:
-      - description: Event ID
+      - description: Revelance ID
         in: path
         name: id
         required: true
         type: integer
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: Event Details
+          description: Revelance Details
           schema:
-            $ref: '#/definitions/interfaces.Relevance'
-      summary: Retrieve Relevance by ID
+            $ref: '#/definitions/db.RelevanceDinamic'
+      summary: Retrieve Revelance by ID
       tags:
-      - Control
-  /api/strength/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve an Event by its ID
-      parameters:
-      - description: Strength ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - default: Bearer <token>
-        description: Auth Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Event Details
-          schema:
-            $ref: '#/definitions/interfaces.Strength'
-      summary: Retrieve Strength by ID
-      tags:
-      - Control
+      - Revelance
   /api/test-token:
     post:
       consumes:

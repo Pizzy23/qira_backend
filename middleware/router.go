@@ -4,7 +4,6 @@ import (
 	"qira/db"
 	_ "qira/docs"
 	catalogue "qira/internal/catalogue/handler"
-	control "qira/internal/control/handler"
 	event "qira/internal/event/handler"
 	frequency "qira/internal/frequency/handler"
 
@@ -36,10 +35,8 @@ func SetupRouter() *gin.Engine {
 	})
 
 	//Use response, but not Token
-	r.GET("/token", generateTokenHandler)
 
 	auth := r.Group("/api")
-	auth.Use(authMiddleware)
 	//Response and token service
 
 	auth.GET("/asset/:id", inventory.PullAssetId)
@@ -52,28 +49,11 @@ func SetupRouter() *gin.Engine {
 	auth.GET("/losshigh/:id", losshigh.PullLosstId)
 	auth.GET("/losshigh", losshigh.PullAllLoss)
 
-	auth.GET("/all-relevance", control.PullLibraryControl)
-	auth.GET("/all-implementation", control.PullImplementationControl)
-	auth.GET("/all-propused", control.PullPropusedControl)
-	auth.GET("/all-library", control.PullLibraryControl)
-	auth.GET("/all-strength", control.PullStrengthControl)
-
-	auth.GET("/relevance/:id", control.PullRelevanceId)
-	auth.GET("/propused/:id", control.PullImplementationId)
-	auth.GET("/implementation/:id", control.PullPropusedId)
-	auth.GET("/library/:id", control.PullLibraryId)
-	auth.GET("/strength/:id", control.PullStrengthId)
-
 	auth.PUT("/frequency", frequency.EditFrequency)
 
 	auth.POST("/catalogue", catalogue.CreateEvent)
 	auth.POST("/create-asset", inventory.CreateAsset)
 	auth.POST("/event", event.CreateEvent)
 	auth.POST("/losshigh", losshigh.CreateLossHigh)
-	auth.POST("/create-strength", control.CreateStrength)
-	auth.POST("/create-library", control.CreateLibrary)
-	auth.POST("/create-propusedry", control.CreatePropused)
-	auth.POST("/create-implementation", control.CreateImplementation)
-	auth.POST("/create-relevance", control.CreateStrength)
 	return r
 }

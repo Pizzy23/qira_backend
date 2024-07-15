@@ -67,88 +67,6 @@ type RiskCalculator struct { //so da input :)
 	EstimateRisk      float64 `json:"estimate_risk"`
 }
 
-type Relevance struct { //Cria tudo RELEVANCE
-	ID                         int `json:"id"`
-	AuthenticationAttack       int `json:"authentication_attack"`
-	AuthorisationAttack        int `json:"authorisation_attack"`
-	CommunicationAttack        int `json:"communication_attack"`
-	DenialOfServiceAttack      int `json:"denial_of_service_attack"`
-	InformationLeakageAttack   int `json:"information_leakage_attack"`
-	MalwareAttack              int `json:"malware_attack"`
-	MisconfigurationAttack     int `json:"misconfiguration_attack"`
-	MisuseAttack               int `json:"misuse_attack"`
-	PhysicalAttack             int `json:"physical_attack"`
-	ReconnaissanceActivities   int `json:"reconnaissance_activities"`
-	SocialEngineeringAttack    int `json:"social_engineering_attack"`
-	SoftwareExploitationAttack int `json:"software_exploitation_attack"`
-	SupplyChainAttack          int `json:"supply_chain_attack"`
-	PeopleFailure              int `json:"people_failure"`
-	ProcessFailure             int `json:"process_failure"`
-	TechnologyFailure          int `json:"technology_failure"`
-	BiologicalEvent            int `json:"biological_event"`
-	MeteorologicalEvent        int `json:"meteorological_event"`
-	GeologicalEvent            int `json:"geological_event"`
-	HydrologicalEvent          int `json:"hydrological_event"`
-	NaturalHazardEvent         int `json:"natural_hazard_event"`
-	InfrastructureFailureEvent int `json:"infrastructure_failure_event"`
-	AirborneParticlesEvent     int `json:"airborne_particles_event"`
-}
-
-type Strength struct {
-	ID                         int `json:"id"`
-	ControlID                  int `json:"controlId"`
-	AuthenticationAttack       int `json:"authentication_attack"`
-	AuthorisationAttack        int `json:"authorisation_attack"`
-	CommunicationAttack        int `json:"communication_attack"`
-	DenialOfServiceAttack      int `json:"denial_of_service_attack"`
-	InformationLeakageAttack   int `json:"information_leakage_attack"`
-	MalwareAttack              int `json:"malware_attack"`
-	MisconfigurationAttack     int `json:"misconfiguration_attack"`
-	MisuseAttack               int `json:"misuse_attack"`
-	PhysicalAttack             int `json:"physical_attack"`
-	ReconnaissanceActivities   int `json:"reconnaissance_activities"`
-	SocialEngineeringAttack    int `json:"social_engineering_attack"`
-	SoftwareExploitationAttack int `json:"software_exploitation_attack"`
-	SupplyChainAttack          int `json:"supply_chain_attack"`
-	PeopleFailure              int `json:"people_failure"`
-	ProcessFailure             int `json:"process_failure"`
-	TechnologyFailure          int `json:"technology_failure"`
-	BiologicalEvent            int `json:"biological_event"`
-	MeteorologicalEvent        int `json:"meteorological_event"`
-	GeologicalEvent            int `json:"geological_event"`
-	HydrologicalEvent          int `json:"hydrological_event"`
-	NaturalHazardEvent         int `json:"natural_hazard_event"`
-	InfrastructureFailureEvent int `json:"infrastructure_failure_event"`
-	AirborneParticlesEvent     int `json:"airborne_particles_event"`
-}
-type Propused struct {
-	ID                         int `json:"id"`
-	ControlID                  int `json:"controlId"`
-	AuthenticationAttack       int `json:"authentication_attack"`
-	AuthorisationAttack        int `json:"authorisation_attack"`
-	CommunicationAttack        int `json:"communication_attack"`
-	DenialOfServiceAttack      int `json:"denial_of_service_attack"`
-	InformationLeakageAttack   int `json:"information_leakage_attack"`
-	MalwareAttack              int `json:"malware_attack"`
-	MisconfigurationAttack     int `json:"misconfiguration_attack"`
-	MisuseAttack               int `json:"misuse_attack"`
-	PhysicalAttack             int `json:"physical_attack"`
-	ReconnaissanceActivities   int `json:"reconnaissance_activities"`
-	SocialEngineeringAttack    int `json:"social_engineering_attack"`
-	SoftwareExploitationAttack int `json:"software_exploitation_attack"`
-	SupplyChainAttack          int `json:"supply_chain_attack"`
-	PeopleFailure              int `json:"people_failure"`
-	ProcessFailure             int `json:"process_failure"`
-	TechnologyFailure          int `json:"technology_failure"`
-	BiologicalEvent            int `json:"biological_event"`
-	MeteorologicalEvent        int `json:"meteorological_event"`
-	GeologicalEvent            int `json:"geological_event"`
-	HydrologicalEvent          int `json:"hydrological_event"`
-	NaturalHazardEvent         int `json:"natural_hazard_event"`
-	InfrastructureFailureEvent int `json:"infrastructure_failure_event"`
-	AirborneParticlesEvent     int `json:"airborne_particles_event"`
-}
-
 type ControlLibrary struct {
 	ID               int    `json:"id"`
 	ControlID        int    `json:"controlId"`
@@ -159,7 +77,6 @@ type ControlLibrary struct {
 }
 
 type ControlImplementation struct {
-	ID                     int     `json:"id"`
 	ControlID              int     `json:"controlId"`
 	CurrentImplementation  int     `json:"current_implementation"`
 	CurrentPercentValue    string  `json:"current_percent_value"`
@@ -177,23 +94,23 @@ type AggregatedControlStrength struct { // COnversa com o event
 }
 
 type InputAssetsInventory struct {
-	Name              string  `json:"name"`
-	Description       string  `json:"description"`
-	Location          string  `json:"location"`
-	Responsible       string  `json:"responsible"`
-	BusinessValue     int     `json:"business_value"`
-	ReplacementCost   float64 `json:"replacement_cost"`
-	Criticality       string  `json:"criticality"`
-	Users             string  `json:"users"`
-	TargetEnvironment string  `json:"target_environment"`
+	Name                    string  `json:"name"`
+	Description             string  `json:"description"`
+	Location                string  `json:"location"`
+	Responsible             string  `json:"responsible"`
+	BusinessValue           int     `json:"business_value"`
+	ReplacementCost         float64 `json:"replacement_cost"`
+	Criticality             string  `json:"criticality"`
+	Users                   string  `json:"users"`
+	RoleInTargetEnvironment string  `json:"target_environment"`
 }
 
 type InputThreatEventCatalogue struct {
-	ID          int    `json:"id" xorm:"pk autoincr"`
+	ID          int64  `json:"id" xorm:"pk autoincr"`
 	ThreatGroup string `json:"threat_group"`
 	ThreatEvent string `json:"threat_event"`
 	Description string `json:"description"`
-	InScope     string `json:"in_scope"`
+	InScope     bool   `json:"in_scope"`
 }
 
 type InputFrequency struct {
@@ -222,49 +139,15 @@ type InputLossHigh struct {
 }
 
 type InputRiskCalculator struct {
-	ThreatEventID     int     `json:"threat_event_id"`
-	ThreatEvent       string  `json:"threat_event"`
-	MinFrequency      int     `json:"min_frequency"`
-	MaxFrequency      int     `json:"max_frequency"`
-	ModeFrequency     int     `json:"mode_frequency"`
-	EstimateFrequency float64 `json:"estimate_frequency"`
-	MinLoss           int     `json:"min_loss"`
-	MaxLoss           int     `json:"max_loss"`
-	ModeLoss          int     `json:"mode_loss"`
-	EstimateLoss      float64 `json:"estimate_loss"`
-	MinRisk           int     `json:"min_risk"`
-	MaxRisk           int     `json:"max_risk"`
-	ModeRisk          int     `json:"mode_risk"`
-	EstimateRisk      float64 `json:"estimate_risk"`
+	ThreatEventID int     `json:"threat_event_id"`
+	ThreatEvent   string  `json:"threat_event"`
+	RiskType      string  `json:"risk_type"`
+	Min           int     `json:"min"`
+	Max           int     `json:"max"`
+	Mode          int     `json:"mode"`
+	Estimate      float64 `json:"estimate"`
 }
 
-type InputControlls struct {
-	ControlID                  int    `json:"controlId"`
-	ControlType                string `json:"controlType"`
-	AuthenticationAttack       int    `json:"authentication_attack"`
-	AuthorisationAttack        int    `json:"authorisation_attack"`
-	CommunicationAttack        int    `json:"communication_attack"`
-	DenialOfServiceAttack      int    `json:"denial_of_service_attack"`
-	InformationLeakageAttack   int    `json:"information_leakage_attack"`
-	MalwareAttack              int    `json:"malware_attack"`
-	MisconfigurationAttack     int    `json:"misconfiguration_attack"`
-	MisuseAttack               int    `json:"misuse_attack"`
-	PhysicalAttack             int    `json:"physical_attack"`
-	ReconnaissanceActivities   int    `json:"reconnaissance_activities"`
-	SocialEngineeringAttack    int    `json:"social_engineering_attack"`
-	SoftwareExploitationAttack int    `json:"software_exploitation_attack"`
-	SupplyChainAttack          int    `json:"supply_chain_attack"`
-	PeopleFailure              int    `json:"people_failure"`
-	ProcessFailure             int    `json:"process_failure"`
-	TechnologyFailure          int    `json:"technology_failure"`
-	BiologicalEvent            int    `json:"biological_event"`
-	MeteorologicalEvent        int    `json:"meteorological_event"`
-	GeologicalEvent            int    `json:"geological_event"`
-	HydrologicalEvent          int    `json:"hydrological_event"`
-	NaturalHazardEvent         int    `json:"natural_hazard_event"`
-	InfrastructureFailureEvent int    `json:"infrastructure_failure_event"`
-	AirborneParticlesEvent     int    `json:"airborne_particles_event"`
-}
 type InputControlLibrary struct {
 	ControlID        int    `json:"controlId"`
 	ControlType      string `json:"control_type"`
@@ -296,4 +179,31 @@ type InputThreatEventAndAsset struct {
 type ThreatEventAndAsset struct {
 	Event ThreatEventAssets `json:"event"`
 	Asset AssetsInventory   `json:"Asset"`
+}
+
+type RiskCalc struct {
+	Metric string `json:"metric"`
+}
+
+type CombinedRisk struct {
+	ThreatEventID       int64
+	ThreatEvent         string
+	MinFrequency        float64
+	MaxFrequency        float64
+	MostLikelyFrequency float64
+	MinimumLoss         float64
+	MaximumLoss         float64
+	MostLikelyLoss      float64
+}
+
+type InputRevelance struct {
+	Name      string `json:"name"`
+	TypeTable string `json:"type_table"`
+}
+
+type ImplementsInput struct {
+	ControlID int `json:"controlId"`
+	Current   int `json:"current"`
+	Proposed  int `json:"proposed"`
+	Cost      int `json:"cost"`
 }
