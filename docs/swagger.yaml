@@ -298,7 +298,7 @@ paths:
             items:
               $ref: '#/definitions/db.AggregatedStrength'
             type: array
-      summary: Retrieve Aggregated Control Strength
+      summary: '{WIP} Retrieve Aggregated Control Strength'
       tags:
       - Control
   /api/all-catalogue:
@@ -392,7 +392,7 @@ paths:
             items:
               $ref: '#/definitions/db.PropusedDinamic'
             type: array
-      summary: Retrieve All Control Proposed
+      summary: '{WIP} Retrieve All Control Proposed'
       tags:
       - Control
   /api/all-strength:
@@ -409,7 +409,7 @@ paths:
             items:
               $ref: '#/definitions/db.ControlDinamic'
             type: array
-      summary: Retrieve All Control Strength
+      summary: '{WIP} Retrieve All Control Strength'
       tags:
       - Control
   /api/asset/{id}:
@@ -495,7 +495,7 @@ paths:
           description: List of All Events catalogues
           schema:
             $ref: '#/definitions/db.ThreatEventCatalog'
-      summary: Create New Catalogue
+      summary: '{WIP} Create New Catalogue'
       tags:
       - Catalogue
   /api/catalogue/{id}:
@@ -581,7 +581,7 @@ paths:
           description: Risk Create
           schema:
             $ref: '#/definitions/db.RiskCalculation'
-      summary: Create Risk
+      summary: '{WIP} Create Risk'
       tags:
       - Risk
   /api/create-asset:
@@ -874,7 +874,7 @@ paths:
           description: Relevance Updated
           schema:
             $ref: '#/definitions/db.RelevanceDinamic'
-      summary: Update Relevance
+      summary: '{WIP} Update Relevance'
       tags:
       - Relevance
   /api/revelance:

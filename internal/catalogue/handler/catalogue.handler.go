@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// @Summary Create New Catalogue
+// @Summary {WIP} Create New Catalogue
 // @Description Create New Event Catalogue
 // @Tags Catalogue
 // @Accept json

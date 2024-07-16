@@ -27,7 +27,7 @@ const docTemplate = `{
                 "tags": [
                     "Control"
                 ],
-                "summary": "Retrieve Aggregated Control Strength",
+                "summary": "{WIP} Retrieve Aggregated Control Strength",
                 "responses": {
                     "200": {
                         "description": "List of Aggregated Control Strength",
@@ -171,7 +171,7 @@ const docTemplate = `{
                 "tags": [
                     "Control"
                 ],
-                "summary": "Retrieve All Control Proposed",
+                "summary": "{WIP} Retrieve All Control Proposed",
                 "responses": {
                     "200": {
                         "description": "List of All Control Strength",
@@ -197,7 +197,7 @@ const docTemplate = `{
                 "tags": [
                     "Control"
                 ],
-                "summary": "Retrieve All Control Strength",
+                "summary": "{WIP} Retrieve All Control Strength",
                 "responses": {
                     "200": {
                         "description": "List of All Control Strength",
@@ -320,7 +320,7 @@ const docTemplate = `{
                 "tags": [
                     "Catalogue"
                 ],
-                "summary": "Create New Catalogue",
+                "summary": "{WIP} Create New Catalogue",
                 "parameters": [
                     {
                         "description": "Data for create new Event",
@@ -452,7 +452,7 @@ const docTemplate = `{
                 "tags": [
                     "Risk"
                 ],
-                "summary": "Create Risk",
+                "summary": "{WIP} Create Risk",
                 "parameters": [
                     {
                         "description": "Data for create new Risk",
@@ -895,7 +895,7 @@ const docTemplate = `{
                 "tags": [
                     "Relevance"
                 ],
-                "summary": "Update Relevance",
+                "summary": "{WIP} Update Relevance",
                 "parameters": [
                     {
                         "type": "integer",

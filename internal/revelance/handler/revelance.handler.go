@@ -64,7 +64,7 @@ func CreateRelevance(c *gin.Context) {
 
 }
 
-// @Summary Update Relevance
+// @Summary {WIP} Update Relevance
 // @Description Update an existing Relevance
 // @Tags Relevance
 // @Accept json

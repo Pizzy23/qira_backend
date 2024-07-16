@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// @Summary Create Risk
+// @Summary {WIP} Create Risk
 // @Description Create new Risk
 // @Tags Risk
 // @Accept json
