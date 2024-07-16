@@ -11,12 +11,23 @@ import (
 )
 
 func CreateAssetService(c *gin.Context, asset interfaces.InputAssetsInventory) error {
+	newAsset := db.AssetInventory{
+		Name:                    asset.Name,
+		Description:             asset.Description,
+		Location:                asset.Location,
+		Responsible:             asset.Responsible,
+		BusinessValue:           asset.BusinessValue,
+		ReplacementCost:         asset.ReplacementCost,
+		Criticality:             asset.Criticality,
+		Users:                   asset.Users,
+		RoleInTargetEnvironment: asset.RoleInTargetEnvironment,
+	}
 	engine, exists := c.Get("db")
 	if !exists {
 		return errors.New("database connection not found")
 	}
 
-	if err := db.Create(engine.(*xorm.Engine), &asset); err != nil {
+	if err := db.Create(engine.(*xorm.Engine), &newAsset); err != nil {
 		return err
 	}
 	return nil
@@ -63,4 +74,28 @@ func PullAssetId(c *gin.Context, id int) {
 	}
 	c.Set("Response", asset)
 	c.Status(http.StatusOK)
+}
+
+func UpdateAssetService(c *gin.Context, id int64, asset interfaces.InputAssetsInventory) error {
+	engine, exists := c.Get("db")
+	if !exists {
+		return errors.New("database connection not found")
+	}
+	condition := db.AssetInventory{ID: id}
+	assetToUpdate := db.AssetInventory{
+		Name:                    asset.Name,
+		Description:             asset.Description,
+		Location:                asset.Location,
+		Responsible:             asset.Responsible,
+		BusinessValue:           asset.BusinessValue,
+		ReplacementCost:         asset.ReplacementCost,
+		Criticality:             asset.Criticality,
+		Users:                   asset.Users,
+		RoleInTargetEnvironment: asset.RoleInTargetEnvironment,
+	}
+
+	if err := db.Update(engine.(*xorm.Engine), &assetToUpdate, &condition); err != nil {
+		return err
+	}
+	return nil
 }

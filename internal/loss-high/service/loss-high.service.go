@@ -2,6 +2,7 @@ package losshigh
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"qira/db"
 
@@ -22,22 +23,58 @@ func CreateLossHighService(c *gin.Context, LossHigh db.LossHigh) error {
 
 }
 
-func PullAllLossHigh(c *gin.Context) {
+func GetAggregatedLosses(c *gin.Context) ([]AggregatedLoss, error) {
 	var lossHighs []db.LossHigh
 	engine, exists := c.Get("db")
 	if !exists {
-		c.Set("Error", "Database connection not found")
-		c.Status(http.StatusInternalServerError)
-		return
+		return nil, errors.New("database connection not found")
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &lossHighs); err != nil {
-		c.Set("Error", err)
-		c.Status(http.StatusInternalServerError)
-		return
+		return nil, err
 	}
-	c.Set("Response", lossHighs)
-	c.Status(http.StatusOK)
+
+	aggregatedData := make(map[string]*AggregatedLoss)
+
+	// Aggregate data
+	for _, loss := range lossHighs {
+		key := fmt.Sprintf("%s-%s", loss.ThreatEvent, loss.LossType)
+		if _, exists := aggregatedData[key]; !exists {
+			aggregatedData[key] = &AggregatedLoss{
+				ThreatEvent:    loss.ThreatEvent,
+				Assets:         loss.Assets,
+				LossType:       loss.LossType,
+				MinimumLoss:    0,
+				MaximumLoss:    0,
+				MostLikelyLoss: 0,
+			}
+		}
+		aggregatedData[key].MinimumLoss += loss.MinimumLoss
+		aggregatedData[key].MaximumLoss += loss.MaximumLoss
+		aggregatedData[key].MostLikelyLoss += loss.MostLikelyLoss
+	}
+
+	// Convert map to slice
+	var result []AggregatedLoss
+	for _, v := range aggregatedData {
+		result = append(result, *v)
+	}
+
+	// Calculate totals
+	total := AggregatedLoss{
+		ThreatEvent:    "Total",
+		MinimumLoss:    0,
+		MaximumLoss:    0,
+		MostLikelyLoss: 0,
+	}
+	for _, agg := range result {
+		total.MinimumLoss += agg.MinimumLoss
+		total.MaximumLoss += agg.MaximumLoss
+		total.MostLikelyLoss += agg.MostLikelyLoss
+	}
+	result = append(result, total)
+
+	return result, nil
 }
 
 func PullLossHighId(c *gin.Context, id int) {

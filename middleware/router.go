@@ -4,8 +4,11 @@ import (
 	"qira/db"
 	_ "qira/docs"
 	catalogue "qira/internal/catalogue/handler"
+	control "qira/internal/control/handler"
 	event "qira/internal/event/handler"
 	frequency "qira/internal/frequency/handler"
+	revelance "qira/internal/revelance/handler"
+	risk "qira/internal/risk/handler"
 
 	inventory "qira/internal/inventory/handler"
 	losshigh "qira/internal/loss-high/handler"
@@ -39,21 +42,53 @@ func SetupRouter() *gin.Engine {
 	auth := r.Group("/api")
 	//Response and token service
 
+	//invetory
 	auth.GET("/asset/:id", inventory.PullAssetId)
-	auth.GET("/all-frequency", frequency.PullAllFrequency)
+	auth.POST("/create-asset", inventory.CreateAsset)
+	auth.PUT("/asset/:id", inventory.UpdateAsset)
 	auth.GET("/assets", inventory.PullAllAsset)
-	auth.GET("/frequency/:id", frequency.PullFrequencyById)
-	auth.GET("/all-catalogue", catalogue.PullAllEvent)
-	auth.GET("/catalogue/:id", catalogue.PullEventId)
-	auth.GET("/all-event", event.PullAllForEvent)
-	auth.GET("/losshigh/:id", losshigh.PullLosstId)
-	auth.GET("/losshigh", losshigh.PullAllLoss)
 
+	//frequency
+	auth.GET("/frequency/:id", frequency.PullFrequencyById)
+	auth.GET("/all-frequency", frequency.PullAllFrequency)
 	auth.PUT("/frequency", frequency.EditFrequency)
 
-	auth.POST("/catalogue", catalogue.CreateEvent)
-	auth.POST("/create-asset", inventory.CreateAsset)
+	//events
+	auth.GET("/all-event", event.PullAllForEvent)
 	auth.POST("/event", event.CreateEvent)
+
+	//Catalogue
+	auth.GET("/all-catalogue", catalogue.PullAllEvent)
+	auth.GET("/catalogue/:id", catalogue.PullEventId)
+	auth.POST("/catalogue", catalogue.CreateEvent)
+
+	//losshigh
+	auth.GET("/losshigh/:id", losshigh.PullLosstId)
+	auth.GET("/losshigh", losshigh.PullAllLossHigh)
 	auth.POST("/losshigh", losshigh.CreateLossHigh)
+
+	//Control
+	auth.POST("/control", control.CreateControl)
+	auth.GET("/all-control", control.PullAllControl)
+	auth.GET("/control/:id", control.PullControlId)
+
+	auth.POST("/implementation", control.CreateControlImplementation)
+	auth.GET("/all-implementation", control.PullAllControlImplementation)
+	auth.GET("/implementation/:id", control.PullControlImplementationId)
+
+	//Risk
+	auth.POST("/create-Risk", risk.CreateRisk)
+	auth.GET("/risk", risk.PullAllRisk)
+	auth.GET("/risk/:id", risk.PullRiskId)
+
+	// Revelance
+	auth.GET("/relevance", revelance.PullAllRevelance)
+	auth.GET("/relevance/:id", revelance.PullRevelanceId)
+	auth.POST("/create-relevance", revelance.CreateRelevance)
+	auth.PUT("/relevance/:id", revelance.UpdateRelevance)
+
+	auth.GET("/aggregated-control-strength", control.PullAggregatedControlStrength)
+	auth.GET("/all-strength", control.PullAllControlStrength)
+
 	return r
 }

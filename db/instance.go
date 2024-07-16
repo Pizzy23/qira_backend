@@ -55,13 +55,13 @@ func Migrate(engine *xorm.Engine) error {
 		new(LinkThreat),
 		new(LossHigh),
 		new(RiskCalculation),
-		new(Relevance),
 		new(ControlLibrary),
-		new(Propused),
-		new(Strength),
 		new(RiskController),
 		new(Implements),
 		new(AggregatedStrength),
+		new(PropusedDinamic),
+		new(ControlDinamic),
+		new(RelevanceDinamic),
 	}
 
 	for _, table := range tables {

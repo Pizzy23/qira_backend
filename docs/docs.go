@@ -15,9 +15,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/Risk": {
+        "/api/aggregated-control-strength": {
             "get": {
-                "description": "Retrieve all Risks",
+                "description": "Retrieve aggregated control strength for all threat events",
                 "consumes": [
                     "application/json"
                 ],
@@ -25,49 +25,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Risk"
+                    "Control"
                 ],
-                "summary": "Retrieve All Risks",
+                "summary": "Retrieve Aggregated Control Strength",
                 "responses": {
                     "200": {
-                        "description": "List of All Risks",
+                        "description": "List of Aggregated Control Strength",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/db.RiskCalculation"
+                                "$ref": "#/definitions/db.AggregatedStrength"
                             }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/Risk/{id}": {
-            "get": {
-                "description": "Retrieve an Risk by its ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Risk"
-                ],
-                "summary": "Retrieve Risk by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Risk ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Risk Details",
-                        "schema": {
-                            "$ref": "#/definitions/db.RiskCalculation"
                         }
                     }
                 }
@@ -180,12 +148,64 @@ const docTemplate = `{
                 "tags": [
                     "Control"
                 ],
-                "summary": "Retrieve All Implementation Implementation",
+                "summary": "Retrieve All Implementation",
                 "responses": {
                     "200": {
                         "description": "List of All Implementation",
                         "schema": {
                             "$ref": "#/definitions/db.ControlLibrary"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/all-proposed": {
+            "get": {
+                "description": "Retrieve all Control Proposed",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Control"
+                ],
+                "summary": "Retrieve All Control Proposed",
+                "responses": {
+                    "200": {
+                        "description": "List of All Control Strength",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.PropusedDinamic"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/all-strength": {
+            "get": {
+                "description": "Retrieve all Control Strength",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Control"
+                ],
+                "summary": "Retrieve All Control Strength",
+                "responses": {
+                    "200": {
+                        "description": "List of All Control Strength",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.ControlDinamic"
+                            }
                         }
                     }
                 }
@@ -216,6 +236,45 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "Asset Details",
+                        "schema": {
+                            "$ref": "#/definitions/db.AssetInventory"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing Asset",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Inventory"
+                ],
+                "summary": "Update Asset",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Asset ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Data to update Asset",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/interfaces.InputAssetsInventory"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Asset Updated",
                         "schema": {
                             "$ref": "#/definitions/db.AssetInventory"
                         }
@@ -449,6 +508,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/create-implements": {
+            "post": {
+                "description": "Create new Implements",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Revelance"
+                ],
+                "summary": "Create Implements",
+                "parameters": [
+                    {
+                        "description": "Data for create new Implements",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/interfaces.ImplementsInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Implements Create",
+                        "schema": {
+                            "$ref": "#/definitions/db.Implements"
+                        }
+                    }
+                }
+            }
+        },
         "/api/create-losshigh": {
             "post": {
                 "description": "Create new LossHigh",
@@ -459,7 +552,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "losshigh"
+                    "Losshigh"
                 ],
                 "summary": "Create LossHigh",
                 "parameters": [
@@ -493,7 +586,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "losshigh"
+                    "Revelance"
                 ],
                 "summary": "Create Relevance",
                 "parameters": [
@@ -509,9 +602,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "LossHigh Create",
+                        "description": "Relevance Create",
                         "schema": {
-                            "$ref": "#/definitions/db.LossHigh"
+                            "$ref": "#/definitions/db.RelevanceDinamic"
                         }
                     }
                 }
@@ -674,9 +767,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/losshigh": {
+        "/api/implements": {
             "get": {
-                "description": "Retrieve all LossHighs",
+                "description": "Retrieve all Implementss",
                 "consumes": [
                     "application/json"
                 ],
@@ -684,12 +777,70 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "losshigh"
+                    "Implements"
                 ],
-                "summary": "Retrieve All LossHighs",
+                "summary": "Retrieve All Implementss",
                 "responses": {
                     "200": {
-                        "description": "List of All LossHighs",
+                        "description": "List of All Implementss",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.Implements"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/implements/{id}": {
+            "get": {
+                "description": "Retrieve an Implements by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Implements"
+                ],
+                "summary": "Retrieve Implements by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Implements ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Implements Details",
+                        "schema": {
+                            "$ref": "#/definitions/db.Implements"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/losshigh": {
+            "get": {
+                "description": "Retrieve and aggregate all LossHigh records",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LossHigh"
+                ],
+                "summary": "Retrieve All LossHigh",
+                "responses": {
+                    "200": {
+                        "description": "List of All LossHigh with Aggregated Data",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -710,7 +861,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "losshigh"
+                    "Losshigh"
                 ],
                 "summary": "Retrieve LossHigh by ID",
                 "parameters": [
@@ -732,9 +883,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/relevance/{id}": {
+            "put": {
+                "description": "Update an existing Relevance",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Relevance"
+                ],
+                "summary": "Update Relevance",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Relevance ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Data to update Relevance",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/interfaces.RelevanceDinamicInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Relevance Updated",
+                        "schema": {
+                            "$ref": "#/definitions/db.RelevanceDinamic"
+                        }
+                    }
+                }
+            }
+        },
         "/api/revelance": {
             "get": {
-                "description": "Retrieve all Revelances",
+                "description": "Retrieve all Relevance",
                 "consumes": [
                     "application/json"
                 ],
@@ -744,10 +936,10 @@ const docTemplate = `{
                 "tags": [
                     "Revelance"
                 ],
-                "summary": "Retrieve All Revelances",
+                "summary": "Retrieve All Relevance",
                 "responses": {
                     "200": {
-                        "description": "List of All Revelances",
+                        "description": "List of All Relevance",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -785,6 +977,64 @@ const docTemplate = `{
                         "description": "Revelance Details",
                         "schema": {
                             "$ref": "#/definitions/db.RelevanceDinamic"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/risk": {
+            "get": {
+                "description": "Retrieve all Risks",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Risk"
+                ],
+                "summary": "Retrieve All Risks",
+                "responses": {
+                    "200": {
+                        "description": "List of All Risks",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.RiskCalculation"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/risk/{id}": {
+            "get": {
+                "description": "Retrieve an Risk by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Risk"
+                ],
+                "summary": "Retrieve Risk by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Risk ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Risk Details",
+                        "schema": {
+                            "$ref": "#/definitions/db.RiskCalculation"
                         }
                     }
                 }
@@ -848,6 +1098,26 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "db.AggregatedStrength": {
+            "type": "object",
+            "properties": {
+                "current": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "proposed": {
+                    "type": "string"
+                },
+                "threat_event": {
+                    "type": "string"
+                },
+                "threat_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "db.AssetInventory": {
             "type": "object",
             "properties": {
@@ -880,6 +1150,29 @@ const docTemplate = `{
                 },
                 "users": {
                     "type": "string"
+                }
+            }
+        },
+        "db.ControlDinamic": {
+            "type": "object",
+            "properties": {
+                "aggregate": {
+                    "type": "string"
+                },
+                "aggregateTable": {
+                    "type": "string"
+                },
+                "controlGap": {
+                    "type": "string"
+                },
+                "controlGapTable": {
+                    "type": "string"
+                },
+                "controlId": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
                 }
             }
         },
@@ -929,6 +1222,32 @@ const docTemplate = `{
                 }
             }
         },
+        "db.Implements": {
+            "type": "object",
+            "properties": {
+                "controlId": {
+                    "type": "integer"
+                },
+                "cost": {
+                    "type": "integer"
+                },
+                "current": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "percentCurrent": {
+                    "type": "string"
+                },
+                "percentProposed": {
+                    "type": "string"
+                },
+                "proposed": {
+                    "type": "integer"
+                }
+            }
+        },
         "db.LossHigh": {
             "type": "object",
             "properties": {
@@ -954,6 +1273,29 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "threatEventID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.PropusedDinamic": {
+            "type": "object",
+            "properties": {
+                "aggregate": {
+                    "type": "string"
+                },
+                "aggregateTable": {
+                    "type": "string"
+                },
+                "controlGap": {
+                    "type": "string"
+                },
+                "controlGapTable": {
+                    "type": "string"
+                },
+                "controlId": {
+                    "type": "integer"
+                },
+                "id": {
                     "type": "integer"
                 }
             }
@@ -1152,6 +1494,21 @@ const docTemplate = `{
                 },
                 "threat_group": {
                     "type": "string"
+                }
+            }
+        },
+        "interfaces.RelevanceDinamicInput": {
+            "type": "object",
+            "properties": {
+                "attributes": {
+                    "description": "dynamic attributes",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "controlId": {
+                    "type": "integer"
                 }
             }
         },

@@ -64,3 +64,34 @@ func PullAssetId(c *gin.Context) {
 	inventory.PullAssetId(c, id)
 
 }
+
+// @Summary Update Asset
+// @Description Update an existing Asset
+// @Tags Inventory
+// @Accept json
+// @Produce json
+// @Param id path int true "Asset ID"
+// @Param request body interfaces.InputAssetsInventory true "Data to update Asset"
+// @Success 200 {object} db.AssetInventory "Asset Updated"
+// @Router /api/asset/{id} [put]
+func UpdateAsset(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := strconv.ParseInt(idParam, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Asset ID"})
+		return
+	}
+
+	var asset interfaces.InputAssetsInventory
+	if err := c.ShouldBindJSON(&asset); err != nil {
+		c.JSON(http.StatusNotAcceptable, gin.H{"error": "Parameters are invalid, need a JSON"})
+		return
+	}
+
+	if err := inventory.UpdateAssetService(c, id, asset); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.Set("Response", "Asset updated successfully")
+	c.Status(http.StatusOK)
+}

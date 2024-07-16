@@ -35,15 +35,20 @@ func CreateLossHigh(c *gin.Context) {
 
 }
 
-// @Summary Retrieve All LossHighs
-// @Description Retrieve all LossHighs
-// @Tags Losshigh
+// @Summary Retrieve All LossHigh
+// @Description Retrieve and aggregate all LossHigh records
+// @Tags LossHigh
 // @Accept json
 // @Produce json
-// @Success 200 {object} []db.LossHigh "List of All LossHighs"
+// @Success 200 {object} []db.LossHigh "List of All LossHigh with Aggregated Data"
 // @Router /api/losshigh [get]
-func PullAllLoss(c *gin.Context) {
-	losshigh.PullAllLossHigh(c)
+func PullAllLossHigh(c *gin.Context) {
+	aggregatedLosses, err := losshigh.GetAggregatedLosses(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, aggregatedLosses)
 }
 
 // @Summary Retrieve LossHigh by ID

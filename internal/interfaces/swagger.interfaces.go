@@ -207,3 +207,8 @@ type ImplementsInput struct {
 	Proposed  int `json:"proposed"`
 	Cost      int `json:"cost"`
 }
+
+type RelevanceDinamicInput struct {
+	ControlID  int            `json:"controlId"`
+	Attributes map[string]int `json:"attributes"` // dynamic attributes
+}

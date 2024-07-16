@@ -68,21 +68,6 @@ type ControlLibrary struct {
 	InScope          bool   `xorm:"BOOL"`
 }
 
-type Relevance struct { //Remover essa tabela
-	ID        int `json:"id" xorm:"pk autoincr 'id' INT"`
-	ControlID int `json:"controlId" xorm:"INT notnull"`
-}
-
-type Strength struct { //Remover essa tabela
-	ID        int `json:"id" xorm:"pk autoincr 'id' INT"`
-	ControlID int `json:"controlId" xorm:"INT notnull"`
-}
-
-type Propused struct { //Remover essa tabela
-	ID        int `json:"id" xorm:"pk autoincr 'id' INT"`
-	ControlID int `json:"controlId" xorm:"INT notnull"`
-}
-
 type RiskController struct {
 	ID   int    `json:"id" xorm:"pk autoincr 'id' INT"`
 	Name string `json:"name" xorm:"VARCHAR(255) notnull"`

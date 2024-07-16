@@ -54,9 +54,9 @@ func CreateEventService(c *gin.Context, event interfaces.InputThreatEventCatalog
 }
 
 func createTables(engine *xorm.Engine, name string) error {
-	var relavence db.Relevance
-	var strength db.Strength
-	var propused db.Propused
+	var relavence db.RelevanceDinamic
+	var strength db.ControlDinamic
+	var propused db.PropusedDinamic
 	if err := db.CreateColumn(engine, relavence, name, "VARCHAR(255)"); err != nil {
 		return err
 	}

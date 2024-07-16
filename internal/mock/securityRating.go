@@ -10,7 +10,7 @@ type SecurityRating struct {
 	Average string `json:"average"`
 }
 
-func GetSecurityRatings() []SecurityRating {
+func getSecurityRatings() []SecurityRating {
 	return []SecurityRating{
 		{Score: 0, Range: "N/A", Min: "N/A", Max: "N/A", Average: "N/A"},
 		{Score: 1, Range: "1-35%", Min: "1%", Max: "35%", Average: "18%"},
@@ -21,7 +21,7 @@ func GetSecurityRatings() []SecurityRating {
 }
 
 func FindAverageByScore(score int) (string, error) {
-	ratings := GetSecurityRatings()
+	ratings := getSecurityRatings()
 	for _, rating := range ratings {
 		if rating.Score == score {
 			return rating.Average, nil

@@ -1,4 +1,17 @@
 definitions:
+  db.AggregatedStrength:
+    properties:
+      current:
+        type: string
+      id:
+        type: integer
+      proposed:
+        type: string
+      threat_event:
+        type: string
+      threat_id:
+        type: integer
+    type: object
   db.AssetInventory:
     properties:
       businessValue:
@@ -21,6 +34,21 @@ definitions:
         type: string
       users:
         type: string
+    type: object
+  db.ControlDinamic:
+    properties:
+      aggregate:
+        type: string
+      aggregateTable:
+        type: string
+      controlGap:
+        type: string
+      controlGapTable:
+        type: string
+      controlId:
+        type: integer
+      id:
+        type: integer
     type: object
   db.ControlLibrary:
     properties:
@@ -52,6 +80,23 @@ definitions:
       threatEventID:
         type: integer
     type: object
+  db.Implements:
+    properties:
+      controlId:
+        type: integer
+      cost:
+        type: integer
+      current:
+        type: integer
+      id:
+        type: integer
+      percentCurrent:
+        type: string
+      percentProposed:
+        type: string
+      proposed:
+        type: integer
+    type: object
   db.LossHigh:
     properties:
       assets:
@@ -69,6 +114,21 @@ definitions:
       threatEvent:
         type: string
       threatEventID:
+        type: integer
+    type: object
+  db.PropusedDinamic:
+    properties:
+      aggregate:
+        type: string
+      aggregateTable:
+        type: string
+      controlGap:
+        type: string
+      controlGapTable:
+        type: string
+      controlId:
+        type: integer
+      id:
         type: integer
     type: object
   db.RelevanceDinamic:
@@ -199,6 +259,16 @@ definitions:
       threat_group:
         type: string
     type: object
+  interfaces.RelevanceDinamicInput:
+    properties:
+      attributes:
+        additionalProperties:
+          type: integer
+        description: dynamic attributes
+        type: object
+      controlId:
+        type: integer
+    type: object
   interfaces.RiskCalc:
     properties:
       metric:
@@ -214,44 +284,23 @@ info:
   title: Qira
   version: "1.0"
 paths:
-  /api/Risk:
+  /api/aggregated-control-strength:
     get:
       consumes:
       - application/json
-      description: Retrieve all Risks
+      description: Retrieve aggregated control strength for all threat events
       produces:
       - application/json
       responses:
         "200":
-          description: List of All Risks
+          description: List of Aggregated Control Strength
           schema:
             items:
-              $ref: '#/definitions/db.RiskCalculation'
+              $ref: '#/definitions/db.AggregatedStrength'
             type: array
-      summary: Retrieve All Risks
+      summary: Retrieve Aggregated Control Strength
       tags:
-      - Risk
-  /api/Risk/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve an Risk by its ID
-      parameters:
-      - description: Risk ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Risk Details
-          schema:
-            $ref: '#/definitions/db.RiskCalculation'
-      summary: Retrieve Risk by ID
-      tags:
-      - Risk
+      - Control
   /api/all-catalogue:
     get:
       consumes:
@@ -326,7 +375,41 @@ paths:
           description: List of All Implementation
           schema:
             $ref: '#/definitions/db.ControlLibrary'
-      summary: Retrieve All Implementation Implementation
+      summary: Retrieve All Implementation
+      tags:
+      - Control
+  /api/all-proposed:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all Control Proposed
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All Control Strength
+          schema:
+            items:
+              $ref: '#/definitions/db.PropusedDinamic'
+            type: array
+      summary: Retrieve All Control Proposed
+      tags:
+      - Control
+  /api/all-strength:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all Control Strength
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All Control Strength
+          schema:
+            items:
+              $ref: '#/definitions/db.ControlDinamic'
+            type: array
+      summary: Retrieve All Control Strength
       tags:
       - Control
   /api/asset/{id}:
@@ -348,6 +431,32 @@ paths:
           schema:
             $ref: '#/definitions/db.AssetInventory'
       summary: Retrieve Asset by ID
+      tags:
+      - Inventory
+    put:
+      consumes:
+      - application/json
+      description: Update an existing Asset
+      parameters:
+      - description: Asset ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data to update Asset
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.InputAssetsInventory'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Asset Updated
+          schema:
+            $ref: '#/definitions/db.AssetInventory'
+      summary: Update Asset
       tags:
       - Inventory
   /api/assets:
@@ -497,6 +606,28 @@ paths:
       summary: Create Asset
       tags:
       - Inventory
+  /api/create-implements:
+    post:
+      consumes:
+      - application/json
+      description: Create new Implements
+      parameters:
+      - description: Data for create new Implements
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.ImplementsInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Implements Create
+          schema:
+            $ref: '#/definitions/db.Implements'
+      summary: Create Implements
+      tags:
+      - Revelance
   /api/create-losshigh:
     post:
       consumes:
@@ -518,7 +649,7 @@ paths:
             $ref: '#/definitions/db.LossHigh'
       summary: Create LossHigh
       tags:
-      - losshigh
+      - Losshigh
   /api/create-revelance:
     post:
       consumes:
@@ -535,12 +666,12 @@ paths:
       - application/json
       responses:
         "200":
-          description: LossHigh Create
+          description: Relevance Create
           schema:
-            $ref: '#/definitions/db.LossHigh'
+            $ref: '#/definitions/db.RelevanceDinamic'
       summary: Create Relevance
       tags:
-      - losshigh
+      - Revelance
   /api/event:
     post:
       consumes:
@@ -643,23 +774,61 @@ paths:
       summary: Retrieve Implementation by ID
       tags:
       - Control
-  /api/losshigh:
+  /api/implements:
     get:
       consumes:
       - application/json
-      description: Retrieve all LossHighs
+      description: Retrieve all Implementss
       produces:
       - application/json
       responses:
         "200":
-          description: List of All LossHighs
+          description: List of All Implementss
+          schema:
+            items:
+              $ref: '#/definitions/db.Implements'
+            type: array
+      summary: Retrieve All Implementss
+      tags:
+      - Implements
+  /api/implements/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve an Implements by its ID
+      parameters:
+      - description: Implements ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Implements Details
+          schema:
+            $ref: '#/definitions/db.Implements'
+      summary: Retrieve Implements by ID
+      tags:
+      - Implements
+  /api/losshigh:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve and aggregate all LossHigh records
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All LossHigh with Aggregated Data
           schema:
             items:
               $ref: '#/definitions/db.LossHigh'
             type: array
-      summary: Retrieve All LossHighs
+      summary: Retrieve All LossHigh
       tags:
-      - losshigh
+      - LossHigh
   /api/losshigh/{id}:
     get:
       consumes:
@@ -680,22 +849,49 @@ paths:
             $ref: '#/definitions/db.LossHigh'
       summary: Retrieve LossHigh by ID
       tags:
-      - losshigh
-  /api/revelance:
-    get:
+      - Losshigh
+  /api/relevance/{id}:
+    put:
       consumes:
       - application/json
-      description: Retrieve all Revelances
+      description: Update an existing Relevance
+      parameters:
+      - description: Relevance ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data to update Relevance
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.RelevanceDinamicInput'
       produces:
       - application/json
       responses:
         "200":
-          description: List of All Revelances
+          description: Relevance Updated
+          schema:
+            $ref: '#/definitions/db.RelevanceDinamic'
+      summary: Update Relevance
+      tags:
+      - Relevance
+  /api/revelance:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all Relevance
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All Relevance
           schema:
             items:
               $ref: '#/definitions/db.RelevanceDinamic'
             type: array
-      summary: Retrieve All Revelances
+      summary: Retrieve All Relevance
       tags:
       - Revelance
   /api/revelance/{id}:
@@ -719,6 +915,44 @@ paths:
       summary: Retrieve Revelance by ID
       tags:
       - Revelance
+  /api/risk:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all Risks
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All Risks
+          schema:
+            items:
+              $ref: '#/definitions/db.RiskCalculation'
+            type: array
+      summary: Retrieve All Risks
+      tags:
+      - Risk
+  /api/risk/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve an Risk by its ID
+      parameters:
+      - description: Risk ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Risk Details
+          schema:
+            $ref: '#/definitions/db.RiskCalculation'
+      summary: Retrieve Risk by ID
+      tags:
+      - Risk
   /api/test-token:
     post:
       consumes:

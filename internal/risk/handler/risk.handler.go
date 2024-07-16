@@ -44,7 +44,7 @@ func CreateRisk(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} []db.RiskCalculation "List of All Risks"
-// @Router /api/Risk [get]
+// @Router /api/risk [get]
 func PullAllRisk(c *gin.Context) {
 	risk.PullAllRisk(c)
 }
@@ -56,7 +56,7 @@ func PullAllRisk(c *gin.Context) {
 // @Produce json
 // @Param id path int true "Risk ID"
 // @Success 200 {object} db.RiskCalculation "Risk Details"
-// @Router /api/Risk/{id} [get]
+// @Router /api/risk/{id} [get]
 func PullRiskId(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)

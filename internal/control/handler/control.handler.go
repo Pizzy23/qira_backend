@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"xorm.io/xorm"
 )
 
 // @Summary Create New Control
@@ -99,7 +100,7 @@ func CreateControlImplementation(c *gin.Context) {
 
 }
 
-// @Summary Retrieve All Implementation Implementation
+// @Summary Retrieve All Implementation
 // @Description Retrieve all Implementation
 // @Tags Control
 // @Accept json
@@ -127,4 +128,52 @@ func PullControlImplementationId(c *gin.Context) {
 		return
 	}
 	control.PullControlId(c, id)
+}
+
+// @Summary Retrieve All Control Strength
+// @Description Retrieve all Control Strength
+// @Tags Control
+// @Accept json
+// @Produce json
+// @Success 200 {object} []db.ControlDinamic "List of All Control Strength"
+// @Router /api/all-strength [get]
+func PullAllControlStrength(c *gin.Context) {
+	control.PullAllControlStrength(c)
+}
+
+// @Summary Retrieve All Control Proposed
+// @Description Retrieve all Control Proposed
+// @Tags Control
+// @Accept json
+// @Produce json
+// @Success 200 {object} []db.PropusedDinamic "List of All Control Strength"
+// @Router /api/all-proposed [get]
+func PullAllControlProposed(c *gin.Context) {
+	control.PullAllControlProposed(c)
+}
+
+// @Summary Retrieve Aggregated Control Strength
+// @Description Retrieve aggregated control strength for all threat events
+// @Tags Control
+// @Accept json
+// @Produce json
+// @Success 200 {object} []db.AggregatedStrength "List of Aggregated Control Strength"
+// @Router /api/aggregated-control-strength [get]
+func PullAggregatedControlStrength(c *gin.Context) {
+	engine, exists := c.Get("db")
+	if !exists {
+		c.Set("Error", "Database connection not found")
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	finalResults, err := control.CalculateAggregatedControlStrength(engine.(*xorm.Engine))
+	if err != nil {
+		c.Set("Error", err)
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	c.Set("Response", finalResults)
+	c.Status(http.StatusOK)
 }
