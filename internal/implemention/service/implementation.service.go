@@ -15,13 +15,13 @@ func PullAllImplements(c *gin.Context) {
 	var implementations []db.Implements
 	engine, exists := c.Get("db")
 	if !exists {
-		c.Set("Error", "Database connection not found")
+		c.Set("Response", "Database connection not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &implementations); err != nil {
-		c.Set("Error", err)
+		c.Set("Response", err)
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -33,19 +33,19 @@ func PullImplementsId(c *gin.Context, id int) {
 	var implementation db.Implements
 	engine, exists := c.Get("db")
 	if !exists {
-		c.Set("Error", "Database connection not found")
+		c.Set("Response", "Database connection not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	found, err := db.GetByID(engine.(*xorm.Engine), &implementation, int64(id))
 	if err != nil {
-		c.Set("Error", "Error retrieving Implementation")
+		c.Set("Response", "Error retrieving Implementation")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 	if !found {
-		c.Set("Error", "Implementation not found")
+		c.Set("Response", "Implementation not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}

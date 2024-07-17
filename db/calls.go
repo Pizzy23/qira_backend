@@ -16,8 +16,18 @@ func Read(engine *xorm.Engine, table interface{}, condition interface{}) error {
 	return err
 }
 
-func Update(engine *xorm.Engine, table interface{}, condition interface{}) error {
-	_, err := engine.Where(condition).Update(table)
+func UpdateByThreatEvent(engine *xorm.Engine, table interface{}, threatEventID int64, riskType string) error {
+	_, err := engine.Where("threat_event_id = ? AND risk_type = ?", threatEventID, riskType).Update(table)
+	return err
+}
+
+func UpdateByThreat(engine *xorm.Engine, table interface{}, threatEventID string) error {
+	_, err := engine.Where("threat_event_id = ? ", threatEventID).Update(table)
+	return err
+}
+
+func UpdateByID(engine *xorm.Engine, table interface{}, id int64) error {
+	_, err := engine.ID(id).Update(table)
 	return err
 }
 
@@ -36,8 +46,31 @@ func GetAll(engine *xorm.Engine, tableSlice interface{}) error {
 	return err
 }
 
-func CreateColumn(engine *xorm.Engine, tableName interface{}, columnName string, typeTable string) error {
+func GetRiskCalculationsByRiskType(engine *xorm.Engine, threatEventID int64, riskType string) ([]RiskCalculation, error) {
+	var riskCalcs []RiskCalculation
+	err := engine.Where("threat_event_id = ? AND risk_type = ?", threatEventID, riskType).Find(&riskCalcs)
+	if err != nil {
+		return nil, err
+	}
+	return riskCalcs, nil
+}
+
+func CreateColumn(engine *xorm.Engine, tableName string, columnName string, typeTable string) error {
 	query := fmt.Sprintf("ALTER TABLE `%s` ADD COLUMN `%s` %s DEFAULT 0", tableName, columnName, typeTable)
 	_, err := engine.Exec(query)
 	return err
+}
+
+func GetRiskById(engine *xorm.Engine, riskType int64) ([]RiskCalculation, error) {
+	var riskCalcs []RiskCalculation
+	err := engine.Where("threat_event_id = ?", riskType).Find(&riskCalcs)
+	if err != nil {
+		return nil, err
+	}
+	return riskCalcs, nil
+}
+
+func GetByEventIDAndRiskType(engine *xorm.Engine, table interface{}, eventId int64, riskType string) (bool, error) {
+	found, err := engine.Where("threat_event_id = ? AND risk_type = ?", eventId, riskType).Get(table)
+	return found, err
 }

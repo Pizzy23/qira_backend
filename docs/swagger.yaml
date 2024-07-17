@@ -14,8 +14,8 @@ definitions:
     type: object
   db.AssetInventory:
     properties:
-      businessValue:
-        type: integer
+      business_value:
+        type: number
       criticality:
         type: string
       description:
@@ -26,7 +26,7 @@ definitions:
         type: string
       name:
         type: string
-      replacementCost:
+      replacement_cost:
         type: number
       responsible:
         type: string
@@ -37,6 +37,8 @@ definitions:
     type: object
   db.ControlDinamic:
     properties:
+      Attacktxt:
+        type: string
       aggregate:
         type: string
       aggregateTable:
@@ -118,6 +120,8 @@ definitions:
     type: object
   db.PropusedDinamic:
     properties:
+      Attacktxt:
+        type: string
       aggregate:
         type: string
       aggregateTable:
@@ -133,6 +137,8 @@ definitions:
     type: object
   db.RelevanceDinamic:
     properties:
+      Attacktxt:
+        type: string
       controlId:
         type: integer
       id:
@@ -140,6 +146,8 @@ definitions:
     type: object
   db.RelevanceDinamicInput:
     properties:
+      Attacktxt:
+        type: string
       controlId:
         type: integer
     type: object
@@ -155,11 +163,11 @@ definitions:
         type: number
       mode:
         type: number
-      riskType:
+      risk_type:
         type: string
-      threatEvent:
+      threat_event:
         type: string
-      threatEventID:
+      threat_event_id:
         type: integer
     type: object
   db.ThreatEventAssets:
@@ -200,7 +208,7 @@ definitions:
   interfaces.InputAssetsInventory:
     properties:
       business_value:
-        type: integer
+        type: number
       criticality:
         type: string
       description:
@@ -213,7 +221,7 @@ definitions:
         type: number
       responsible:
         type: string
-      target_environment:
+      roleInTargetEnvironment:
         type: string
       users:
         type: string
@@ -234,11 +242,11 @@ definitions:
   interfaces.InputFrequency:
     properties:
       max_frequency:
-        type: integer
+        type: number
       min_frequency:
-        type: integer
+        type: number
       most_common_frequency:
-        type: integer
+        type: number
       support_information:
         type: string
       threat_event:
@@ -268,11 +276,6 @@ definitions:
         type: object
       controlId:
         type: integer
-    type: object
-  interfaces.RiskCalc:
-    properties:
-      metric:
-        type: string
     type: object
 externalDocs:
   description: OpenAPI
@@ -315,7 +318,7 @@ paths:
             $ref: '#/definitions/db.ThreatEventCatalog'
       summary: Retrieve All Catalogue
       tags:
-      - Catalogue
+      - 2 - Catalogue
   /api/all-control:
     get:
       consumes:
@@ -345,7 +348,7 @@ paths:
             $ref: '#/definitions/db.ThreatEventAssets'
       summary: Event
       tags:
-      - Event
+      - 4 - Event
   /api/all-frequency:
     get:
       consumes:
@@ -362,7 +365,7 @@ paths:
             type: array
       summary: Retrieve All Frequency
       tags:
-      - Frequency
+      - 3 - Frequency
   /api/all-implementation:
     get:
       consumes:
@@ -432,7 +435,7 @@ paths:
             $ref: '#/definitions/db.AssetInventory'
       summary: Retrieve Asset by ID
       tags:
-      - Inventory
+      - 1 - Inventory
     put:
       consumes:
       - application/json
@@ -458,7 +461,7 @@ paths:
             $ref: '#/definitions/db.AssetInventory'
       summary: Update Asset
       tags:
-      - Inventory
+      - 1 - Inventory
   /api/assets:
     get:
       consumes:
@@ -475,7 +478,7 @@ paths:
             type: array
       summary: Retrieve All Assets
       tags:
-      - Inventory
+      - 1 - Inventory
   /api/catalogue:
     post:
       consumes:
@@ -497,7 +500,7 @@ paths:
             $ref: '#/definitions/db.ThreatEventCatalog'
       summary: '{WIP} Create New Catalogue'
       tags:
-      - Catalogue
+      - 2 - Catalogue
   /api/catalogue/{id}:
     get:
       consumes:
@@ -518,7 +521,7 @@ paths:
             $ref: '#/definitions/db.ThreatEventCatalog'
       summary: Retrieve Catalogue by ID
       tags:
-      - Catalogue
+      - 2 - Catalogue
   /api/control:
     post:
       consumes:
@@ -567,13 +570,6 @@ paths:
       consumes:
       - application/json
       description: Create new Risk
-      parameters:
-      - description: Data for create new Risk
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/interfaces.RiskCalc'
       produces:
       - application/json
       responses:
@@ -583,7 +579,7 @@ paths:
             $ref: '#/definitions/db.RiskCalculation'
       summary: '{WIP} Create Risk'
       tags:
-      - Risk
+      - 6 - Risk
   /api/create-asset:
     post:
       consumes:
@@ -605,7 +601,7 @@ paths:
             $ref: '#/definitions/db.AssetInventory'
       summary: Create Asset
       tags:
-      - Inventory
+      - 1 - Inventory
   /api/create-implements:
     post:
       consumes:
@@ -649,7 +645,7 @@ paths:
             $ref: '#/definitions/db.LossHigh'
       summary: Create LossHigh
       tags:
-      - Losshigh
+      - 5 - Loss-High
   /api/create-revelance:
     post:
       consumes:
@@ -693,7 +689,7 @@ paths:
             $ref: '#/definitions/db.ThreatEventAssets'
       summary: Create Event
       tags:
-      - Event
+      - 4 - Event
   /api/frequency:
     put:
       consumes:
@@ -715,7 +711,7 @@ paths:
             $ref: '#/definitions/db.Frequency'
       summary: Edit Frequency
       tags:
-      - Frequency
+      - 3 - Frequency
   /api/frequency/{id}:
     get:
       consumes:
@@ -730,7 +726,7 @@ paths:
             $ref: '#/definitions/db.Frequency'
       summary: Retrieve one Frequency
       tags:
-      - Frequency
+      - 3 - Frequency
   /api/implementation:
     post:
       consumes:
@@ -828,7 +824,7 @@ paths:
             type: array
       summary: Retrieve All LossHigh
       tags:
-      - LossHigh
+      - 5 - Loss-High
   /api/losshigh/{id}:
     get:
       consumes:
@@ -849,34 +845,7 @@ paths:
             $ref: '#/definitions/db.LossHigh'
       summary: Retrieve LossHigh by ID
       tags:
-      - Losshigh
-  /api/relevance/{id}:
-    put:
-      consumes:
-      - application/json
-      description: Update an existing Relevance
-      parameters:
-      - description: Relevance ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Data to update Relevance
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/interfaces.RelevanceDinamicInput'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Relevance Updated
-          schema:
-            $ref: '#/definitions/db.RelevanceDinamic'
-      summary: '{WIP} Update Relevance'
-      tags:
-      - Relevance
+      - 5 - Loss-High
   /api/revelance:
     get:
       consumes:
@@ -915,6 +884,32 @@ paths:
       summary: Retrieve Revelance by ID
       tags:
       - Revelance
+    put:
+      consumes:
+      - application/json
+      description: Update an existing Relevance
+      parameters:
+      - description: Relevance ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data to update Relevance
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.RelevanceDinamicInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Relevance Updated
+          schema:
+            $ref: '#/definitions/db.RelevanceDinamic'
+      summary: '{WIP} Update Relevance'
+      tags:
+      - Revelance
   /api/risk:
     get:
       consumes:
@@ -931,14 +926,14 @@ paths:
             type: array
       summary: Retrieve All Risks
       tags:
-      - Risk
+      - 6 - Risk
   /api/risk/{id}:
     get:
       consumes:
       - application/json
       description: Retrieve an Risk by its ID
       parameters:
-      - description: Risk ID
+      - description: Threat event ID
         in: path
         name: id
         required: true
@@ -952,44 +947,7 @@ paths:
             $ref: '#/definitions/db.RiskCalculation'
       summary: Retrieve Risk by ID
       tags:
-      - Risk
-  /api/test-token:
-    post:
-      consumes:
-      - application/json
-      description: Cria um toke para auth do usuario
-      parameters:
-      - default: Bearer <token>
-        description: Token de autenticação
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 'token make:'
-          schema:
-            type: string
-      summary: Test Token
-      tags:
-      - Auth
-  /token:
-    get:
-      consumes:
-      - application/json
-      description: Cria um toke para auth do usuario
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 'token make:'
-          schema:
-            type: string
-      summary: Criar token de auth
-      tags:
-      - Auth
+      - 6 - Risk
 securityDefinitions:
   BasicAuth:
     type: basic

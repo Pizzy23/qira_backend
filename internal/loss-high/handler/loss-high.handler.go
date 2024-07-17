@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"qira/db"
 	losshigh "qira/internal/loss-high/service"
-	erros "qira/middleware/interfaces/errors"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +11,7 @@ import (
 
 // @Summary Create LossHigh
 // @Description Create new LossHigh
-// @Tags Losshigh
+// @Tags 5 - Loss-High
 // @Accept json
 // @Produce json
 // @Param request body db.LossHigh true "Data for create new LossHigh"
@@ -22,12 +21,14 @@ func CreateLossHigh(c *gin.Context) {
 	var LossHigh db.LossHigh
 
 	if err := c.ShouldBindJSON(&LossHigh); err != nil {
-		c.JSON(erros.StatusNotAcceptable, gin.H{"error": "Parameters are invalid, need a JSON"})
+		c.Set("Response", "Parameters are invalid, need a JSON")
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	if err := losshigh.CreateLossHighService(c, LossHigh); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.Set("Response", err)
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 	c.Set("Response", "LossHigh created successfully")
@@ -37,7 +38,7 @@ func CreateLossHigh(c *gin.Context) {
 
 // @Summary Retrieve All LossHigh
 // @Description Retrieve and aggregate all LossHigh records
-// @Tags LossHigh
+// @Tags 5 - Loss-High
 // @Accept json
 // @Produce json
 // @Success 200 {object} []db.LossHigh "List of All LossHigh with Aggregated Data"
@@ -45,15 +46,17 @@ func CreateLossHigh(c *gin.Context) {
 func PullAllLossHigh(c *gin.Context) {
 	aggregatedLosses, err := losshigh.GetAggregatedLosses(c)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.Set("Response", err)
+		c.Status(http.StatusInternalServerError)
 		return
 	}
-	c.JSON(http.StatusOK, aggregatedLosses)
+	c.Set("Response", aggregatedLosses)
+	c.Status(http.StatusOK)
 }
 
 // @Summary Retrieve LossHigh by ID
 // @Description Retrieve an LossHigh by its ID
-// @Tags Losshigh
+// @Tags 5 - Loss-High
 // @Accept json
 // @Produce json
 // @Param id path int true "LossHigh ID"
@@ -63,7 +66,7 @@ func PullLosstId(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid LossHigh ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"Response": "Invalid LossHigh ID"})
 		return
 	}
 	losshigh.PullLossHighId(c, id)

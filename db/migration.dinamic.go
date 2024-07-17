@@ -3,6 +3,8 @@ package db
 type RelevanceDinamic struct {
 	ID        int64 `json:"id" xorm:"pk autoincr 'id' INT"`
 	ControlID int   `json:"controlId" xorm:"INT notnull"`
+    Attacktxt string `json:"Attacktxt" xorm:"VARCHAR(255) notnull"`
+    yourbaseIsattack string `json:"yourbaseIsattack" xorm:"VARCHAR(255) notnull"`
 }
 
 type ControlDinamic struct {
@@ -12,6 +14,8 @@ type ControlDinamic struct {
 	Aggregate       string `json:"aggregate" xorm:"VARCHAR(255) notnull"`
 	ControlGapTable string `json:"controlGapTable" xorm:"VARCHAR(255) notnull"`
 	ControlGap      string `json:"controlGap" xorm:"VARCHAR(255) notnull"`
+    Attacktxt string `json:"Attacktxt" xorm:"VARCHAR(255) notnull"`
+    yourbaseIsattack string `json:"yourbaseIsattack" xorm:"VARCHAR(255) notnull"`
 }
 
 type PropusedDinamic struct {
@@ -21,16 +25,24 @@ type PropusedDinamic struct {
 	Aggregate       string `json:"aggregate" xorm:"VARCHAR(255) notnull"`
 	ControlGapTable string `json:"controlGapTable" xorm:"VARCHAR(255) notnull"`
 	ControlGap      string `json:"controlGap" xorm:"VARCHAR(255) notnull"`
+    Attacktxt string `json:"Attacktxt" xorm:"VARCHAR(255) notnull"`
+    yourbaseIsattack string `json:"yourbaseIsattack" xorm:"VARCHAR(255) notnull"`
 }
 
 type RelevanceDinamicInput struct {
 	ControlID int `json:"controlId" xorm:"INT notnull"`
+    Attacktxt string `json:"Attacktxt" xorm:"VARCHAR(255) notnull"`
+    yourbaseIsattack string `json:"yourbaseIsattack" xorm:"VARCHAR(255) notnull"`
 }
 
 type ControlDinamicInput struct {
 	ControlID int `json:"controlId" xorm:"INT notnull"`
+    Attacktxt string `json:"Attacktxt" xorm:"VARCHAR(255) notnull"`
+    yourbaseIsattack string `json:"yourbaseIsattack" xorm:"VARCHAR(255) notnull"`
 }
 
 type PropusedDinamicInput struct {
 	ControlID int `json:"controlId" xorm:"INT notnull"`
+    Attacktxt string `json:"Attacktxt" xorm:"VARCHAR(255) notnull"`
+    yourbaseIsattack string `json:"yourbaseIsattack" xorm:"VARCHAR(255) notnull"`
 }

@@ -65,7 +65,7 @@ func SetupRouter() *gin.Engine {
 	//losshigh
 	auth.GET("/losshigh/:id", losshigh.PullLosstId)
 	auth.GET("/losshigh", losshigh.PullAllLossHigh)
-	auth.POST("/losshigh", losshigh.CreateLossHigh)
+	auth.POST("/create-losshigh", losshigh.CreateLossHigh)
 
 	//Control
 	auth.POST("/control", control.CreateControl)
@@ -82,10 +82,10 @@ func SetupRouter() *gin.Engine {
 	auth.GET("/risk/:id", risk.PullRiskId)
 
 	// Revelance
-	auth.GET("/relevance", revelance.PullAllRevelance)
-	auth.GET("/relevance/:id", revelance.PullRevelanceId)
-	auth.POST("/create-relevance", revelance.CreateRelevance)
-	auth.PUT("/relevance/:id", revelance.UpdateRelevance)
+	auth.GET("/revelance", revelance.PullAllRevelance)
+	auth.GET("/revelance/:id", revelance.PullRevelanceId)
+	auth.POST("/create-revelance", revelance.CreateRelevance)
+	auth.PUT("/revelance/:id", revelance.UpdateRelevance)
 
 	auth.GET("/aggregated-control-strength", control.PullAggregatedControlStrength)
 	auth.GET("/all-strength", control.PullAllControlStrength)

@@ -4,7 +4,6 @@ import (
 	"net/http"
 	frequency "qira/internal/frequency/service"
 	"qira/internal/interfaces"
-	erros "qira/middleware/interfaces/errors"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +11,7 @@ import (
 
 // @Summary Edit Frequency
 // @Description Edit Frequency
-// @Tags Frequency
+// @Tags 3 - Frequency
 // @Accept json
 // @Produce json
 // @Param request body interfaces.InputFrequency true "Edit Frequency"
@@ -22,22 +21,24 @@ func EditFrequency(c *gin.Context) {
 	var frequencyInput interfaces.InputFrequency
 
 	if err := c.ShouldBindJSON(&frequencyInput); err != nil {
-		c.JSON(erros.StatusNotAcceptable, gin.H{"error": "Parameters are invalid, need a JSON"})
+		c.Set("Response", "Parameters are invalid, need a JSON")
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	if err := frequency.EditFrequencyService(c, frequencyInput); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.Set("Response", err)
+		c.Status(http.StatusInternalServerError)
 		return
 	}
-	c.Set("Response", "Event created successfully")
+	c.Set("Response", "Event update successfully")
 	c.Status(http.StatusOK)
 
 }
 
 // @Summary Retrieve All Frequency
 // @Description Retrieve all Event
-// @Tags Frequency
+// @Tags 3 - Frequency
 // @Accept json
 // @Produce json
 // @Success 200 {object} []db.Frequency "List of All Frequency"
@@ -48,7 +49,7 @@ func PullAllFrequency(c *gin.Context) {
 
 // @Summary Retrieve one Frequency
 // @Description Retrieve one Frequency
-// @Tags Frequency
+// @Tags 3 - Frequency
 // @Accept json
 // @Produce json
 // @Success 200 {object} db.Frequency "List of One Frequency"
@@ -57,7 +58,8 @@ func PullFrequencyById(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid asset ID"})
+		c.Set("Response", "Parameters are invalid, need a JSON")
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 	frequency.PullEventIdService(c, id)

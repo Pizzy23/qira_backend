@@ -2,9 +2,7 @@ package risk
 
 import (
 	"net/http"
-	"qira/internal/interfaces"
 	risk "qira/internal/risk/service"
-	erros "qira/middleware/interfaces/errors"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -12,22 +10,16 @@ import (
 
 // @Summary {WIP} Create Risk
 // @Description Create new Risk
-// @Tags Risk
+// @Tags 6 - Risk
 // @Accept json
 // @Produce json
-// @Param request body interfaces.RiskCalc true "Data for create new Risk"
 // @Success 200 {object} db.RiskCalculation "Risk Create"
 // @Router /api/create-Risk [post]
 func CreateRisk(c *gin.Context) {
-	var riskInput interfaces.RiskCalc
 
-	if err := c.ShouldBindJSON(&riskInput); err != nil {
-		c.JSON(erros.StatusNotAcceptable, gin.H{"error": "Parameters are invalid, need a JSON"})
-		return
-	}
-
-	if risk, err := risk.CreateRiskService(c, riskInput); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	if risk, err := risk.CreateRiskService(c); err != nil {
+		c.Set("Response", err)
+		c.Status(http.StatusInternalServerError)
 		return
 	} else if risk != nil {
 		c.Set("Response", risk)
@@ -40,7 +32,7 @@ func CreateRisk(c *gin.Context) {
 
 // @Summary Retrieve All Risks
 // @Description Retrieve all Risks
-// @Tags Risk
+// @Tags 6 - Risk
 // @Accept json
 // @Produce json
 // @Success 200 {object} []db.RiskCalculation "List of All Risks"
@@ -51,17 +43,18 @@ func PullAllRisk(c *gin.Context) {
 
 // @Summary Retrieve Risk by ID
 // @Description Retrieve an Risk by its ID
-// @Tags Risk
+// @Tags 6 - Risk
 // @Accept json
 // @Produce json
-// @Param id path int true "Risk ID"
+// @Param id path int true "Threat event ID"
 // @Success 200 {object} db.RiskCalculation "Risk Details"
 // @Router /api/risk/{id} [get]
 func PullRiskId(c *gin.Context) {
 	idParam := c.Param("id")
-	id, err := strconv.Atoi(idParam)
+	id, err := strconv.ParseInt(idParam, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Risk ID"})
+		c.Set("Response", "Invalid ID")
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 	risk.PullRiskId(c, id)

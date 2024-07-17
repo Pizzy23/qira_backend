@@ -98,11 +98,11 @@ type InputAssetsInventory struct {
 	Description             string  `json:"description"`
 	Location                string  `json:"location"`
 	Responsible             string  `json:"responsible"`
-	BusinessValue           int     `json:"business_value"`
+	BusinessValue           float64 `json:"business_value"`
 	ReplacementCost         float64 `json:"replacement_cost"`
 	Criticality             string  `json:"criticality"`
 	Users                   string  `json:"users"`
-	RoleInTargetEnvironment string  `json:"target_environment"`
+	RoleInTargetEnvironment string  `json:"roleInTargetEnvironment"`
 }
 
 type InputThreatEventCatalogue struct {
@@ -114,12 +114,12 @@ type InputThreatEventCatalogue struct {
 }
 
 type InputFrequency struct {
-	ThreatEventID       int    `json:"threat_event_id"`
-	ThreatEvent         string `json:"threat_event"`
-	MinFrequency        int    `json:"min_frequency"`
-	MaxFrequency        int    `json:"max_frequency"`
-	MostCommonFrequency int    `json:"most_common_frequency"`
-	SupportInformation  string `json:"support_information"`
+	ThreatEventID       int64   `json:"threat_event_id"`
+	ThreatEvent         string  `json:"threat_event"`
+	MinFrequency        float64 `json:"min_frequency"`
+	MaxFrequency        float64 `json:"max_frequency"`
+	MostCommonFrequency float64 `json:"most_common_frequency"`
+	SupportInformation  string  `json:"support_information"`
 }
 
 type InputThreatEventAssets struct {
@@ -176,9 +176,11 @@ type InputThreatEventAndAsset struct {
 	Event InputThreatEventAssets `json:"event"`
 	Asset InputAssetsInventory   `json:"Asset"`
 }
+
 type ThreatEventAndAsset struct {
-	Event ThreatEventAssets `json:"event"`
-	Asset AssetsInventory   `json:"Asset"`
+	ThreatID    int    `json:"threat_id" xorm:"INT notnull"`
+	ThreatEvent string `json:"threat_event" xorm:"VARCHAR(255) notnull"`
+	AssetName   string `json:"asset_name" xorm:"JSON notnull"`
 }
 
 type RiskCalc struct {

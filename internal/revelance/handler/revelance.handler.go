@@ -33,7 +33,8 @@ func PullRevelanceId(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Revelance ID"})
+		c.Set("Response", "Invalid ID")
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 	revelance.PullRevelanceId(c, id)
@@ -51,12 +52,14 @@ func CreateRelevance(c *gin.Context) {
 	var RelevanceInput db.RelevanceDinamicInput
 
 	if err := c.ShouldBindJSON(&RelevanceInput); err != nil {
-		c.JSON(http.StatusNotAcceptable, gin.H{"error": "Parameters are invalid, need a JSON"})
+		c.Set("Response", "Invalid ID")
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	if err := revelance.CreateRelevanceService(c, RelevanceInput); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.Set("Response", err)
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 	c.Set("Response", "Relevance created successfully")
@@ -66,29 +69,32 @@ func CreateRelevance(c *gin.Context) {
 
 // @Summary {WIP} Update Relevance
 // @Description Update an existing Relevance
-// @Tags Relevance
+// @Tags Revelance
 // @Accept json
 // @Produce json
 // @Param id path int true "Relevance ID"
 // @Param request body interfaces.RelevanceDinamicInput true "Data to update Relevance"
 // @Success 200 {object} db.RelevanceDinamic "Relevance Updated"
-// @Router /api/relevance/{id} [put]
+// @Router /api/revelance/{id} [put]
 func UpdateRelevance(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.ParseInt(idParam, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Relevance ID"})
+		c.Set("Response", "Invalid ID")
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	var relevanceInput interfaces.RelevanceDinamicInput
 	if err := c.ShouldBindJSON(&relevanceInput); err != nil {
-		c.JSON(http.StatusNotAcceptable, gin.H{"error": "Parameters are invalid, need a JSON"})
+		c.Set("Response", "Parameters are invalid, need a JSON")
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	if err := revelance.UpdateRelevanceService(c, id, relevanceInput); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.Set("Response", err)
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 	c.Set("Response", "Relevance updated successfully")

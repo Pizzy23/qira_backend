@@ -25,7 +25,7 @@ func ResponseHandler() gin.HandlerFunc {
 
 		file, err := os.OpenFile("logfile.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"Response": "Internal Server Error"})
 			return
 		}
 		defer file.Close()
@@ -41,9 +41,9 @@ func ResponseHandler() gin.HandlerFunc {
 			responseData["Response"] = response
 			typeResponse = "NormalRes"
 		}
-		if response, ok := c.Get("Error"); ok {
+		if response, ok := c.Get("Response"); ok {
 			responseData["Response"] = response
-			typeResponse = "Error"
+			typeResponse = "Response"
 		}
 
 		startTime := time.Now()
@@ -62,30 +62,24 @@ func ResponseHandler() gin.HandlerFunc {
 			"IP":             clientIP,
 		}
 		combinedData := gin.H{}
-		if typeResponse == "Error" {
-			combinedData = gin.H{
-				"LogData": logData,
-				"Data":    responseData,
-			}
+		if typeResponse == "Response" {
+			combinedData = responseData
 		}
 		if typeResponse == "NormalRes" {
-			combinedData = gin.H{
-				"LogData": logData,
-				"Data":    responseData,
-			}
+			combinedData = responseData
 		}
 
 		logString := fmt.Sprintf("ExecutionTime: %s, Route: %s, HttpStatusCode: %d, IP: %s\n",
 			logData["ExecutionTime"], logData["Route"], logData["HttpStatusCode"], logData["IP"])
 
 		if _, err := file.WriteString(logString); err != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"Response": "Internal Server Error"})
 			return
 		}
 
 		responseJSON, err := json.Marshal(combinedData)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"Response": "Internal Server Error"})
 			return
 		}
 

@@ -22,16 +22,17 @@ func CreateControl(c *gin.Context) {
 	var controlInput interfaces.InputControlLibrary
 
 	if err := c.ShouldBindJSON(&controlInput); err != nil {
-		c.Set("Error", "Parameters are invalid, need a JSON")
+		c.Set("Response", "Parameters are invalid, need a JSON")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 	if err := c.ShouldBindJSON(&controlInput); err != nil {
-
+		c.Set("Response", "Parameters are invalid, need a JSON")
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 	if err := control.CreateControlService(c, controlInput); err != nil {
-		c.Set("Error", err.Error())
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -63,7 +64,7 @@ func PullControlId(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		c.Set("Error", "Invalid asset ID")
+		c.Set("Response", "Invalid asset ID")
 		c.Status(http.StatusBadRequest)
 		return
 	}
@@ -82,16 +83,17 @@ func CreateControlImplementation(c *gin.Context) {
 	var controlInput interfaces.ImplementsInput
 
 	if err := c.ShouldBindJSON(&controlInput); err != nil {
-		c.Set("Error", "Parameters are invalid, need a JSON")
+		c.Set("Response", "Parameters are invalid, need a JSON")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 	if err := c.ShouldBindJSON(&controlInput); err != nil {
-
+		c.Set("Response", "Parameters are invalid, need a JSON")
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 	if err := control.CreateImplementService(c, controlInput); err != nil {
-		c.Set("Error", err.Error())
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -123,7 +125,7 @@ func PullControlImplementationId(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		c.Set("Error", "Invalid asset ID")
+		c.Set("Response", "Invalid asset ID")
 		c.Status(http.StatusBadRequest)
 		return
 	}
@@ -162,14 +164,14 @@ func PullAllControlProposed(c *gin.Context) {
 func PullAggregatedControlStrength(c *gin.Context) {
 	engine, exists := c.Get("db")
 	if !exists {
-		c.Set("Error", "Database connection not found")
+		c.Set("Response", "Database connection not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	finalResults, err := control.CalculateAggregatedControlStrength(engine.(*xorm.Engine))
 	if err != nil {
-		c.Set("Error", err)
+		c.Set("Response", err)
 		c.Status(http.StatusInternalServerError)
 		return
 	}

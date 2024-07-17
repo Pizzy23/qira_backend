@@ -35,13 +35,14 @@ func GetAggregatedLosses(c *gin.Context) ([]AggregatedLoss, error) {
 	}
 
 	aggregatedData := make(map[string]*AggregatedLoss)
+	threatEventTotals := make(map[string]*AggregatedLoss)
 
-	// Aggregate data
 	for _, loss := range lossHighs {
 		key := fmt.Sprintf("%s-%s", loss.ThreatEvent, loss.LossType)
 		if _, exists := aggregatedData[key]; !exists {
 			aggregatedData[key] = &AggregatedLoss{
 				ThreatEvent:    loss.ThreatEvent,
+				ThreatEventId:  loss.ThreatEventID,
 				Assets:         loss.Assets,
 				LossType:       loss.LossType,
 				MinimumLoss:    0,
@@ -52,27 +53,31 @@ func GetAggregatedLosses(c *gin.Context) ([]AggregatedLoss, error) {
 		aggregatedData[key].MinimumLoss += loss.MinimumLoss
 		aggregatedData[key].MaximumLoss += loss.MaximumLoss
 		aggregatedData[key].MostLikelyLoss += loss.MostLikelyLoss
+
+		if _, exists := threatEventTotals[loss.ThreatEvent]; !exists {
+			threatEventTotals[loss.ThreatEvent] = &AggregatedLoss{
+				ThreatEvent:    loss.ThreatEvent,
+				ThreatEventId:  loss.ThreatEventID,
+				Assets:         "",
+				LossType:       "Total",
+				MinimumLoss:    0,
+				MaximumLoss:    0,
+				MostLikelyLoss: 0,
+			}
+		}
+		threatEventTotals[loss.ThreatEvent].MinimumLoss += loss.MinimumLoss
+		threatEventTotals[loss.ThreatEvent].MaximumLoss += loss.MaximumLoss
+		threatEventTotals[loss.ThreatEvent].MostLikelyLoss += loss.MostLikelyLoss
 	}
 
-	// Convert map to slice
 	var result []AggregatedLoss
 	for _, v := range aggregatedData {
 		result = append(result, *v)
 	}
 
-	// Calculate totals
-	total := AggregatedLoss{
-		ThreatEvent:    "Total",
-		MinimumLoss:    0,
-		MaximumLoss:    0,
-		MostLikelyLoss: 0,
+	for _, total := range threatEventTotals {
+		result = append(result, *total)
 	}
-	for _, agg := range result {
-		total.MinimumLoss += agg.MinimumLoss
-		total.MaximumLoss += agg.MaximumLoss
-		total.MostLikelyLoss += agg.MostLikelyLoss
-	}
-	result = append(result, total)
 
 	return result, nil
 }
@@ -81,19 +86,19 @@ func PullLossHighId(c *gin.Context, id int) {
 	var lossHigh db.LossHigh
 	engine, exists := c.Get("db")
 	if !exists {
-		c.Set("Error", "Database connection not found")
+		c.Set("Response", "Database connection not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	found, err := db.GetByID(engine.(*xorm.Engine), &lossHigh, int64(id))
 	if err != nil {
-		c.Set("Error", "Error retrieving LossHigh")
+		c.Set("Response", "Error retrieving LossHigh")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 	if !found {
-		c.Set("Error", "LossHigh not found")
+		c.Set("Response", "LossHigh not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}

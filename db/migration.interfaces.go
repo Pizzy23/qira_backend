@@ -1,16 +1,16 @@
 package db
 
 type AssetInventory struct {
-	ID                      int64   `xorm:"pk autoincr"`
-	Name                    string  `xorm:"VARCHAR(255)"`
-	Description             string  `xorm:"TEXT"`
-	Location                string  `xorm:"VARCHAR(255)"`
-	Responsible             string  `xorm:"VARCHAR(255)"`
-	BusinessValue           int     `xorm:"INT"`
-	ReplacementCost         float64 `xorm:"FLOAT"`
-	Criticality             string  `xorm:"VARCHAR(255)"`
-	Users                   string  `xorm:"VARCHAR(255)"`
-	RoleInTargetEnvironment string  `xorm:"VARCHAR(255)"`
+	ID                      int64   `json:"id" xorm:"pk autoincr"`
+	Name                    string  `json:"name" xorm:"VARCHAR(255)"`
+	Description             string  `json:"description" xorm:"TEXT"`
+	Location                string  `json:"location" xorm:"VARCHAR(255)"`
+	Responsible             string  `json:"responsible" xorm:"VARCHAR(255)"`
+	BusinessValue           float64 `json:"business_value" xorm:"FLOAT"`
+	ReplacementCost         float64 `json:"replacement_cost" xorm:"FLOAT"`
+	Criticality             string  `json:"criticality" xorm:"VARCHAR(255)"`
+	Users                   string  `json:"users" xorm:"VARCHAR(255)"`
+	RoleInTargetEnvironment string  `json:"roleInTargetEnvironment" xorm:"VARCHAR(255)"`
 }
 
 type ThreatEventCatalog struct {
@@ -50,14 +50,14 @@ type LossHigh struct {
 }
 
 type RiskCalculation struct {
-	ID            int64   `xorm:"pk autoincr"`
-	ThreatEventID int64   `xorm:"INT"`
-	ThreatEvent   string  `xorm:"VARCHAR(255)"`
-	RiskType      string  `xorm:"VARCHAR(255)"`
-	Min           float64 `xorm:"INT"`
-	Max           float64 `xorm:"INT"`
-	Mode          float64 `xorm:"INT"`
-	Estimate      float64 `xorm:"FLOAT"`
+	ID            int64   `json:"id" xorm:"pk autoincr"`
+	ThreatEventID int64   `json:"threat_event_id" xorm:"INT"`
+	ThreatEvent   string  `json:"threat_event" xorm:"VARCHAR(255)"`
+	RiskType      string  `json:"risk_type" xorm:"VARCHAR(255)"`
+	Min           float64 `json:"min" xorm:"INT"`
+	Max           float64 `json:"max" xorm:"INT"`
+	Mode          float64 `json:"mode" xorm:"INT"`
+	Estimate      float64 `json:"estimate" xorm:"FLOAT"`
 }
 
 type ControlLibrary struct {

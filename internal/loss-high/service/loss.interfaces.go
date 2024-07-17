@@ -1,6 +1,7 @@
 package losshigh
 
 type AggregatedLoss struct {
+	ThreatEventId  int64   `json:"threat_event_id"`
 	ThreatEvent    string  `json:"threat_event"`
 	Assets         string  `json:"assets"`
 	LossType       string  `json:"loss_type"`

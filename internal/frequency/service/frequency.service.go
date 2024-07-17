@@ -23,29 +23,36 @@ func CreateFrequencyService(c *gin.Context, data db.Frequency) error {
 }
 
 func EditFrequencyService(c *gin.Context, freq interfaces.InputFrequency) error {
-	var frequencyTable *db.Frequency
+	frequencyTable := db.Frequency{
+		ThreatEventID:         freq.ThreatEventID,
+		ThreatEvent:           freq.ThreatEvent,
+		MinFrequency:          freq.MinFrequency,
+		MaxFrequency:          freq.MaxFrequency,
+		MostLikelyFrequency:   freq.MostCommonFrequency,
+		SupportingInformation: freq.SupportInformation,
+	}
 	engine, exists := c.Get("db")
 	if !exists {
 		return errors.New("database connection not found")
 	}
 
-	if err := db.Update(engine.(*xorm.Engine), frequencyTable, &freq); err != nil {
+	if err := db.UpdateByThreat(engine.(*xorm.Engine), frequencyTable, freq.ThreatEvent); err != nil {
 		return err
 	}
 	return nil
 }
 
 func PullAllEventService(c *gin.Context) {
-	var frequency []interfaces.InputFrequency
+	var frequency []db.Frequency
 	engine, exists := c.Get("db")
 	if !exists {
-		c.Set("Error", "Database connection not found")
+		c.Set("Response", "Database connection not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &frequency); err != nil {
-		c.Set("Error", "Error")
+		c.Set("Response", "Response")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -54,22 +61,22 @@ func PullAllEventService(c *gin.Context) {
 }
 
 func PullEventIdService(c *gin.Context, id int) {
-	var frequency interfaces.InputFrequency
+	var frequency db.Frequency
 	engine, exists := c.Get("db")
 	if !exists {
-		c.Set("Error", "Database connection not found")
+		c.Set("Response", "Database connection not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	found, err := db.GetByID(engine.(*xorm.Engine), &frequency, int64(id))
 	if err != nil {
-		c.Set("Error", "Error retrieving Frequency")
+		c.Set("Response", "Error retrieving Frequency")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 	if !found {
-		c.Set("Error", "Frequency not found")
+		c.Set("Response", "Frequency not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}

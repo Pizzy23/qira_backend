@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"qira/internal/interfaces"
 	inventory "qira/internal/inventory/service"
-	erros "qira/middleware/interfaces/errors"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +11,7 @@ import (
 
 // @Summary Create Asset
 // @Description Create new Asset
-// @Tags Inventory
+// @Tags 1 - Inventory
 // @Accept json
 // @Produce json
 // @Param request body interfaces.InputAssetsInventory true "Data for create new Asset"
@@ -22,12 +21,14 @@ func CreateAsset(c *gin.Context) {
 	var asset interfaces.InputAssetsInventory
 
 	if err := c.ShouldBindJSON(&asset); err != nil {
-		c.JSON(erros.StatusNotAcceptable, gin.H{"error": "Parameters are invalid, need a JSON"})
+		c.Set("Response", "Parameters are invalid, need a JSON")
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	if err := inventory.CreateAssetService(c, asset); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.Set("Response", err)
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 	c.Set("Response", "Asset created successfully")
@@ -37,7 +38,7 @@ func CreateAsset(c *gin.Context) {
 
 // @Summary Retrieve All Assets
 // @Description Retrieve all assets
-// @Tags Inventory
+// @Tags 1 - Inventory
 // @Accept json
 // @Produce json
 // @Success 200 {object} []db.AssetInventory "List of All Assets"
@@ -48,7 +49,7 @@ func PullAllAsset(c *gin.Context) {
 
 // @Summary Retrieve Asset by ID
 // @Description Retrieve an asset by its ID
-// @Tags Inventory
+// @Tags 1 - Inventory
 // @Accept json
 // @Produce json
 // @Param id path int true "Asset ID"
@@ -58,7 +59,8 @@ func PullAssetId(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid asset ID"})
+		c.Set("Response", "Invalid ID")
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 	inventory.PullAssetId(c, id)
@@ -67,7 +69,7 @@ func PullAssetId(c *gin.Context) {
 
 // @Summary Update Asset
 // @Description Update an existing Asset
-// @Tags Inventory
+// @Tags 1 - Inventory
 // @Accept json
 // @Produce json
 // @Param id path int true "Asset ID"
@@ -78,18 +80,21 @@ func UpdateAsset(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.ParseInt(idParam, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Asset ID"})
+		c.Set("Response", "Invalid ID")
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	var asset interfaces.InputAssetsInventory
 	if err := c.ShouldBindJSON(&asset); err != nil {
-		c.JSON(http.StatusNotAcceptable, gin.H{"error": "Parameters are invalid, need a JSON"})
+		c.Set("Response", "Parameters are invalid, need a JSON")
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	if err := inventory.UpdateAssetService(c, id, asset); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.Set("Response", err)
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 	c.Set("Response", "Asset updated successfully")

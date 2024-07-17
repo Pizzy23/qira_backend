@@ -56,13 +56,13 @@ func PullAllControl(c *gin.Context) {
 	var controls []db.ControlLibrary
 	engine, exists := c.Get("db")
 	if !exists {
-		c.Set("Error", "Database connection not found")
+		c.Set("Response", "Database connection not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &controls); err != nil {
-		c.Set("Error", err)
+		c.Set("Response", err)
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -74,19 +74,19 @@ func PullControlId(c *gin.Context, id int) {
 	var control db.ControlLibrary
 	engine, exists := c.Get("db")
 	if !exists {
-		c.Set("Error", "Database connection not found")
+		c.Set("Response", "Database connection not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	found, err := db.GetByID(engine.(*xorm.Engine), &control, int64(id))
 	if err != nil {
-		c.Set("Error", "Error retrieving control")
+		c.Set("Response", "Error retrieving control")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 	if !found {
-		c.Set("Error", "control not found")
+		c.Set("Response", "control not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}

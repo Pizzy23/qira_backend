@@ -19,17 +19,17 @@ func PullAllControlStrength(c *gin.Context) {
 	var implementations []db.Implements
 	engine, exists := c.Get("db")
 	if !exists {
-		c.Set("Error", "Database connection not found")
+		c.Set("Response", "Database connection not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 	if err := db.GetAll(engine.(*xorm.Engine), &relevances); err != nil {
-		c.Set("Error", err)
+		c.Set("Response", err)
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 	if err := db.GetAll(engine.(*xorm.Engine), &implementations); err != nil {
-		c.Set("Error", err)
+		c.Set("Response", err)
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -90,7 +90,7 @@ func PullAllControlStrength(c *gin.Context) {
 	}
 
 	if err := saveResultsControlDinamic(engine.(*xorm.Engine), finalResults); err != nil {
-		c.Set("Error", err)
+		c.Set("Response", err)
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -104,17 +104,17 @@ func PullAllControlProposed(c *gin.Context) {
 	var implementations []db.Implements
 	engine, exists := c.Get("db")
 	if !exists {
-		c.Set("Error", "Database connection not found")
+		c.Set("Response", "Database connection not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 	if err := db.GetAll(engine.(*xorm.Engine), &relevances); err != nil {
-		c.Set("Error", err)
+		c.Set("Response", err)
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 	if err := db.GetAll(engine.(*xorm.Engine), &implementations); err != nil {
-		c.Set("Error", err)
+		c.Set("Response", err)
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -175,7 +175,7 @@ func PullAllControlProposed(c *gin.Context) {
 	}
 
 	if err := saveResultsPropusedDinamic(engine.(*xorm.Engine), finalResults); err != nil {
-		c.Set("Error", err)
+		c.Set("Response", err)
 		c.Status(http.StatusInternalServerError)
 		return
 	}

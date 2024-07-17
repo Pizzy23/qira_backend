@@ -8,6 +8,7 @@ import (
 	"qira/db"
 	frequency "qira/internal/frequency/service"
 	"qira/internal/interfaces"
+	"qira/util"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -15,17 +16,22 @@ import (
 )
 
 func CreateEventService(c *gin.Context, event interfaces.InputThreatEventCatalogue) error {
-
-	engine, ok := c.MustGet("db_engine").(*xorm.Engine)
-	if !ok {
+	engine, exists := c.Get("db")
+	if !exists {
 		return errors.New("database connection not found")
 	}
-
-	if err := createTables(engine, event.ThreatEvent); err != nil {
+	event = util.SanitizeInputCatalogue(&event)
+	eventDB := db.ThreatEventCatalog{
+		ThreatGroup: event.ThreatGroup,
+		ThreatEvent: event.ThreatEvent,
+		Description: event.Description,
+		InScope:     event.InScope,
+	}
+	if _, err := engine.(*xorm.Engine).Insert(&eventDB); err != nil {
 		return err
 	}
 
-	if _, err := engine.Insert(&event); err != nil {
+	if err := createTables(engine.(*xorm.Engine), event.ThreatEvent); err != nil {
 		return err
 	}
 
@@ -54,16 +60,13 @@ func CreateEventService(c *gin.Context, event interfaces.InputThreatEventCatalog
 }
 
 func createTables(engine *xorm.Engine, name string) error {
-	var relavence db.RelevanceDinamic
-	var strength db.ControlDinamic
-	var propused db.PropusedDinamic
-	if err := db.CreateColumn(engine, relavence, name, "VARCHAR(255)"); err != nil {
+	if err := db.CreateColumn(engine, "relevance_dinamic", name, "VARCHAR(255)"); err != nil {
 		return err
 	}
-	if err := db.CreateColumn(engine, strength, name, "VARCHAR(255)"); err != nil {
+	if err := db.CreateColumn(engine, "control_dinamic", name, "VARCHAR(255)"); err != nil {
 		return err
 	}
-	if err := db.CreateColumn(engine, propused, name, "VARCHAR(255)"); err != nil {
+	if err := db.CreateColumn(engine, "propused_dinamic", name, "VARCHAR(255)"); err != nil {
 		return err
 	}
 	RiskController := db.RiskController{
@@ -72,11 +75,18 @@ func createTables(engine *xorm.Engine, name string) error {
 	if err := db.Create(engine, RiskController); err != nil {
 		return err
 	}
-	modifyTables(name, "VARCHAR(255)")
+	modifyTables(name)
 	return nil
 }
 
-func modifyTables(name string, typeTable string) error {
+func capitalizeFirstLetter(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+	return strings.ToUpper(string(s[0])) + s[1:]
+}
+
+func modifyTables(columnName string) error {
 	filename := "db/migration.dinamic.go"
 
 	content, err := ioutil.ReadFile(filename)
@@ -88,13 +98,15 @@ func modifyTables(name string, typeTable string) error {
 	var modifiedLines []string
 	inStruct := false
 
+	capitalizedColumnName := capitalizeFirstLetter(columnName)
+
 	for _, line := range lines {
 		if strings.Contains(line, "type") && strings.Contains(line, "struct") {
 			inStruct = true
 		}
 
 		if inStruct && strings.TrimSpace(line) == "}" {
-			newLine := fmt.Sprintf("    %s %s `json:\"%s\" xorm:\"String notnull\"`", name, typeTable, name)
+			newLine := fmt.Sprintf("    %s %s `json:\"%s\" xorm:\"%s notnull\"`", capitalizedColumnName, "string", columnName, "VARCHAR(255)")
 			modifiedLines = append(modifiedLines, newLine)
 			inStruct = false
 		}
@@ -115,13 +127,13 @@ func PullAllEventService(c *gin.Context) {
 	var events []db.ThreatEventCatalog
 	engine, exists := c.Get("db")
 	if !exists {
-		c.Set("Error", "Database connection not found")
+		c.Set("Response", "Database connection not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &events); err != nil {
-		c.Set("Error", err)
+		c.Set("Response", err)
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -133,19 +145,19 @@ func PullEventIdService(c *gin.Context, id int) {
 	var event db.ThreatEventCatalog
 	engine, exists := c.Get("db")
 	if !exists {
-		c.Set("Error", "Database connection not found")
+		c.Set("Response", "Database connection not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	found, err := db.GetByID(engine.(*xorm.Engine), &event, int64(id))
 	if err != nil {
-		c.Set("Error", "Error retrieving event")
+		c.Set("Response", "Error retrieving event")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 	if !found {
-		c.Set("Error", "Event not found")
+		c.Set("Response", "Event not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}

@@ -21,8 +21,13 @@ func main() {
 	r := middleware.SetupRouter()
 
 	db.ConnectDatabase()
+	migrate()
+	r.Run(":8080")
+
+}
+
+func migrate() {
 	if err := db.Migrate(db.Repo); err != nil {
 		log.Fatal("Failed to migrate database: ", err)
 	}
-	r.Run(":8080")
 }

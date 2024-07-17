@@ -51,6 +51,7 @@ func Migrate(engine *xorm.Engine) error {
 	tables := []interface{}{
 		new(AssetInventory),
 		new(ThreatEventCatalog),
+		new(ThreatEventAssets),
 		new(Frequency),
 		new(LinkThreat),
 		new(LossHigh),

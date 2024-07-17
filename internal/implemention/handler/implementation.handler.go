@@ -32,7 +32,8 @@ func PullImplementsId(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Implements ID"})
+		c.Set("Response", "Invalid ID")
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 	implementation.PullImplementsId(c, id)
@@ -50,12 +51,14 @@ func CreateImplements(c *gin.Context) {
 	var ImplementationInput interfaces.ImplementsInput
 
 	if err := c.ShouldBindJSON(&ImplementationInput); err != nil {
-		c.JSON(http.StatusNotAcceptable, gin.H{"error": "Parameters are invalid, need a JSON"})
+		c.Set("Response", "Parameters are invalid, need a JSON")
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	if err := implementation.CreateImplementsService(c, ImplementationInput); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.Set("Response", err)
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 	c.Set("Response", "Implements created successfully")

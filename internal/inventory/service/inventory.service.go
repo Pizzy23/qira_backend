@@ -38,13 +38,13 @@ func PullAllAsset(c *gin.Context) {
 	var assets []db.AssetInventory
 	engine, exists := c.Get("db")
 	if !exists {
-		c.Set("Error", "Database connection not found")
+		c.Set("Response", "Database connection not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &assets); err != nil {
-		c.Set("Error", err)
+		c.Set("Response", err)
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -56,19 +56,19 @@ func PullAssetId(c *gin.Context, id int) {
 	var asset db.AssetInventory
 	engine, exists := c.Get("db")
 	if !exists {
-		c.Set("Error", "Database connection not found")
+		c.Set("Response", "Database connection not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	found, err := db.GetByID(engine.(*xorm.Engine), &asset, int64(id))
 	if err != nil {
-		c.Set("Error", "Error retrieving asset")
+		c.Set("Response", "Error retrieving asset")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 	if !found {
-		c.Set("Error", "Asset not found")
+		c.Set("Response", "Asset not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -81,7 +81,7 @@ func UpdateAssetService(c *gin.Context, id int64, asset interfaces.InputAssetsIn
 	if !exists {
 		return errors.New("database connection not found")
 	}
-	condition := db.AssetInventory{ID: id}
+
 	assetToUpdate := db.AssetInventory{
 		Name:                    asset.Name,
 		Description:             asset.Description,
@@ -94,7 +94,7 @@ func UpdateAssetService(c *gin.Context, id int64, asset interfaces.InputAssetsIn
 		RoleInTargetEnvironment: asset.RoleInTargetEnvironment,
 	}
 
-	if err := db.Update(engine.(*xorm.Engine), &assetToUpdate, &condition); err != nil {
+	if err := db.UpdateByID(engine.(*xorm.Engine), &assetToUpdate, id); err != nil {
 		return err
 	}
 	return nil

@@ -51,7 +51,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Catalogue"
+                    "2 - Catalogue"
                 ],
                 "summary": "Retrieve All Catalogue",
                 "responses": {
@@ -97,7 +97,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Event"
+                    "4 - Event"
                 ],
                 "summary": "Event",
                 "responses": {
@@ -120,7 +120,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Frequency"
+                    "3 - Frequency"
                 ],
                 "summary": "Retrieve All Frequency",
                 "responses": {
@@ -221,7 +221,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Inventory"
+                    "1 - Inventory"
                 ],
                 "summary": "Retrieve Asset by ID",
                 "parameters": [
@@ -251,7 +251,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Inventory"
+                    "1 - Inventory"
                 ],
                 "summary": "Update Asset",
                 "parameters": [
@@ -292,7 +292,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Inventory"
+                    "1 - Inventory"
                 ],
                 "summary": "Retrieve All Assets",
                 "responses": {
@@ -318,7 +318,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Catalogue"
+                    "2 - Catalogue"
                 ],
                 "summary": "{WIP} Create New Catalogue",
                 "parameters": [
@@ -352,7 +352,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Catalogue"
+                    "2 - Catalogue"
                 ],
                 "summary": "Retrieve Catalogue by ID",
                 "parameters": [
@@ -450,20 +450,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Risk"
+                    "6 - Risk"
                 ],
                 "summary": "{WIP} Create Risk",
-                "parameters": [
-                    {
-                        "description": "Data for create new Risk",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/interfaces.RiskCalc"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Risk Create",
@@ -484,7 +473,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Inventory"
+                    "1 - Inventory"
                 ],
                 "summary": "Create Asset",
                 "parameters": [
@@ -552,7 +541,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Losshigh"
+                    "5 - Loss-High"
                 ],
                 "summary": "Create LossHigh",
                 "parameters": [
@@ -620,7 +609,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Event"
+                    "4 - Event"
                 ],
                 "summary": "Create Event",
                 "parameters": [
@@ -654,7 +643,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Frequency"
+                    "3 - Frequency"
                 ],
                 "summary": "Edit Frequency",
                 "parameters": [
@@ -688,7 +677,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Frequency"
+                    "3 - Frequency"
                 ],
                 "summary": "Retrieve one Frequency",
                 "responses": {
@@ -835,7 +824,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "LossHigh"
+                    "5 - Loss-High"
                 ],
                 "summary": "Retrieve All LossHigh",
                 "responses": {
@@ -861,7 +850,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Losshigh"
+                    "5 - Loss-High"
                 ],
                 "summary": "Retrieve LossHigh by ID",
                 "parameters": [
@@ -878,47 +867,6 @@ const docTemplate = `{
                         "description": "LossHigh Details",
                         "schema": {
                             "$ref": "#/definitions/db.LossHigh"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/relevance/{id}": {
-            "put": {
-                "description": "Update an existing Relevance",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Relevance"
-                ],
-                "summary": "{WIP} Update Relevance",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Relevance ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Data to update Relevance",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/interfaces.RelevanceDinamicInput"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Relevance Updated",
-                        "schema": {
-                            "$ref": "#/definitions/db.RelevanceDinamic"
                         }
                     }
                 }
@@ -980,6 +928,45 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "put": {
+                "description": "Update an existing Relevance",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Revelance"
+                ],
+                "summary": "{WIP} Update Relevance",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Relevance ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Data to update Relevance",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/interfaces.RelevanceDinamicInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Relevance Updated",
+                        "schema": {
+                            "$ref": "#/definitions/db.RelevanceDinamic"
+                        }
+                    }
+                }
             }
         },
         "/api/risk": {
@@ -992,7 +979,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Risk"
+                    "6 - Risk"
                 ],
                 "summary": "Retrieve All Risks",
                 "responses": {
@@ -1018,13 +1005,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Risk"
+                    "6 - Risk"
                 ],
                 "summary": "Retrieve Risk by ID",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Risk ID",
+                        "description": "Threat event ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1035,62 +1022,6 @@ const docTemplate = `{
                         "description": "Risk Details",
                         "schema": {
                             "$ref": "#/definitions/db.RiskCalculation"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/test-token": {
-            "post": {
-                "description": "Cria um toke para auth do usuario",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Test Token",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "default": "Bearer \u003ctoken\u003e",
-                        "description": "Token de autenticação",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "token make:",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/token": {
-            "get": {
-                "description": "Cria um toke para auth do usuario",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Criar token de auth",
-                "responses": {
-                    "200": {
-                        "description": "token make:",
-                        "schema": {
-                            "type": "string"
                         }
                     }
                 }
@@ -1121,8 +1052,8 @@ const docTemplate = `{
         "db.AssetInventory": {
             "type": "object",
             "properties": {
-                "businessValue": {
-                    "type": "integer"
+                "business_value": {
+                    "type": "number"
                 },
                 "criticality": {
                     "type": "string"
@@ -1139,7 +1070,7 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "replacementCost": {
+                "replacement_cost": {
                     "type": "number"
                 },
                 "responsible": {
@@ -1156,6 +1087,9 @@ const docTemplate = `{
         "db.ControlDinamic": {
             "type": "object",
             "properties": {
+                "Attacktxt": {
+                    "type": "string"
+                },
                 "aggregate": {
                     "type": "string"
                 },
@@ -1280,6 +1214,9 @@ const docTemplate = `{
         "db.PropusedDinamic": {
             "type": "object",
             "properties": {
+                "Attacktxt": {
+                    "type": "string"
+                },
                 "aggregate": {
                     "type": "string"
                 },
@@ -1303,6 +1240,9 @@ const docTemplate = `{
         "db.RelevanceDinamic": {
             "type": "object",
             "properties": {
+                "Attacktxt": {
+                    "type": "string"
+                },
                 "controlId": {
                     "type": "integer"
                 },
@@ -1314,6 +1254,9 @@ const docTemplate = `{
         "db.RelevanceDinamicInput": {
             "type": "object",
             "properties": {
+                "Attacktxt": {
+                    "type": "string"
+                },
                 "controlId": {
                     "type": "integer"
                 }
@@ -1337,13 +1280,13 @@ const docTemplate = `{
                 "mode": {
                     "type": "number"
                 },
-                "riskType": {
+                "risk_type": {
                     "type": "string"
                 },
-                "threatEvent": {
+                "threat_event": {
                     "type": "string"
                 },
-                "threatEventID": {
+                "threat_event_id": {
                     "type": "integer"
                 }
             }
@@ -1406,7 +1349,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "business_value": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "criticality": {
                     "type": "string"
@@ -1426,7 +1369,7 @@ const docTemplate = `{
                 "responsible": {
                     "type": "string"
                 },
-                "target_environment": {
+                "roleInTargetEnvironment": {
                     "type": "string"
                 },
                 "users": {
@@ -1458,13 +1401,13 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "max_frequency": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "min_frequency": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "most_common_frequency": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "support_information": {
                     "type": "string"
@@ -1509,14 +1452,6 @@ const docTemplate = `{
                 },
                 "controlId": {
                     "type": "integer"
-                }
-            }
-        },
-        "interfaces.RiskCalc": {
-            "type": "object",
-            "properties": {
-                "metric": {
-                    "type": "string"
                 }
             }
         }

@@ -17,13 +17,13 @@ func PullAllRevelance(c *gin.Context) {
 	var revelances []db.RelevanceDinamic
 	engine, exists := c.Get("db")
 	if !exists {
-		c.Set("Error", "Database connection not found")
+		c.Set("Response", "Database connection not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &revelances); err != nil {
-		c.Set("Error", err)
+		c.Set("Response", err)
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -35,19 +35,19 @@ func PullRevelanceId(c *gin.Context, id int) {
 	var revelance db.RelevanceDinamic
 	engine, exists := c.Get("db")
 	if !exists {
-		c.Set("Error", "Database connection not found")
+		c.Set("Response", "Database connection not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	found, err := db.GetByID(engine.(*xorm.Engine), &revelance, int64(id))
 	if err != nil {
-		c.Set("Error", "Error retrieving revelance")
+		c.Set("Response", "Error retrieving revelance")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 	if !found {
-		c.Set("Error", "Revelance not found")
+		c.Set("Response", "Revelance not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}

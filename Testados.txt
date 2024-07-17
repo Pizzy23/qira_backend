@@ -1,0 +1,6 @@
+Inventory - Testado 
+Catalogue - Testado
+Frequency - Testado
+Event - Testado 
+Loss-High - Testado
+Risk - Testado
