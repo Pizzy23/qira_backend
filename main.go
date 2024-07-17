@@ -10,7 +10,7 @@ import (
 // @version         1.0
 // @description     This is a server for app.
 
-// @host      localhost:8080
+// @host      3.140.192.135:8080
 
 // @securityDefinitions.basic  BasicAuth
 
