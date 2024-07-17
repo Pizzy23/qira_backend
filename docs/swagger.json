@@ -66,7 +66,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Control"
+                    "7 - Control"
                 ],
                 "summary": "Retrieve All Control",
                 "responses": {
@@ -138,7 +138,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Control"
+                    "8 - Implementation"
                 ],
                 "summary": "Retrieve All Implementation",
                 "responses": {
@@ -170,7 +170,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/db.PropusedDinamic"
+                                "$ref": "#/definitions/db.Propused"
                             }
                         }
                     }
@@ -196,7 +196,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/db.ControlDinamic"
+                                "$ref": "#/definitions/db.Control"
                             }
                         }
                     }
@@ -376,12 +376,12 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Control"
+                    "7 - Control"
                 ],
                 "summary": "Create New Control",
                 "parameters": [
                     {
-                        "description": "Data for create new Event",
+                        "description": "Data for create new Control",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -392,7 +392,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "List of All Assets",
+                        "description": "List of All Controls",
                         "schema": {
                             "$ref": "#/definitions/db.ControlLibrary"
                         }
@@ -410,7 +410,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Control"
+                    "7 - Control"
                 ],
                 "summary": "Retrieve Control by ID",
                 "parameters": [
@@ -489,40 +489,6 @@
                 }
             }
         },
-        "/api/create-implements": {
-            "post": {
-                "description": "Create new Implements",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Revelance"
-                ],
-                "summary": "Create Implements",
-                "parameters": [
-                    {
-                        "description": "Data for create new Implements",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/interfaces.ImplementsInput"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Implements Create",
-                        "schema": {
-                            "$ref": "#/definitions/db.Implements"
-                        }
-                    }
-                }
-            }
-        },
         "/api/create-losshigh": {
             "post": {
                 "description": "Create new LossHigh",
@@ -577,7 +543,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/db.RelevanceDinamicInput"
+                            "$ref": "#/definitions/db.Relevance"
                         }
                     }
                 ],
@@ -585,7 +551,7 @@
                     "200": {
                         "description": "Relevance Create",
                         "schema": {
-                            "$ref": "#/definitions/db.RelevanceDinamic"
+                            "$ref": "#/definitions/db.Relevance"
                         }
                     }
                 }
@@ -692,7 +658,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Control"
+                    "8 - Implementation"
                 ],
                 "summary": "Create New Implementation",
                 "parameters": [
@@ -726,7 +692,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Control"
+                    "8 - Implementation"
                 ],
                 "summary": "Retrieve Implementation by ID",
                 "parameters": [
@@ -743,64 +709,6 @@
                         "description": "Implementation Details",
                         "schema": {
                             "$ref": "#/definitions/db.ControlLibrary"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/implements": {
-            "get": {
-                "description": "Retrieve all Implementss",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Implements"
-                ],
-                "summary": "Retrieve All Implementss",
-                "responses": {
-                    "200": {
-                        "description": "List of All Implementss",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/db.Implements"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/implements/{id}": {
-            "get": {
-                "description": "Retrieve an Implements by its ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Implements"
-                ],
-                "summary": "Retrieve Implements by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Implements ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Implements Details",
-                        "schema": {
-                            "$ref": "#/definitions/db.Implements"
                         }
                     }
                 }
@@ -883,7 +791,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/db.RelevanceDinamic"
+                                "$ref": "#/definitions/db.Relevance"
                             }
                         }
                     }
@@ -916,7 +824,7 @@
                     "200": {
                         "description": "Revelance Details",
                         "schema": {
-                            "$ref": "#/definitions/db.RelevanceDinamic"
+                            "$ref": "#/definitions/db.Relevance"
                         }
                     }
                 }
@@ -955,7 +863,7 @@
                     "200": {
                         "description": "Relevance Updated",
                         "schema": {
-                            "$ref": "#/definitions/db.RelevanceDinamic"
+                            "$ref": "#/definitions/db.Relevance"
                         }
                     }
                 }
@@ -1076,12 +984,9 @@
                 }
             }
         },
-        "db.ControlDinamic": {
+        "db.Control": {
             "type": "object",
             "properties": {
-                "Attacktxt": {
-                    "type": "string"
-                },
                 "aggregate": {
                     "type": "string"
                 },
@@ -1099,6 +1004,12 @@
                 },
                 "id": {
                     "type": "integer"
+                },
+                "porcent": {
+                    "type": "string"
+                },
+                "type_of_attack": {
+                    "type": "string"
                 }
             }
         },
@@ -1148,32 +1059,6 @@
                 }
             }
         },
-        "db.Implements": {
-            "type": "object",
-            "properties": {
-                "controlId": {
-                    "type": "integer"
-                },
-                "cost": {
-                    "type": "integer"
-                },
-                "current": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "percentCurrent": {
-                    "type": "string"
-                },
-                "percentProposed": {
-                    "type": "string"
-                },
-                "proposed": {
-                    "type": "integer"
-                }
-            }
-        },
         "db.LossHigh": {
             "type": "object",
             "properties": {
@@ -1203,12 +1088,9 @@
                 }
             }
         },
-        "db.PropusedDinamic": {
+        "db.Propused": {
             "type": "object",
             "properties": {
-                "Attacktxt": {
-                    "type": "string"
-                },
                 "aggregate": {
                     "type": "string"
                 },
@@ -1226,31 +1108,29 @@
                 },
                 "id": {
                     "type": "integer"
+                },
+                "porcent": {
+                    "type": "string"
+                },
+                "type_of_attack": {
+                    "type": "string"
                 }
             }
         },
-        "db.RelevanceDinamic": {
+        "db.Relevance": {
             "type": "object",
             "properties": {
-                "Attacktxt": {
-                    "type": "string"
-                },
                 "controlId": {
                     "type": "integer"
                 },
                 "id": {
                     "type": "integer"
-                }
-            }
-        },
-        "db.RelevanceDinamicInput": {
-            "type": "object",
-            "properties": {
-                "Attacktxt": {
-                    "type": "string"
                 },
-                "controlId": {
+                "porcent": {
                     "type": "integer"
+                },
+                "type_of_attack": {
+                    "type": "string"
                 }
             }
         },
@@ -1372,9 +1252,6 @@
         "interfaces.InputControlLibrary": {
             "type": "object",
             "properties": {
-                "controlId": {
-                    "type": "integer"
-                },
                 "control_reference": {
                     "type": "string"
                 },
@@ -1382,7 +1259,7 @@
                     "type": "string"
                 },
                 "in_scope": {
-                    "type": "string"
+                    "type": "boolean"
                 },
                 "information": {
                     "type": "string"

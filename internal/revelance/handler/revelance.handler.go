@@ -15,7 +15,7 @@ import (
 // @Tags Revelance
 // @Accept json
 // @Produce json
-// @Success 200 {object} []db.RelevanceDinamic "List of All Relevance"
+// @Success 200 {object} []db.Relevance "List of All Relevance"
 // @Router /api/revelance [get]
 func PullAllRevelance(c *gin.Context) {
 	revelance.PullAllRevelance(c)
@@ -27,7 +27,7 @@ func PullAllRevelance(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "Revelance ID"
-// @Success 200 {object} db.RelevanceDinamic "Revelance Details"
+// @Success 200 {object} db.Relevance "Revelance Details"
 // @Router /api/revelance/{id} [get]
 func PullRevelanceId(c *gin.Context) {
 	idParam := c.Param("id")
@@ -45,14 +45,13 @@ func PullRevelanceId(c *gin.Context) {
 // @Tags Revelance
 // @Accept json
 // @Produce json
-// @Param request body db.RelevanceDinamicInput true "Data for create new Relevance"
-// @Success 200 {object} db.RelevanceDinamic "Relevance Create"
+// @Param request body db.Relevance true "Data for create new Relevance"
+// @Success 200 {object} db.Relevance "Relevance Create"
 // @Router /api/create-revelance [post]
 func CreateRelevance(c *gin.Context) {
-	var RelevanceInput db.RelevanceDinamicInput
-
+	var RelevanceInput db.Relevance
 	if err := c.ShouldBindJSON(&RelevanceInput); err != nil {
-		c.Set("Response", "Invalid ID")
+		c.Set("Response", "Parameters are invalid, need a JSON")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -74,7 +73,7 @@ func CreateRelevance(c *gin.Context) {
 // @Produce json
 // @Param id path int true "Relevance ID"
 // @Param request body interfaces.RelevanceDinamicInput true "Data to update Relevance"
-// @Success 200 {object} db.RelevanceDinamic "Relevance Updated"
+// @Success 200 {object} db.Relevance "Relevance Updated"
 // @Router /api/revelance/{id} [put]
 func UpdateRelevance(c *gin.Context) {
 	idParam := c.Param("id")

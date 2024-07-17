@@ -74,7 +74,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Control"
+                    "7 - Control"
                 ],
                 "summary": "Retrieve All Control",
                 "responses": {
@@ -146,7 +146,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Control"
+                    "8 - Implementation"
                 ],
                 "summary": "Retrieve All Implementation",
                 "responses": {
@@ -178,7 +178,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/db.PropusedDinamic"
+                                "$ref": "#/definitions/db.Propused"
                             }
                         }
                     }
@@ -204,7 +204,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/db.ControlDinamic"
+                                "$ref": "#/definitions/db.Control"
                             }
                         }
                     }
@@ -384,12 +384,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Control"
+                    "7 - Control"
                 ],
                 "summary": "Create New Control",
                 "parameters": [
                     {
-                        "description": "Data for create new Event",
+                        "description": "Data for create new Control",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -400,7 +400,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "List of All Assets",
+                        "description": "List of All Controls",
                         "schema": {
                             "$ref": "#/definitions/db.ControlLibrary"
                         }
@@ -418,7 +418,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Control"
+                    "7 - Control"
                 ],
                 "summary": "Retrieve Control by ID",
                 "parameters": [
@@ -497,40 +497,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/create-implements": {
-            "post": {
-                "description": "Create new Implements",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Revelance"
-                ],
-                "summary": "Create Implements",
-                "parameters": [
-                    {
-                        "description": "Data for create new Implements",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/interfaces.ImplementsInput"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Implements Create",
-                        "schema": {
-                            "$ref": "#/definitions/db.Implements"
-                        }
-                    }
-                }
-            }
-        },
         "/api/create-losshigh": {
             "post": {
                 "description": "Create new LossHigh",
@@ -585,7 +551,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/db.RelevanceDinamicInput"
+                            "$ref": "#/definitions/db.Relevance"
                         }
                     }
                 ],
@@ -593,7 +559,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Relevance Create",
                         "schema": {
-                            "$ref": "#/definitions/db.RelevanceDinamic"
+                            "$ref": "#/definitions/db.Relevance"
                         }
                     }
                 }
@@ -700,7 +666,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Control"
+                    "8 - Implementation"
                 ],
                 "summary": "Create New Implementation",
                 "parameters": [
@@ -734,7 +700,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Control"
+                    "8 - Implementation"
                 ],
                 "summary": "Retrieve Implementation by ID",
                 "parameters": [
@@ -751,64 +717,6 @@ const docTemplate = `{
                         "description": "Implementation Details",
                         "schema": {
                             "$ref": "#/definitions/db.ControlLibrary"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/implements": {
-            "get": {
-                "description": "Retrieve all Implementss",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Implements"
-                ],
-                "summary": "Retrieve All Implementss",
-                "responses": {
-                    "200": {
-                        "description": "List of All Implementss",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/db.Implements"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/implements/{id}": {
-            "get": {
-                "description": "Retrieve an Implements by its ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Implements"
-                ],
-                "summary": "Retrieve Implements by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Implements ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Implements Details",
-                        "schema": {
-                            "$ref": "#/definitions/db.Implements"
                         }
                     }
                 }
@@ -891,7 +799,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/db.RelevanceDinamic"
+                                "$ref": "#/definitions/db.Relevance"
                             }
                         }
                     }
@@ -924,7 +832,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Revelance Details",
                         "schema": {
-                            "$ref": "#/definitions/db.RelevanceDinamic"
+                            "$ref": "#/definitions/db.Relevance"
                         }
                     }
                 }
@@ -963,7 +871,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Relevance Updated",
                         "schema": {
-                            "$ref": "#/definitions/db.RelevanceDinamic"
+                            "$ref": "#/definitions/db.Relevance"
                         }
                     }
                 }
@@ -1084,12 +992,9 @@ const docTemplate = `{
                 }
             }
         },
-        "db.ControlDinamic": {
+        "db.Control": {
             "type": "object",
             "properties": {
-                "Attacktxt": {
-                    "type": "string"
-                },
                 "aggregate": {
                     "type": "string"
                 },
@@ -1107,6 +1012,12 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "porcent": {
+                    "type": "string"
+                },
+                "type_of_attack": {
+                    "type": "string"
                 }
             }
         },
@@ -1156,32 +1067,6 @@ const docTemplate = `{
                 }
             }
         },
-        "db.Implements": {
-            "type": "object",
-            "properties": {
-                "controlId": {
-                    "type": "integer"
-                },
-                "cost": {
-                    "type": "integer"
-                },
-                "current": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "percentCurrent": {
-                    "type": "string"
-                },
-                "percentProposed": {
-                    "type": "string"
-                },
-                "proposed": {
-                    "type": "integer"
-                }
-            }
-        },
         "db.LossHigh": {
             "type": "object",
             "properties": {
@@ -1211,12 +1096,9 @@ const docTemplate = `{
                 }
             }
         },
-        "db.PropusedDinamic": {
+        "db.Propused": {
             "type": "object",
             "properties": {
-                "Attacktxt": {
-                    "type": "string"
-                },
                 "aggregate": {
                     "type": "string"
                 },
@@ -1234,31 +1116,29 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "porcent": {
+                    "type": "string"
+                },
+                "type_of_attack": {
+                    "type": "string"
                 }
             }
         },
-        "db.RelevanceDinamic": {
+        "db.Relevance": {
             "type": "object",
             "properties": {
-                "Attacktxt": {
-                    "type": "string"
-                },
                 "controlId": {
                     "type": "integer"
                 },
                 "id": {
                     "type": "integer"
-                }
-            }
-        },
-        "db.RelevanceDinamicInput": {
-            "type": "object",
-            "properties": {
-                "Attacktxt": {
-                    "type": "string"
                 },
-                "controlId": {
+                "porcent": {
                     "type": "integer"
+                },
+                "type_of_attack": {
+                    "type": "string"
                 }
             }
         },
@@ -1380,9 +1260,6 @@ const docTemplate = `{
         "interfaces.InputControlLibrary": {
             "type": "object",
             "properties": {
-                "controlId": {
-                    "type": "integer"
-                },
                 "control_reference": {
                     "type": "string"
                 },
@@ -1390,7 +1267,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "in_scope": {
-                    "type": "string"
+                    "type": "boolean"
                 },
                 "information": {
                     "type": "string"

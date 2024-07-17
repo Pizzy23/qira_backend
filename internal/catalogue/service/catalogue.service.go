@@ -2,14 +2,11 @@ package catalogue
 
 import (
 	"errors"
-	"fmt"
-	"io/ioutil"
 	"net/http"
 	"qira/db"
 	frequency "qira/internal/frequency/service"
 	"qira/internal/interfaces"
 	"qira/util"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"xorm.io/xorm"
@@ -30,8 +27,10 @@ func CreateEventService(c *gin.Context, event interfaces.InputThreatEventCatalog
 	if _, err := engine.(*xorm.Engine).Insert(&eventDB); err != nil {
 		return err
 	}
-
-	if err := createTables(engine.(*xorm.Engine), event.ThreatEvent); err != nil {
+	RiskController := db.RiskController{
+		Name: event.ThreatEvent,
+	}
+	if err := db.Create(engine.(*xorm.Engine), RiskController); err != nil {
 		return err
 	}
 
@@ -53,70 +52,6 @@ func CreateEventService(c *gin.Context, event interfaces.InputThreatEventCatalog
 	}(event.ID, event.ThreatEvent)
 
 	if err := <-errChan; err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func createTables(engine *xorm.Engine, name string) error {
-	if err := db.CreateColumn(engine, "relevance_dinamic", name, "VARCHAR(255)"); err != nil {
-		return err
-	}
-	if err := db.CreateColumn(engine, "control_dinamic", name, "VARCHAR(255)"); err != nil {
-		return err
-	}
-	if err := db.CreateColumn(engine, "propused_dinamic", name, "VARCHAR(255)"); err != nil {
-		return err
-	}
-	RiskController := db.RiskController{
-		Name: name,
-	}
-	if err := db.Create(engine, RiskController); err != nil {
-		return err
-	}
-	modifyTables(name)
-	return nil
-}
-
-func capitalizeFirstLetter(s string) string {
-	if len(s) == 0 {
-		return s
-	}
-	return strings.ToUpper(string(s[0])) + s[1:]
-}
-
-func modifyTables(columnName string) error {
-	filename := "db/migration.dinamic.go"
-
-	content, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return err
-	}
-
-	lines := strings.Split(string(content), "\n")
-	var modifiedLines []string
-	inStruct := false
-
-	capitalizedColumnName := capitalizeFirstLetter(columnName)
-
-	for _, line := range lines {
-		if strings.Contains(line, "type") && strings.Contains(line, "struct") {
-			inStruct = true
-		}
-
-		if inStruct && strings.TrimSpace(line) == "}" {
-			newLine := fmt.Sprintf("    %s %s `json:\"%s\" xorm:\"%s notnull\"`", capitalizedColumnName, "string", columnName, "VARCHAR(255)")
-			modifiedLines = append(modifiedLines, newLine)
-			inStruct = false
-		}
-		modifiedLines = append(modifiedLines, line)
-	}
-
-	modifiedContent := strings.Join(modifiedLines, "\n")
-
-	err = ioutil.WriteFile(filename, []byte(modifiedContent), 0644)
-	if err != nil {
 		return err
 	}
 

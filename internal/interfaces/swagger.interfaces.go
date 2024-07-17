@@ -149,11 +149,10 @@ type InputRiskCalculator struct {
 }
 
 type InputControlLibrary struct {
-	ControlID        int    `json:"controlId"`
 	ControlType      string `json:"control_type"`
 	ControlReference string `json:"control_reference"`
 	Information      string `json:"information"`
-	InScope          string `json:"in_scope"`
+	InScope          bool   `json:"in_scope"`
 }
 
 type InputControlImplementation struct {
@@ -204,10 +203,10 @@ type InputRevelance struct {
 }
 
 type ImplementsInput struct {
-	ControlID int `json:"controlId"`
-	Current   int `json:"current"`
-	Proposed  int `json:"proposed"`
-	Cost      int `json:"cost"`
+	ControlID int64 `json:"controlId"`
+	Current   int   `json:"current"`
+	Proposed  int   `json:"proposed"`
+	Cost      int   `json:"cost"`
 }
 
 type RelevanceDinamicInput struct {

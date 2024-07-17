@@ -24,13 +24,11 @@ func main() {
 	db.ConnectDatabase()
 	migrate()
 
-	// Get the API host from the environment variable
 	host := os.Getenv("API_HOST")
 	if host == "" {
-		host = "localhost:8080" // Default to localhost if the environment variable is not set
+		host = "localhost:8080"
 	}
 
-	// Update the Swagger host dynamically
 	docs.SwaggerInfo.Host = host
 
 	r.Run(":8080")

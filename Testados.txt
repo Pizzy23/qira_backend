@@ -1,6 +1,9 @@
 Inventory - Testado 
 Catalogue - Testado
-Frequency - Testado
+Frequency - Testado (Calculos certos)
 Event - Testado 
-Loss-High - Testado
-Risk - Testado
+Loss-High - Testado (Calculos certos)
+Risk - Testado (Calculos certos)
+Control_Library - Testado
+Implementation - Testado
+Revelance - Testado

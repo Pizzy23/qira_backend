@@ -35,10 +35,8 @@ definitions:
       users:
         type: string
     type: object
-  db.ControlDinamic:
+  db.Control:
     properties:
-      Attacktxt:
-        type: string
       aggregate:
         type: string
       aggregateTable:
@@ -51,6 +49,10 @@ definitions:
         type: integer
       id:
         type: integer
+      porcent:
+        type: string
+      type_of_attack:
+        type: string
     type: object
   db.ControlLibrary:
     properties:
@@ -82,23 +84,6 @@ definitions:
       threatEventID:
         type: integer
     type: object
-  db.Implements:
-    properties:
-      controlId:
-        type: integer
-      cost:
-        type: integer
-      current:
-        type: integer
-      id:
-        type: integer
-      percentCurrent:
-        type: string
-      percentProposed:
-        type: string
-      proposed:
-        type: integer
-    type: object
   db.LossHigh:
     properties:
       assets:
@@ -118,10 +103,8 @@ definitions:
       threatEventID:
         type: integer
     type: object
-  db.PropusedDinamic:
+  db.Propused:
     properties:
-      Attacktxt:
-        type: string
       aggregate:
         type: string
       aggregateTable:
@@ -134,22 +117,21 @@ definitions:
         type: integer
       id:
         type: integer
-    type: object
-  db.RelevanceDinamic:
-    properties:
-      Attacktxt:
+      porcent:
         type: string
+      type_of_attack:
+        type: string
+    type: object
+  db.Relevance:
+    properties:
       controlId:
         type: integer
       id:
         type: integer
-    type: object
-  db.RelevanceDinamicInput:
-    properties:
-      Attacktxt:
-        type: string
-      controlId:
+      porcent:
         type: integer
+      type_of_attack:
+        type: string
     type: object
   db.RiskCalculation:
     properties:
@@ -232,10 +214,8 @@ definitions:
         type: string
       control_type:
         type: string
-      controlId:
-        type: integer
       in_scope:
-        type: string
+        type: boolean
       information:
         type: string
     type: object
@@ -332,7 +312,7 @@ paths:
             $ref: '#/definitions/db.ControlLibrary'
       summary: Retrieve All Control
       tags:
-      - Control
+      - 7 - Control
   /api/all-event:
     get:
       consumes:
@@ -379,7 +359,7 @@ paths:
             $ref: '#/definitions/db.ControlLibrary'
       summary: Retrieve All Implementation
       tags:
-      - Control
+      - 8 - Implementation
   /api/all-proposed:
     get:
       consumes:
@@ -392,7 +372,7 @@ paths:
           description: List of All Control Strength
           schema:
             items:
-              $ref: '#/definitions/db.PropusedDinamic'
+              $ref: '#/definitions/db.Propused'
             type: array
       summary: '{WIP} Retrieve All Control Proposed'
       tags:
@@ -409,7 +389,7 @@ paths:
           description: List of All Control Strength
           schema:
             items:
-              $ref: '#/definitions/db.ControlDinamic'
+              $ref: '#/definitions/db.Control'
             type: array
       summary: '{WIP} Retrieve All Control Strength'
       tags:
@@ -527,7 +507,7 @@ paths:
       - application/json
       description: Create New Event Control
       parameters:
-      - description: Data for create new Event
+      - description: Data for create new Control
         in: body
         name: request
         required: true
@@ -537,12 +517,12 @@ paths:
       - application/json
       responses:
         "200":
-          description: List of All Assets
+          description: List of All Controls
           schema:
             $ref: '#/definitions/db.ControlLibrary'
       summary: Create New Control
       tags:
-      - Control
+      - 7 - Control
   /api/control/{id}:
     get:
       consumes:
@@ -563,7 +543,7 @@ paths:
             $ref: '#/definitions/db.ControlLibrary'
       summary: Retrieve Control by ID
       tags:
-      - Control
+      - 7 - Control
   /api/create-Risk:
     post:
       consumes:
@@ -601,28 +581,6 @@ paths:
       summary: Create Asset
       tags:
       - 1 - Inventory
-  /api/create-implements:
-    post:
-      consumes:
-      - application/json
-      description: Create new Implements
-      parameters:
-      - description: Data for create new Implements
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/interfaces.ImplementsInput'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Implements Create
-          schema:
-            $ref: '#/definitions/db.Implements'
-      summary: Create Implements
-      tags:
-      - Revelance
   /api/create-losshigh:
     post:
       consumes:
@@ -656,14 +614,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/db.RelevanceDinamicInput'
+          $ref: '#/definitions/db.Relevance'
       produces:
       - application/json
       responses:
         "200":
           description: Relevance Create
           schema:
-            $ref: '#/definitions/db.RelevanceDinamic'
+            $ref: '#/definitions/db.Relevance'
       summary: Create Relevance
       tags:
       - Revelance
@@ -747,7 +705,7 @@ paths:
             $ref: '#/definitions/db.ControlLibrary'
       summary: Create New Implementation
       tags:
-      - Control
+      - 8 - Implementation
   /api/implementation/{id}:
     get:
       consumes:
@@ -768,45 +726,7 @@ paths:
             $ref: '#/definitions/db.ControlLibrary'
       summary: Retrieve Implementation by ID
       tags:
-      - Control
-  /api/implements:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve all Implementss
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of All Implementss
-          schema:
-            items:
-              $ref: '#/definitions/db.Implements'
-            type: array
-      summary: Retrieve All Implementss
-      tags:
-      - Implements
-  /api/implements/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve an Implements by its ID
-      parameters:
-      - description: Implements ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Implements Details
-          schema:
-            $ref: '#/definitions/db.Implements'
-      summary: Retrieve Implements by ID
-      tags:
-      - Implements
+      - 8 - Implementation
   /api/losshigh:
     get:
       consumes:
@@ -857,7 +777,7 @@ paths:
           description: List of All Relevance
           schema:
             items:
-              $ref: '#/definitions/db.RelevanceDinamic'
+              $ref: '#/definitions/db.Relevance'
             type: array
       summary: Retrieve All Relevance
       tags:
@@ -879,7 +799,7 @@ paths:
         "200":
           description: Revelance Details
           schema:
-            $ref: '#/definitions/db.RelevanceDinamic'
+            $ref: '#/definitions/db.Relevance'
       summary: Retrieve Revelance by ID
       tags:
       - Revelance
@@ -905,7 +825,7 @@ paths:
         "200":
           description: Relevance Updated
           schema:
-            $ref: '#/definitions/db.RelevanceDinamic'
+            $ref: '#/definitions/db.Relevance'
       summary: '{WIP} Update Relevance'
       tags:
       - Revelance

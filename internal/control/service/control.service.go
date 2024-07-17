@@ -16,12 +16,72 @@ func CreateControlService(c *gin.Context, control interfaces.InputControlLibrary
 	if !exists {
 		return errors.New("database connection not found")
 	}
+	controlInput := db.ControlLibrary{
+		ControlType:      control.ControlType,
+		ControlReference: control.ControlReference,
+		Information:      control.Information,
+		InScope:          control.InScope,
+	}
 
-	if err := db.Create(engine.(*xorm.Engine), &control); err != nil {
+	if err := db.Create(engine.(*xorm.Engine), &controlInput); err != nil {
 		return err
 	}
+
+	if err := createTables(engine.(*xorm.Engine), &controlInput); err != nil {
+		return err
+	}
+
 	return nil
 
+}
+
+func createTables(engine *xorm.Engine, control *db.ControlLibrary) error {
+	var events []db.RiskController
+	if err := db.GetAll(engine, &events); err != nil {
+		return err
+	}
+
+	var relevances []db.Relevance
+	var propuseds []db.Propused
+	var controls []db.Control
+
+	for _, e := range events {
+		relevances = append(relevances, db.Relevance{
+			ControlID:    control.ID,
+			TypeOfAttack: e.Name,
+			Porcent:      0,
+		})
+		propuseds = append(propuseds, db.Propused{
+			ControlID:       control.ID,
+			TypeOfAttack:    e.Name,
+			Porcent:         "0",
+			AggregateTable:  e.Name,
+			Aggregate:       "0",
+			ControlGapTable: e.Name,
+			ControlGap:      "0",
+		})
+		controls = append(controls, db.Control{
+			ControlID:       control.ID,
+			TypeOfAttack:    e.Name,
+			Porcent:         "0",
+			AggregateTable:  e.Name,
+			Aggregate:       "0",
+			ControlGapTable: e.Name,
+			ControlGap:      "0",
+		})
+	}
+
+	if _, err := engine.Insert(&relevances); err != nil {
+		return err
+	}
+	if _, err := engine.Insert(&propuseds); err != nil {
+		return err
+	}
+	if _, err := engine.Insert(&controls); err != nil {
+		return err
+	}
+
+	return nil
 }
 func CreateImplementService(c *gin.Context, data interfaces.ImplementsInput) error {
 	averageC, err := mock.FindAverageByScore(data.Current)
@@ -53,7 +113,7 @@ func CreateImplementService(c *gin.Context, data interfaces.ImplementsInput) err
 }
 
 func PullAllControl(c *gin.Context) {
-	var controls []db.ControlLibrary
+	var controls []db.Implements
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Response", "Database connection not found")
@@ -71,7 +131,7 @@ func PullAllControl(c *gin.Context) {
 }
 
 func PullControlId(c *gin.Context, id int) {
-	var control db.ControlLibrary
+	var control db.Implements
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Response", "Database connection not found")

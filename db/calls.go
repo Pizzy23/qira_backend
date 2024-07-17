@@ -22,7 +22,11 @@ func UpdateByThreatEvent(engine *xorm.Engine, table interface{}, threatEventID i
 }
 
 func UpdateByThreat(engine *xorm.Engine, table interface{}, threatEventID string) error {
-	_, err := engine.Where("threat_event_id = ? ", threatEventID).Update(table)
+	_, err := engine.Where("threat_event_i_d = ? ", threatEventID).Update(table)
+	return err
+}
+func UpdateByControlId(engine *xorm.Engine, table interface{}, controlID int64, attack string) error {
+	_, err := engine.Where("control_i_d = ? AND type_of_attack = ?", controlID, attack).Update(table)
 	return err
 }
 

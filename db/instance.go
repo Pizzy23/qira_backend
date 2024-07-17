@@ -60,9 +60,9 @@ func Migrate(engine *xorm.Engine) error {
 		new(RiskController),
 		new(Implements),
 		new(AggregatedStrength),
-		new(PropusedDinamic),
-		new(ControlDinamic),
-		new(RelevanceDinamic),
+		new(Propused),
+		new(Control),
+		new(Relevance),
 	}
 
 	for _, table := range tables {

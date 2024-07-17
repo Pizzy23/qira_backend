@@ -82,7 +82,7 @@ type ThreatEventAssets struct { // Vai selecionar Assets, Oque foi afetado Pode 
 
 type Implements struct {
 	ID              int    `json:"id" xorm:"pk autoincr 'id' INT"`
-	ControlID       int    `json:"controlId" xorm:"INT notnull"`
+	ControlID       int64  `json:"controlId" xorm:"INT notnull"`
 	Current         int    `json:"current" xorm:"INT notnull"`
 	Proposed        int    `json:"proposed" xorm:"v notnull"`
 	PercentCurrent  string `json:"percentCurrent" xorm:"VARCHAR(255) notnull"`

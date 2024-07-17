@@ -14,7 +14,7 @@ import (
 )
 
 func PullAllRevelance(c *gin.Context) {
-	var revelances []db.RelevanceDinamic
+	var revelances []db.Relevance
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Response", "Database connection not found")
@@ -32,7 +32,7 @@ func PullAllRevelance(c *gin.Context) {
 }
 
 func PullRevelanceId(c *gin.Context, id int) {
-	var revelance db.RelevanceDinamic
+	var revelance db.Relevance
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Response", "Database connection not found")
@@ -55,13 +55,13 @@ func PullRevelanceId(c *gin.Context, id int) {
 	c.Status(http.StatusOK)
 }
 
-func CreateRelevanceService(c *gin.Context, Relevance db.RelevanceDinamicInput) error {
+func CreateRelevanceService(c *gin.Context, Relevance db.Relevance) error {
 	engine, exists := c.Get("db")
 	if !exists {
 		return errors.New("database connection not found")
 	}
 
-	if err := db.Create(engine.(*xorm.Engine), &Relevance); err != nil {
+	if err := db.UpdateByControlId(engine.(*xorm.Engine), &Relevance, Relevance.ControlID, Relevance.TypeOfAttack); err != nil {
 		return err
 	}
 	return nil
@@ -74,7 +74,7 @@ func UpdateRelevanceService(c *gin.Context, id int64, relevanceInput interfaces.
 		return errors.New("database connection not found")
 	}
 
-	var existingRelevance db.RelevanceDinamic
+	var existingRelevance db.Relevance
 	if _, err := engine.(*xorm.Engine).ID(id).Get(&existingRelevance); err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func UpdateRelevanceService(c *gin.Context, id int64, relevanceInput interfaces.
 		}
 	}
 
-	if _, err := engine.(*xorm.Engine).Table(new(db.RelevanceDinamic)).ID(id).Update(updateMap); err != nil {
+	if _, err := engine.(*xorm.Engine).Table(new(db.Relevance)).ID(id).Update(updateMap); err != nil {
 		return err
 	}
 	return nil

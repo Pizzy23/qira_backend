@@ -12,20 +12,15 @@ import (
 
 // @Summary Create New Control
 // @Description Create New Event Control
-// @Tags Control
+// @Tags 7 - Control
 // @Accept json
 // @Produce json
-// @Param request body interfaces.InputControlLibrary true "Data for create new Event"
-// @Success 200 {object} db.ControlLibrary "List of All Assets"
+// @Param request body interfaces.InputControlLibrary true "Data for create new Control"
+// @Success 200 {object} db.ControlLibrary "List of All Controls"
 // @Router /api/control [post]
 func CreateControl(c *gin.Context) {
 	var controlInput interfaces.InputControlLibrary
 
-	if err := c.ShouldBindJSON(&controlInput); err != nil {
-		c.Set("Response", "Parameters are invalid, need a JSON")
-		c.Status(http.StatusInternalServerError)
-		return
-	}
 	if err := c.ShouldBindJSON(&controlInput); err != nil {
 		c.Set("Response", "Parameters are invalid, need a JSON")
 		c.Status(http.StatusInternalServerError)
@@ -43,7 +38,7 @@ func CreateControl(c *gin.Context) {
 
 // @Summary Retrieve All Control
 // @Description Retrieve all Event
-// @Tags Control
+// @Tags 7 - Control
 // @Accept json
 // @Produce json
 // @Success 200 {object} db.ControlLibrary "List of All Event"
@@ -54,7 +49,7 @@ func PullAllControl(c *gin.Context) {
 
 // @Summary Retrieve Control by ID
 // @Description Retrieve an Event by its ID
-// @Tags Control
+// @Tags 7 - Control
 // @Accept json
 // @Produce json
 // @Param id path int true "Event ID"
@@ -73,26 +68,21 @@ func PullControlId(c *gin.Context) {
 
 // @Summary Create New Implementation
 // @Description Create New Event Implementation
-// @Tags Control
+// @Tags 8 - Implementation
 // @Accept json
 // @Produce json
 // @Param request body interfaces.ImplementsInput true "Data for create new Event"
 // @Success 200 {object} db.ControlLibrary "List of All Assets"
 // @Router /api/implementation [post]
 func CreateControlImplementation(c *gin.Context) {
-	var controlInput interfaces.ImplementsInput
+	var implement interfaces.ImplementsInput
 
-	if err := c.ShouldBindJSON(&controlInput); err != nil {
+	if err := c.ShouldBindJSON(&implement); err != nil {
 		c.Set("Response", "Parameters are invalid, need a JSON")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	if err := c.ShouldBindJSON(&controlInput); err != nil {
-		c.Set("Response", "Parameters are invalid, need a JSON")
-		c.Status(http.StatusInternalServerError)
-		return
-	}
-	if err := control.CreateImplementService(c, controlInput); err != nil {
+	if err := control.CreateImplementService(c, implement); err != nil {
 		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
@@ -104,7 +94,7 @@ func CreateControlImplementation(c *gin.Context) {
 
 // @Summary Retrieve All Implementation
 // @Description Retrieve all Implementation
-// @Tags Control
+// @Tags 8 - Implementation
 // @Accept json
 // @Produce json
 // @Success 200 {object} db.ControlLibrary "List of All Implementation"
@@ -115,7 +105,7 @@ func PullAllControlImplementation(c *gin.Context) {
 
 // @Summary Retrieve Implementation by ID
 // @Description Retrieve an Implementation by its ID
-// @Tags Control
+// @Tags 8 - Implementation
 // @Accept json
 // @Produce json
 // @Param id path int true "Implementation ID"
@@ -137,7 +127,7 @@ func PullControlImplementationId(c *gin.Context) {
 // @Tags Control
 // @Accept json
 // @Produce json
-// @Success 200 {object} []db.ControlDinamic "List of All Control Strength"
+// @Success 200 {object} []db.Control "List of All Control Strength"
 // @Router /api/all-strength [get]
 func PullAllControlStrength(c *gin.Context) {
 	control.PullAllControlStrength(c)
@@ -148,7 +138,7 @@ func PullAllControlStrength(c *gin.Context) {
 // @Tags Control
 // @Accept json
 // @Produce json
-// @Success 200 {object} []db.PropusedDinamic "List of All Control Strength"
+// @Success 200 {object} []db.Propused "List of All Control Strength"
 // @Router /api/all-proposed [get]
 func PullAllControlProposed(c *gin.Context) {
 	control.PullAllControlProposed(c)

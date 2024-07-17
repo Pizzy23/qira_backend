@@ -15,7 +15,7 @@ import (
 )
 
 func PullAllControlStrength(c *gin.Context) {
-	var relevances []db.RelevanceDinamic
+	var relevances []db.Relevance
 	var implementations []db.Implements
 	engine, exists := c.Get("db")
 	if !exists {
@@ -34,17 +34,17 @@ func PullAllControlStrength(c *gin.Context) {
 		return
 	}
 
-	implMap := make(map[int]db.Implements)
+	implMap := make(map[int64]db.Implements) // Mudança aqui para int64
 	for _, impl := range implementations {
 		implMap[impl.ControlID] = impl
 	}
 
 	var wg sync.WaitGroup
-	resultsChan := make(chan db.ControlDinamic)
+	resultsChan := make(chan db.Control)
 
 	for controlID, impl := range implMap {
 		wg.Add(1)
-		go func(controlID int, impl db.Implements) {
+		go func(controlID int64, impl db.Implements) {
 			defer wg.Done()
 			var totalRelevance int
 			var totalAggregated float64
@@ -67,7 +67,7 @@ func PullAllControlStrength(c *gin.Context) {
 			if totalRelevance > 0 {
 				aggregated := totalAggregated / float64(totalRelevance)
 				controlGap := 100.0 - aggregated
-				result := db.ControlDinamic{
+				result := db.Control{
 					ControlID:       controlID,
 					AggregateTable:  "AuthenticationAttack",
 					Aggregate:       fmt.Sprintf("%f", aggregated),
@@ -84,12 +84,12 @@ func PullAllControlStrength(c *gin.Context) {
 		close(resultsChan)
 	}()
 
-	var finalResults []db.ControlDinamic
+	var finalResults []db.Control
 	for result := range resultsChan {
 		finalResults = append(finalResults, result)
 	}
 
-	if err := saveResultsControlDinamic(engine.(*xorm.Engine), finalResults); err != nil {
+	if err := saveResultsControl(engine.(*xorm.Engine), finalResults); err != nil {
 		c.Set("Response", err)
 		c.Status(http.StatusInternalServerError)
 		return
@@ -100,7 +100,7 @@ func PullAllControlStrength(c *gin.Context) {
 }
 
 func PullAllControlProposed(c *gin.Context) {
-	var relevances []db.RelevanceDinamic
+	var relevances []db.Relevance
 	var implementations []db.Implements
 	engine, exists := c.Get("db")
 	if !exists {
@@ -119,17 +119,17 @@ func PullAllControlProposed(c *gin.Context) {
 		return
 	}
 
-	implMap := make(map[int]db.Implements)
+	implMap := make(map[int64]db.Implements) // Mudança aqui para int64
 	for _, impl := range implementations {
 		implMap[impl.ControlID] = impl
 	}
 
 	var wg sync.WaitGroup
-	resultsChan := make(chan db.PropusedDinamic)
+	resultsChan := make(chan db.Propused)
 
 	for controlID, impl := range implMap {
 		wg.Add(1)
-		go func(controlID int, impl db.Implements) {
+		go func(controlID int64, impl db.Implements) {
 			defer wg.Done()
 			var totalRelevance int
 			var totalAggregated float64
@@ -152,7 +152,7 @@ func PullAllControlProposed(c *gin.Context) {
 			if totalRelevance > 0 {
 				aggregated := totalAggregated / float64(totalRelevance)
 				controlGap := 100.0 - aggregated
-				result := db.PropusedDinamic{
+				result := db.Propused{
 					ControlID:       controlID,
 					AggregateTable:  "AuthenticationAttack",
 					Aggregate:       fmt.Sprintf("%f", aggregated),
@@ -169,12 +169,12 @@ func PullAllControlProposed(c *gin.Context) {
 		close(resultsChan)
 	}()
 
-	var finalResults []db.PropusedDinamic
+	var finalResults []db.Propused
 	for result := range resultsChan {
 		finalResults = append(finalResults, result)
 	}
 
-	if err := saveResultsPropusedDinamic(engine.(*xorm.Engine), finalResults); err != nil {
+	if err := saveResultsPropused(engine.(*xorm.Engine), finalResults); err != nil {
 		c.Set("Response", err)
 		c.Status(http.StatusInternalServerError)
 		return
@@ -184,7 +184,7 @@ func PullAllControlProposed(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-func saveResultsControlDinamic(engine *xorm.Engine, results []db.ControlDinamic) error {
+func saveResultsControl(engine *xorm.Engine, results []db.Control) error {
 	for _, result := range results {
 		if err := db.Create(engine, &result); err != nil {
 			return err
@@ -192,7 +192,8 @@ func saveResultsControlDinamic(engine *xorm.Engine, results []db.ControlDinamic)
 	}
 	return nil
 }
-func saveResultsPropusedDinamic(engine *xorm.Engine, results []db.PropusedDinamic) error {
+
+func saveResultsPropused(engine *xorm.Engine, results []db.Propused) error {
 	for _, result := range results {
 		if err := db.Create(engine, &result); err != nil {
 			return err
@@ -202,8 +203,8 @@ func saveResultsPropusedDinamic(engine *xorm.Engine, results []db.PropusedDinami
 }
 
 func CalculateAggregatedControlStrength(engine *xorm.Engine) ([]db.AggregatedStrength, error) {
-	var controlStrengths []db.ControlDinamic
-	var proposedStrengths []db.PropusedDinamic
+	var controlStrengths []db.Control
+	var proposedStrengths []db.Propused
 	var threatEvents []db.ThreatEventAssets
 
 	if err := db.GetAll(engine, &controlStrengths); err != nil {
