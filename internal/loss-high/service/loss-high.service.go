@@ -2,7 +2,6 @@ package losshigh
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"qira/db"
 
@@ -23,7 +22,7 @@ func CreateLossHighService(c *gin.Context, LossHigh db.LossHigh) error {
 
 }
 
-func GetAggregatedLosses(c *gin.Context) ([]AggregatedLoss, error) {
+func GetAggregatedLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 	var lossHighs []db.LossHigh
 	engine, exists := c.Get("db")
 	if !exists {
@@ -34,49 +33,44 @@ func GetAggregatedLosses(c *gin.Context) ([]AggregatedLoss, error) {
 		return nil, err
 	}
 
-	aggregatedData := make(map[string]*AggregatedLoss)
-	threatEventTotals := make(map[string]*AggregatedLoss)
+	aggregatedData := make(map[int64]*AggregatedLossResponse)
 
 	for _, loss := range lossHighs {
-		key := fmt.Sprintf("%s-%s", loss.ThreatEvent, loss.LossType)
-		if _, exists := aggregatedData[key]; !exists {
-			aggregatedData[key] = &AggregatedLoss{
-				ThreatEvent:    loss.ThreatEvent,
-				ThreatEventId:  loss.ThreatEventID,
-				Assets:         loss.Assets,
-				LossType:       loss.LossType,
-				MinimumLoss:    0,
-				MaximumLoss:    0,
-				MostLikelyLoss: 0,
+		if _, exists := aggregatedData[loss.ThreatEventID]; !exists {
+			aggregatedData[loss.ThreatEventID] = &AggregatedLossResponse{
+				ThreatEventID: loss.ThreatEventID,
+				ThreatEvent:   loss.ThreatEvent,
+				Assets:        loss.Assets,
+				Losses:        []AggregatedLossDetail{},
 			}
 		}
-		aggregatedData[key].MinimumLoss += loss.MinimumLoss
-		aggregatedData[key].MaximumLoss += loss.MaximumLoss
-		aggregatedData[key].MostLikelyLoss += loss.MostLikelyLoss
-
-		if _, exists := threatEventTotals[loss.ThreatEvent]; !exists {
-			threatEventTotals[loss.ThreatEvent] = &AggregatedLoss{
-				ThreatEvent:    loss.ThreatEvent,
-				ThreatEventId:  loss.ThreatEventID,
-				Assets:         "",
-				LossType:       "Total",
-				MinimumLoss:    0,
-				MaximumLoss:    0,
-				MostLikelyLoss: 0,
-			}
+		detail := AggregatedLossDetail{
+			LossType:       loss.LossType,
+			MinimumLoss:    loss.MinimumLoss,
+			MaximumLoss:    loss.MaximumLoss,
+			MostLikelyLoss: loss.MostLikelyLoss,
 		}
-		threatEventTotals[loss.ThreatEvent].MinimumLoss += loss.MinimumLoss
-		threatEventTotals[loss.ThreatEvent].MaximumLoss += loss.MaximumLoss
-		threatEventTotals[loss.ThreatEvent].MostLikelyLoss += loss.MostLikelyLoss
+		aggregatedData[loss.ThreatEventID].Losses = append(aggregatedData[loss.ThreatEventID].Losses, detail)
 	}
 
-	var result []AggregatedLoss
+	for _, agg := range aggregatedData {
+		total := AggregatedLossDetail{
+			LossType:       "Total",
+			MinimumLoss:    0,
+			MaximumLoss:    0,
+			MostLikelyLoss: 0,
+		}
+		for _, detail := range agg.Losses {
+			total.MinimumLoss += detail.MinimumLoss
+			total.MaximumLoss += detail.MaximumLoss
+			total.MostLikelyLoss += detail.MostLikelyLoss
+		}
+		agg.Losses = append(agg.Losses, total)
+	}
+
+	var result []AggregatedLossResponse
 	for _, v := range aggregatedData {
 		result = append(result, *v)
-	}
-
-	for _, total := range threatEventTotals {
-		result = append(result, *total)
 	}
 
 	return result, nil

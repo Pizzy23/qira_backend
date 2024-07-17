@@ -541,7 +541,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Revelance"
+                    "9 - Revelance"
                 ],
                 "summary": "Create Relevance",
                 "parameters": [
@@ -790,7 +790,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Revelance"
+                    "9 - Revelance"
                 ],
                 "summary": "Retrieve All Relevance",
                 "responses": {
@@ -816,7 +816,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Revelance"
+                    "9 - Revelance"
                 ],
                 "summary": "Retrieve Revelance by ID",
                 "parameters": [
@@ -846,7 +846,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Revelance"
+                    "9 - Revelance"
                 ],
                 "summary": "{WIP} Update Relevance",
                 "parameters": [

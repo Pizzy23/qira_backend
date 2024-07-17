@@ -12,7 +12,7 @@ import (
 
 // @Summary Retrieve All Relevance
 // @Description Retrieve all Relevance
-// @Tags Revelance
+// @Tags 9 - Revelance
 // @Accept json
 // @Produce json
 // @Success 200 {object} []db.Relevance "List of All Relevance"
@@ -23,7 +23,7 @@ func PullAllRevelance(c *gin.Context) {
 
 // @Summary Retrieve Revelance by ID
 // @Description Retrieve an Revelance by its ID
-// @Tags Revelance
+// @Tags 9 - Revelance
 // @Accept json
 // @Produce json
 // @Param id path int true "Revelance ID"
@@ -42,7 +42,7 @@ func PullRevelanceId(c *gin.Context) {
 
 // @Summary Create Relevance
 // @Description Create new Relevance
-// @Tags Revelance
+// @Tags 9 - Revelance
 // @Accept json
 // @Produce json
 // @Param request body db.Relevance true "Data for create new Relevance"
@@ -68,7 +68,7 @@ func CreateRelevance(c *gin.Context) {
 
 // @Summary {WIP} Update Relevance
 // @Description Update an existing Relevance
-// @Tags Revelance
+// @Tags 9 - Revelance
 // @Accept json
 // @Produce json
 // @Param id path int true "Relevance ID"

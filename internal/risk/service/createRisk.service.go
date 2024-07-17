@@ -2,11 +2,13 @@ package risk
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"qira/db"
 	"qira/internal/interfaces"
 	losshigh "qira/internal/loss-high/service"
 	calculations "qira/internal/math"
+	"strings"
 	"sync"
 
 	"github.com/gin-gonic/gin"
@@ -34,7 +36,7 @@ func CreateRiskService(c *gin.Context) ([]db.RiskCalculation, error) {
 		return nil, errors.New("database connection not found")
 	}
 
-	aggregatedLosses, err := losshigh.GetAggregatedLosses(c)
+	aggregatedLossControles, err := getAggregatedLossControles(c)
 	if err != nil {
 		return nil, errors.New("error getting aggregated losses")
 	}
@@ -68,16 +70,16 @@ func CreateRiskService(c *gin.Context) ([]db.RiskCalculation, error) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		for _, aggregatedLoss := range aggregatedLosses {
-			if aggregatedLoss.LossType == "Total" {
-				calc := calculations.CalcRisks(aggregatedLoss.MinimumLoss, aggregatedLoss.MostLikelyLoss, aggregatedLoss.MaximumLoss)
+		for _, aggregatedLossControl := range aggregatedLossControles {
+			if aggregatedLossControl.LossType == "Total" {
+				calc := calculations.CalcRisks(aggregatedLossControl.MinimumLoss, aggregatedLossControl.MostLikelyLoss, aggregatedLossControl.MaximumLoss)
 				lossCalc := db.RiskCalculation{
-					ThreatEventID: aggregatedLoss.ThreatEventId,
-					ThreatEvent:   aggregatedLoss.ThreatEvent,
+					ThreatEventID: aggregatedLossControl.ThreatEventId,
+					ThreatEvent:   aggregatedLossControl.ThreatEvent,
 					RiskType:      "Loss",
-					Min:           aggregatedLoss.MinimumLoss,
-					Max:           aggregatedLoss.MaximumLoss,
-					Mode:          aggregatedLoss.MostLikelyLoss,
+					Min:           aggregatedLossControl.MinimumLoss,
+					Max:           aggregatedLossControl.MaximumLoss,
+					Mode:          aggregatedLossControl.MostLikelyLoss,
 					Estimate:      calc,
 				}
 				if err := handleRiskCalculation(engine.(*xorm.Engine), &lossCalc); err != nil {
@@ -89,7 +91,7 @@ func CreateRiskService(c *gin.Context) ([]db.RiskCalculation, error) {
 	}()
 
 	// Combine frequency and loss data
-	combinedRisks := combineFrequencyAndLoss(freq, aggregatedLosses)
+	combinedRisks := combineFrequencyAndLoss(freq, aggregatedLossControles)
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -162,10 +164,10 @@ func getAll(engine *xorm.Engine) ([]db.LossHigh, []db.Frequency, error) {
 	return loss, frequency, nil
 }
 
-func combineFrequencyAndLoss(freqs []db.Frequency, losses []losshigh.AggregatedLoss) []interfaces.CombinedRisk {
+func combineFrequencyAndLoss(freqs []db.Frequency, losses []losshigh.AggregatedLossControl) []interfaces.CombinedRisk {
 	combined := []interfaces.CombinedRisk{}
 	freqMap := make(map[int64]db.Frequency)
-	lossMap := make(map[int64]losshigh.AggregatedLoss)
+	lossMap := make(map[int64]losshigh.AggregatedLossControl)
 
 	for _, freq := range freqs {
 		freqMap[freq.ThreatEventID] = freq
@@ -204,4 +206,71 @@ func getThreatAndRisks(engine *xorm.Engine) ([]db.RiskCalculation, []db.ThreatEv
 		return nil, nil, err
 	}
 	return risk, threat, nil
+
+}
+
+func getAggregatedLossControles(c *gin.Context) ([]losshigh.AggregatedLossControl, error) {
+	var lossHighs []db.LossHigh
+	engine, exists := c.Get("db")
+	if !exists {
+		return nil, errors.New("database connection not found")
+	}
+
+	if err := db.GetAll(engine.(*xorm.Engine), &lossHighs); err != nil {
+		return nil, err
+	}
+
+	aggregatedData := make(map[string]*losshigh.AggregatedLossControl)
+	threatEventTotals := make(map[string]*losshigh.AggregatedLossControl)
+	threatEventAssets := make(map[string][]string)
+
+	for _, loss := range lossHighs {
+		key := fmt.Sprintf("%s-%s", loss.ThreatEvent, loss.LossType)
+		if _, exists := aggregatedData[key]; !exists {
+			aggregatedData[key] = &losshigh.AggregatedLossControl{
+				ThreatEvent:    loss.ThreatEvent,
+				ThreatEventId:  loss.ThreatEventID,
+				Assets:         loss.Assets,
+				LossType:       loss.LossType,
+				MinimumLoss:    0,
+				MaximumLoss:    0,
+				MostLikelyLoss: 0,
+			}
+		}
+		aggregatedData[key].MinimumLoss += loss.MinimumLoss
+		aggregatedData[key].MaximumLoss += loss.MaximumLoss
+		aggregatedData[key].MostLikelyLoss += loss.MostLikelyLoss
+
+		if _, exists := threatEventTotals[loss.ThreatEvent]; !exists {
+			threatEventTotals[loss.ThreatEvent] = &losshigh.AggregatedLossControl{
+				ThreatEvent:    loss.ThreatEvent,
+				ThreatEventId:  loss.ThreatEventID,
+				Assets:         "",
+				LossType:       "Total",
+				MinimumLoss:    0,
+				MaximumLoss:    0,
+				MostLikelyLoss: 0,
+			}
+		}
+		threatEventTotals[loss.ThreatEvent].MinimumLoss += loss.MinimumLoss
+		threatEventTotals[loss.ThreatEvent].MaximumLoss += loss.MaximumLoss
+		threatEventTotals[loss.ThreatEvent].MostLikelyLoss += loss.MostLikelyLoss
+
+		if _, exists := threatEventAssets[loss.ThreatEvent]; !exists {
+			threatEventAssets[loss.ThreatEvent] = []string{}
+		}
+		threatEventAssets[loss.ThreatEvent] = append(threatEventAssets[loss.ThreatEvent], loss.Assets)
+	}
+
+	var result []losshigh.AggregatedLossControl
+	for _, v := range aggregatedData {
+		result = append(result, *v)
+	}
+
+	for _, total := range threatEventTotals {
+		total.Assets = strings.Join(threatEventAssets[total.ThreatEvent], ", ")
+		result = append(result, *total)
+	}
+
+	return result, nil
 }

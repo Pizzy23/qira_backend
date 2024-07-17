@@ -533,7 +533,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Revelance"
+                    "9 - Revelance"
                 ],
                 "summary": "Create Relevance",
                 "parameters": [
@@ -782,7 +782,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Revelance"
+                    "9 - Revelance"
                 ],
                 "summary": "Retrieve All Relevance",
                 "responses": {
@@ -808,7 +808,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Revelance"
+                    "9 - Revelance"
                 ],
                 "summary": "Retrieve Revelance by ID",
                 "parameters": [
@@ -838,7 +838,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Revelance"
+                    "9 - Revelance"
                 ],
                 "summary": "{WIP} Update Relevance",
                 "parameters": [

@@ -624,7 +624,7 @@ paths:
             $ref: '#/definitions/db.Relevance'
       summary: Create Relevance
       tags:
-      - Revelance
+      - 9 - Revelance
   /api/event:
     post:
       consumes:
@@ -781,7 +781,7 @@ paths:
             type: array
       summary: Retrieve All Relevance
       tags:
-      - Revelance
+      - 9 - Revelance
   /api/revelance/{id}:
     get:
       consumes:
@@ -802,7 +802,7 @@ paths:
             $ref: '#/definitions/db.Relevance'
       summary: Retrieve Revelance by ID
       tags:
-      - Revelance
+      - 9 - Revelance
     put:
       consumes:
       - application/json
@@ -828,7 +828,7 @@ paths:
             $ref: '#/definitions/db.Relevance'
       summary: '{WIP} Update Relevance'
       tags:
-      - Revelance
+      - 9 - Revelance
   /api/risk:
     get:
       consumes:
