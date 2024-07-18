@@ -24,7 +24,7 @@ func PullAllForEvent(c *gin.Context) {
 // @Tags 4 - Event
 // @Accept json
 // @Produce json
-// @Param request body db.InputThreatEventAssets true "Data for create new Event"
+// @Param request body interfaces.InputThreatEventAssets true "Data for create new Event"
 // @Success 200 {object} db.ThreatEventAssets "Event created successfully"
 // @Router /api/event/{id} [put]
 func CreateEvent(c *gin.Context) {

@@ -374,40 +374,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/control": {
-            "post": {
-                "description": "Create New Event Control",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "7 - Control"
-                ],
-                "summary": "Create New Control",
-                "parameters": [
-                    {
-                        "description": "Data for create new Control",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/interfaces.InputControlLibrary"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "List of All Controls",
-                        "schema": {
-                            "$ref": "#/definitions/db.ControlLibrary"
-                        }
-                    }
-                }
-            }
-        },
         "/api/control/{id}": {
             "get": {
                 "description": "Retrieve an Event by its ID",
@@ -438,11 +404,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/api/create-Risk": {
-            "post": {
-                "description": "Create new Risk",
+            },
+            "put": {
+                "description": "Create Controll",
                 "consumes": [
                     "application/json"
                 ],
@@ -450,14 +414,32 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "6 - Risk"
+                    "8 - Implementation"
                 ],
-                "summary": "{WIP} Create Risk",
+                "summary": "Update Controll",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Implementation Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Data for create new Event",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/interfaces.ImplementsInputNoID"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Risk Create",
+                        "description": "List of All Assets",
                         "schema": {
-                            "$ref": "#/definitions/db.RiskCalculation"
+                            "$ref": "#/definitions/db.ControlLibrary"
                         }
                     }
                 }
@@ -565,8 +547,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/event": {
-            "post": {
+        "/api/event/{id}": {
+            "put": {
                 "description": "Create Event",
                 "consumes": [
                     "application/json"
@@ -585,7 +567,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/db.ThreatEventAssets"
+                            "$ref": "#/definitions/interfaces.InputThreatEventAssets"
                         }
                     }
                 ],
@@ -594,40 +576,6 @@ const docTemplate = `{
                         "description": "Event created successfully",
                         "schema": {
                             "$ref": "#/definitions/db.ThreatEventAssets"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/frequency": {
-            "put": {
-                "description": "Edit Frequency",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "3 - Frequency"
-                ],
-                "summary": "Edit Frequency",
-                "parameters": [
-                    {
-                        "description": "Edit Frequency",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/interfaces.InputFrequency"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Your Frequency is by add",
-                        "schema": {
-                            "$ref": "#/definitions/db.Frequency"
                         }
                     }
                 }
@@ -654,10 +602,49 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "put": {
+                "description": "Edit Frequency",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "3 - Frequency"
+                ],
+                "summary": "Edit Frequency",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Threat Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Edit Frequency",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/interfaces.InputFrequency"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Your Frequency is by add",
+                        "schema": {
+                            "$ref": "#/definitions/db.Frequency"
+                        }
+                    }
+                }
             }
         },
         "/api/implementation": {
-            "post": {
+            "put": {
                 "description": "Create New Event Implementation",
                 "consumes": [
                     "application/json"
@@ -671,12 +658,19 @@ const docTemplate = `{
                 "summary": "Create New Implementation",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "Implementation Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "Data for create new Event",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/interfaces.ImplementsInput"
+                            "$ref": "#/definitions/interfaces.ImplementsInputNoID"
                         }
                     }
                 ],
@@ -836,45 +830,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "put": {
-                "description": "Update an existing Relevance",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "9 - Revelance"
-                ],
-                "summary": "{WIP} Update Relevance",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Relevance ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Data to update Relevance",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/interfaces.RelevanceDinamicInput"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Relevance Updated",
-                        "schema": {
-                            "$ref": "#/definitions/db.Relevance"
-                        }
-                    }
-                }
             }
         },
         "/api/risk": {
@@ -998,13 +953,7 @@ const docTemplate = `{
                 "aggregate": {
                     "type": "string"
                 },
-                "aggregateTable": {
-                    "type": "string"
-                },
                 "controlGap": {
-                    "type": "string"
-                },
-                "controlGapTable": {
                     "type": "string"
                 },
                 "controlId": {
@@ -1208,12 +1157,9 @@ const docTemplate = `{
                 }
             }
         },
-        "interfaces.ImplementsInput": {
+        "interfaces.ImplementsInputNoID": {
             "type": "object",
             "properties": {
-                "controlId": {
-                    "type": "integer"
-                },
                 "cost": {
                     "type": "integer"
                 },
@@ -1257,23 +1203,6 @@ const docTemplate = `{
                 }
             }
         },
-        "interfaces.InputControlLibrary": {
-            "type": "object",
-            "properties": {
-                "control_reference": {
-                    "type": "string"
-                },
-                "control_type": {
-                    "type": "string"
-                },
-                "in_scope": {
-                    "type": "boolean"
-                },
-                "information": {
-                    "type": "string"
-                }
-            }
-        },
         "interfaces.InputFrequency": {
             "type": "object",
             "properties": {
@@ -1291,8 +1220,22 @@ const docTemplate = `{
                 },
                 "threat_event": {
                     "type": "string"
+                }
+            }
+        },
+        "interfaces.InputThreatEventAssets": {
+            "type": "object",
+            "properties": {
+                "affected_asset": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
-                "threat_event_id": {
+                "threat_event": {
+                    "type": "string"
+                },
+                "threat_id": {
                     "type": "integer"
                 }
             }
@@ -1314,21 +1257,6 @@ const docTemplate = `{
                 },
                 "threat_group": {
                     "type": "string"
-                }
-            }
-        },
-        "interfaces.RelevanceDinamicInput": {
-            "type": "object",
-            "properties": {
-                "attributes": {
-                    "description": "dynamic attributes",
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "integer"
-                    }
-                },
-                "controlId": {
-                    "type": "integer"
                 }
             }
         }

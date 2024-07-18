@@ -39,11 +39,7 @@ definitions:
     properties:
       aggregate:
         type: string
-      aggregateTable:
-        type: string
       controlGap:
-        type: string
-      controlGapTable:
         type: string
       controlId:
         type: integer
@@ -176,10 +172,8 @@ definitions:
       threatGroup:
         type: string
     type: object
-  interfaces.ImplementsInput:
+  interfaces.ImplementsInputNoID:
     properties:
-      controlId:
-        type: integer
       cost:
         type: integer
       current:
@@ -208,17 +202,6 @@ definitions:
       users:
         type: string
     type: object
-  interfaces.InputControlLibrary:
-    properties:
-      control_reference:
-        type: string
-      control_type:
-        type: string
-      in_scope:
-        type: boolean
-      information:
-        type: string
-    type: object
   interfaces.InputFrequency:
     properties:
       max_frequency:
@@ -231,7 +214,16 @@ definitions:
         type: string
       threat_event:
         type: string
-      threat_event_id:
+    type: object
+  interfaces.InputThreatEventAssets:
+    properties:
+      affected_asset:
+        items:
+          type: string
+        type: array
+      threat_event:
+        type: string
+      threat_id:
         type: integer
     type: object
   interfaces.InputThreatEventCatalogue:
@@ -246,16 +238,6 @@ definitions:
         type: string
       threat_group:
         type: string
-    type: object
-  interfaces.RelevanceDinamicInput:
-    properties:
-      attributes:
-        additionalProperties:
-          type: integer
-        description: dynamic attributes
-        type: object
-      controlId:
-        type: integer
     type: object
 externalDocs:
   description: OpenAPI
@@ -501,28 +483,6 @@ paths:
       summary: Retrieve Catalogue by ID
       tags:
       - 2 - Catalogue
-  /api/control:
-    post:
-      consumes:
-      - application/json
-      description: Create New Event Control
-      parameters:
-      - description: Data for create new Control
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/interfaces.InputControlLibrary'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of All Controls
-          schema:
-            $ref: '#/definitions/db.ControlLibrary'
-      summary: Create New Control
-      tags:
-      - 7 - Control
   /api/control/{id}:
     get:
       consumes:
@@ -544,21 +504,32 @@ paths:
       summary: Retrieve Control by ID
       tags:
       - 7 - Control
-  /api/create-Risk:
-    post:
+    put:
       consumes:
       - application/json
-      description: Create new Risk
+      description: Create Controll
+      parameters:
+      - description: Implementation Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data for create new Event
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.ImplementsInputNoID'
       produces:
       - application/json
       responses:
         "200":
-          description: Risk Create
+          description: List of All Assets
           schema:
-            $ref: '#/definitions/db.RiskCalculation'
-      summary: '{WIP} Create Risk'
+            $ref: '#/definitions/db.ControlLibrary'
+      summary: Update Controll
       tags:
-      - 6 - Risk
+      - 8 - Implementation
   /api/create-asset:
     post:
       consumes:
@@ -625,8 +596,8 @@ paths:
       summary: Create Relevance
       tags:
       - 9 - Revelance
-  /api/event:
-    post:
+  /api/event/{id}:
+    put:
       consumes:
       - application/json
       description: Create Event
@@ -636,7 +607,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/db.ThreatEventAssets'
+          $ref: '#/definitions/interfaces.InputThreatEventAssets'
       produces:
       - application/json
       responses:
@@ -647,12 +618,31 @@ paths:
       summary: Create Event
       tags:
       - 4 - Event
-  /api/frequency:
+  /api/frequency/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve one Frequency
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of One Frequency
+          schema:
+            $ref: '#/definitions/db.Frequency'
+      summary: Retrieve one Frequency
+      tags:
+      - 3 - Frequency
     put:
       consumes:
       - application/json
       description: Edit Frequency
       parameters:
+      - description: Threat Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: Edit Frequency
         in: body
         name: request
@@ -669,33 +659,23 @@ paths:
       summary: Edit Frequency
       tags:
       - 3 - Frequency
-  /api/frequency/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve one Frequency
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of One Frequency
-          schema:
-            $ref: '#/definitions/db.Frequency'
-      summary: Retrieve one Frequency
-      tags:
-      - 3 - Frequency
   /api/implementation:
-    post:
+    put:
       consumes:
       - application/json
       description: Create New Event Implementation
       parameters:
+      - description: Implementation Id
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: Data for create new Event
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/interfaces.ImplementsInput'
+          $ref: '#/definitions/interfaces.ImplementsInputNoID'
       produces:
       - application/json
       responses:
@@ -801,32 +781,6 @@ paths:
           schema:
             $ref: '#/definitions/db.Relevance'
       summary: Retrieve Revelance by ID
-      tags:
-      - 9 - Revelance
-    put:
-      consumes:
-      - application/json
-      description: Update an existing Relevance
-      parameters:
-      - description: Relevance ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Data to update Relevance
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/interfaces.RelevanceDinamicInput'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Relevance Updated
-          schema:
-            $ref: '#/definitions/db.Relevance'
-      summary: '{WIP} Update Relevance'
       tags:
       - 9 - Revelance
   /api/risk:
