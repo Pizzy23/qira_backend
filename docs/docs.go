@@ -479,8 +479,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/create-losshigh": {
-            "post": {
+        "/api/create-losshigh/{id}": {
+            "put": {
                 "description": "Create new LossHigh",
                 "consumes": [
                     "application/json"
@@ -494,12 +494,19 @@ const docTemplate = `{
                 "summary": "Create LossHigh",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "Threat Event ID",
+                        "name": "id",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "description": "Data for create new LossHigh",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/db.LossHigh"
+                            "$ref": "#/definitions/interfaces.InputLossHigh"
                         }
                     }
                 ],
@@ -561,6 +568,13 @@ const docTemplate = `{
                 ],
                 "summary": "Create Event",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Threat Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "description": "Data for create new Event",
                         "name": "request",
@@ -1249,6 +1263,32 @@ const docTemplate = `{
                 }
             }
         },
+        "interfaces.InputLossHigh": {
+            "type": "object",
+            "properties": {
+                "assets": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "loss_type": {
+                    "type": "string"
+                },
+                "maximum_loss": {
+                    "type": "number"
+                },
+                "minimum_loss": {
+                    "type": "number"
+                },
+                "most_likely_loss": {
+                    "type": "number"
+                },
+                "threat_event": {
+                    "type": "string"
+                }
+            }
+        },
         "interfaces.InputThreatEventAssets": {
             "type": "object",
             "properties": {
@@ -1260,9 +1300,6 @@ const docTemplate = `{
                 },
                 "threat_event": {
                     "type": "string"
-                },
-                "threat_id": {
-                    "type": "integer"
                 }
             }
         },
@@ -1271,9 +1308,6 @@ const docTemplate = `{
             "properties": {
                 "description": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "in_scope": {
                     "type": "boolean"

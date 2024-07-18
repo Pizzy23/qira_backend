@@ -36,7 +36,7 @@ func EditFrequencyService(c *gin.Context, freq interfaces.InputFrequency, Threat
 		return errors.New("database connection not found")
 	}
 
-	if err := db.UpdateByThreat(engine.(*xorm.Engine), frequencyTable, freq.ThreatEvent); err != nil {
+	if err := db.UpdateByThreat(engine.(*xorm.Engine), frequencyTable, ThreatEventID); err != nil {
 		return err
 	}
 	return nil

@@ -26,30 +26,43 @@ type RiskData struct {
 }
 
 type CombinedRiskLEC struct {
-	EventName    string         `json:"event_name"`
-	MeanRisk     float64        `json:"mean_risk"`
-	Percentile95 float64        `json:"percentile_95"`
-	ValueAtRisk  float64        `json:"value_at_risk"`
-	RiskLEC      []RiskLECPoint `json:"risk_lec"`
+	EventName    string    `json:"event_name"`
+	MeanRisk     float64   `json:"mean_risk"`
+	Percentile95 float64   `json:"percentile_95"`
+	ValueAtRisk  float64   `json:"value_at_risk"`
+	RiskSims     []float64 `json:"risk_sims"`
+	RiskBins     []float64 `json:"risk_bins"`
+	RiskFreqs    []float64 `json:"risk_freqs"`
+	RiskLecs     []float64 `json:"risk_lecs"`
+	RiskCFreqs   []float64 `json:"risk_cfreqs"`
 }
 
-type RiskLECPoint struct {
-	Risk float64 `json:"risk"`
-	LEC  float64 `json:"lec"`
-}
-
-func generateData(iterations int, events []db.ThreatEventCatalog, freqMap map[int64]db.Frequency, lossMap map[int64]db.LossHigh) ([]CombinedRiskLEC, [][]float64) {
+func generateData(iterations int, events []db.ThreatEventCatalog, frequencies []db.Frequency, losses []db.LossHigh) []CombinedRiskLEC {
 	rand.Seed(time.Now().UnixNano())
 	var combinedRiskLEC []CombinedRiskLEC
 
 	for _, event := range events {
-		frequency := freqMap[event.ID]
-		loss := lossMap[event.ID]
+		var frequency db.Frequency
+		var loss db.LossHigh
 
-		meanFreq := rand.NormFloat64()*0.5 + frequency.MostLikelyFrequency
-		stdFreq := (frequency.MaxFrequency - frequency.MinFrequency) / 6 // Assuming standard deviation is 1/6th of the range
-		meanLoss := rand.NormFloat64()*1 + loss.MostLikelyLoss
-		stdLoss := (loss.MaximumLoss - loss.MinimumLoss) / 6 // Assuming standard deviation is 1/6th of the range
+		for _, f := range frequencies {
+			if f.ThreatEventID == event.ID {
+				frequency = f
+				break
+			}
+		}
+
+		for _, l := range losses {
+			if l.ThreatEventID == event.ID {
+				loss = l
+				break
+			}
+		}
+
+		meanFreq := (frequency.MinFrequency + frequency.MostLikelyFrequency + frequency.MaxFrequency) / 3
+		stdFreq := (frequency.MaxFrequency - frequency.MinFrequency) / 6
+		meanLoss := (loss.MinimumLoss + loss.MostLikelyLoss + loss.MaximumLoss) / 3
+		stdLoss := (loss.MaximumLoss - loss.MinimumLoss) / 6
 
 		var eventRisk []float64
 		for i := 0; i < iterations; i++ {
@@ -69,12 +82,24 @@ func generateData(iterations int, events []db.ThreatEventCatalog, freqMap map[in
 			probability[i] = 1.0 - float64(i)/float64(len(eventRisk))
 		}
 
-		var riskLEC []RiskLECPoint
+		riskFreqs := make([]float64, len(eventRisk))
 		for i := range eventRisk {
-			riskLEC = append(riskLEC, RiskLECPoint{
-				Risk: eventRisk[i],
-				LEC:  probability[i],
-			})
+			riskFreqs[i] = eventRisk[i] * probability[i]
+		}
+
+		riskBins := make([]float64, len(eventRisk))
+		for i := range eventRisk {
+			riskBins[i] = eventRisk[i]
+		}
+
+		riskLecs := make([]float64, len(eventRisk))
+		for i := range eventRisk {
+			riskLecs[i] = probability[i]
+		}
+
+		riskCFreqs := make([]float64, len(eventRisk))
+		for i := range eventRisk {
+			riskCFreqs[i] = 1.0 - probability[i]
 		}
 
 		combinedRiskLEC = append(combinedRiskLEC, CombinedRiskLEC{
@@ -82,11 +107,15 @@ func generateData(iterations int, events []db.ThreatEventCatalog, freqMap map[in
 			MeanRisk:     meanRisk,
 			Percentile95: percentile95,
 			ValueAtRisk:  valueAtRisk,
-			RiskLEC:      riskLEC,
+			RiskSims:     eventRisk,
+			RiskBins:     riskBins,
+			RiskFreqs:    riskFreqs,
+			RiskLecs:     riskLecs,
+			RiskCFreqs:   riskCFreqs,
 		})
 	}
 
-	return combinedRiskLEC, nil
+	return combinedRiskLEC
 }
 
 func MainSimulation(c *gin.Context) {
@@ -119,21 +148,10 @@ func MainSimulation(c *gin.Context) {
 		return
 	}
 
-	iterations := 50
+	iterations := 10000
 
-	freqMap := make(map[int64]db.Frequency)
-	for _, f := range freq {
-		freqMap[f.ThreatEventID] = f
-	}
-
-	lossMap := make(map[int64]db.LossHigh)
-	for _, l := range loss {
-		lossMap[l.ThreatEventID] = l
-	}
-
-	combinedRiskLEC, _ := generateData(iterations, events, freqMap, lossMap)
+	combinedRiskLEC := generateData(iterations, events, freq, loss)
 
 	c.Set("Response", combinedRiskLEC)
 	c.Status(http.StatusOK)
-
 }

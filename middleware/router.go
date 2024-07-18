@@ -55,7 +55,7 @@ func SetupRouter() *gin.Engine {
 
 	//events
 	auth.GET("/all-event", event.PullAllForEvent)
-	auth.PUT("/event", event.CreateEvent)
+	auth.PUT("/event/:id", event.CreateEvent)
 
 	//Catalogue
 	auth.GET("/all-catalogue", catalogue.PullAllEvent)

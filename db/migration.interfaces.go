@@ -48,6 +48,14 @@ type LossHigh struct {
 	MaximumLoss    float64 `xorm:"FLOAT"`
 	MostLikelyLoss float64 `xorm:"FLOAT"`
 }
+type LossHighTotal struct {
+	ID             int64   `xorm:"pk autoincr"`
+	ThreatEventID  int64   `xorm:"INT"`
+	ThreatEvent    string  `xorm:"VARCHAR(255)"`
+	MinimumLoss    float64 `xorm:"FLOAT"`
+	MaximumLoss    float64 `xorm:"FLOAT"`
+	MostLikelyLoss float64 `xorm:"FLOAT"`
+}
 
 type RiskCalculation struct {
 	ID            int64   `json:"id" xorm:"pk autoincr"`
@@ -75,7 +83,7 @@ type RiskController struct {
 
 type ThreatEventAssets struct { // Vai selecionar Assets, Oque foi afetado Pode ser varios afetados
 	ID            int    `json:"id" xorm:"pk autoincr 'id' INT"`
-	ThreatID      int    `json:"threat_id" xorm:"INT notnull"`
+	ThreatID      int64  `json:"threat_id" xorm:"INT notnull"`
 	ThreatEvent   string `json:"threat_event" xorm:"VARCHAR(255) notnull"`
 	AffectedAsset string `json:"affected_asset" xorm:"JSON notnull"`
 }

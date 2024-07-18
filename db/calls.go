@@ -21,8 +21,8 @@ func UpdateByThreatEvent(engine *xorm.Engine, table interface{}, threatEventID i
 	return err
 }
 
-func UpdateByThreat(engine *xorm.Engine, table interface{}, threatEventID string) error {
-	_, err := engine.Where("threat_event_i_d = ? ", threatEventID).Update(table)
+func UpdateByThreat(engine *xorm.Engine, table interface{}, threatEventID int64) error {
+	_, err := engine.Where("threat_event_i_d = ?", threatEventID).Update(table)
 	return err
 }
 func UpdateByControlIdAndRisk(engine *xorm.Engine, table interface{}, controlID int64, attack string) error {

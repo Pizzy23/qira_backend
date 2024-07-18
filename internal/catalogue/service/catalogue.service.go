@@ -30,42 +30,52 @@ func CreateEventService(c *gin.Context, event interfaces.InputThreatEventCatalog
 		return err
 	}
 
+	eventID := eventDB.ID
+
 	RiskController := db.RiskController{
 		Name: event.ThreatEvent,
-	}
-
-	ThreatEventAssets := db.ThreatEventAssets{
-		ThreatID:      int(eventDB.ID),
-		ThreatEvent:   event.ThreatEvent,
-		AffectedAsset: "",
 	}
 
 	if err := db.Create(engine.(*xorm.Engine), RiskController); err != nil {
 		return err
 	}
 
-	if err := db.Create(engine.(*xorm.Engine), ThreatEventAssets); err != nil {
+	frequencyInput := db.Frequency{
+		ThreatEventID: eventID,
+		ThreatEvent:   event.ThreatEvent,
+		MinFrequency:  0,
+		MaxFrequency:  0,
+	}
+
+	LossInput1 := db.LossHigh{
+		ThreatEventID:  eventID,
+		ThreatEvent:    event.ThreatEvent,
+		Assets:         "",
+		LossType:       "Indirect",
+		MinimumLoss:    0,
+		MaximumLoss:    0,
+		MostLikelyLoss: 0,
+	}
+
+	LossInput2 := db.LossHigh{
+		ThreatEventID:  eventID,
+		ThreatEvent:    event.ThreatEvent,
+		Assets:         "",
+		LossType:       "Direct",
+		MinimumLoss:    0,
+		MaximumLoss:    0,
+		MostLikelyLoss: 0,
+	}
+
+	if err := frequency.CreateFrequencyService(c, frequencyInput); err != nil {
 		return err
 	}
 
-	errChan := make(chan error)
+	if err := db.Create(engine.(*xorm.Engine), &LossInput1); err != nil {
+		return err
+	}
 
-	go func(eventID int64, eventName string) {
-		frequencyInput := db.Frequency{
-			ThreatEventID: eventID,
-			ThreatEvent:   eventName,
-			MinFrequency:  0,
-			MaxFrequency:  0,
-		}
-
-		if err := frequency.CreateFrequencyService(c, frequencyInput); err != nil {
-			errChan <- err
-		} else {
-			errChan <- nil
-		}
-	}(event.ID, event.ThreatEvent)
-
-	if err := <-errChan; err != nil {
+	if err := db.Create(engine.(*xorm.Engine), &LossInput2); err != nil {
 		return err
 	}
 

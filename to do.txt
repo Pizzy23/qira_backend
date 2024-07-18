@@ -1,0 +1,24 @@
+Inventory - Testado 
+Catalogue - Testado
+Frequency - Testado (Calculos certos)
+Event - Testado 
+Loss-High - Testado (Calculos certos)
+Risk - Testado (Calculos certos)
+Control_Library - Testado
+Implementation - Testado
+Revelance - Testado
+
+
+--Frequency
+-> Rota do PUT da Succesfull, mas nao atualiza.
+
+--LinkThreat
+-> Bugado o link-threat para vincular assets:
+-> Event PUT (Assets acho que ta bugado, n funciona essa rota).
+
+--Loss-High
+-> Nao mostra nada, precisa linkar algum asset pra aparecer?
+-> Retorna null, mesmo tendo asset a threat criado
+
+Control Library
+-> Post simplesmente nao existe HAHAHAHAHAH

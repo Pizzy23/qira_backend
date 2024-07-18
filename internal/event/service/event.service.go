@@ -25,24 +25,55 @@ func PullEventService(c *gin.Context) {
 		return
 	}
 
-	c.Set("Response", res)
+	eventMap := make(map[int64]*interfaces.OutPutThreatEventAssets)
+
+	for _, item := range res {
+		if _, exists := eventMap[item.ThreatID]; !exists {
+			eventMap[item.ThreatID] = &interfaces.OutPutThreatEventAssets{
+				ThreatID:      item.ThreatID,
+				ThreatEvent:   item.ThreatEvent,
+				AffectedAsset: []string{},
+			}
+		}
+		eventMap[item.ThreatID].AffectedAsset = append(eventMap[item.ThreatID].AffectedAsset, item.AffectedAsset)
+	}
+
+	var output []interfaces.OutPutThreatEventAssets
+	for _, value := range eventMap {
+		output = append(output, *value)
+	}
+
+	c.Set("Response", output)
 	c.Status(http.StatusOK)
 }
 
-func CreateEventService(c *gin.Context, input interfaces.InputThreatEventAssets) error {
+func CreateEventService(c *gin.Context, input interfaces.InputThreatEventAssets, id int64) error {
 	engine, exists := c.Get("db")
 	if !exists {
 		return errors.New("database connection not found")
 	}
 
 	for _, asset := range input.AffectedAsset {
-		eventAsset := db.ThreatEventAssets{
-			ThreatID:      input.ThreatID,
-			ThreatEvent:   input.ThreatEvent,
-			AffectedAsset: asset,
-		}
-		if err := db.Create(engine.(*xorm.Engine), &eventAsset); err != nil {
+		var eventAsset db.ThreatEventAssets
+		has, err := engine.(*xorm.Engine).Where("threat_i_d = ? AND affected_asset = ?", id, asset).Get(&eventAsset)
+		if err != nil {
 			return err
+		}
+
+		if has {
+			eventAsset.ThreatEvent = input.ThreatEvent
+			if _, err := engine.(*xorm.Engine).ID(eventAsset.ID).Update(&eventAsset); err != nil {
+				return err
+			}
+		} else {
+			newEventAsset := db.ThreatEventAssets{
+				ThreatID:      id,
+				ThreatEvent:   input.ThreatEvent,
+				AffectedAsset: asset,
+			}
+			if _, err := engine.(*xorm.Engine).Insert(&newEventAsset); err != nil {
+				return err
+			}
 		}
 	}
 	return nil

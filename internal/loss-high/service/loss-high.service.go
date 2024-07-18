@@ -4,26 +4,38 @@ import (
 	"errors"
 	"net/http"
 	"qira/db"
+	"qira/internal/interfaces"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"xorm.io/xorm"
 )
 
-func CreateLossHighService(c *gin.Context, LossHigh db.LossHigh) error {
+func CreateLossHighService(c *gin.Context, LossHigh interfaces.InputLossHigh, id int64) error {
 	engine, exists := c.Get("db")
 	if !exists {
 		return errors.New("database connection not found")
 	}
 
-	if err := db.Create(engine.(*xorm.Engine), &LossHigh); err != nil {
+	lossInput := db.LossHigh{
+		ThreatEventID:  id,
+		ThreatEvent:    LossHigh.ThreatEvent,
+		Assets:         strings.Join(LossHigh.Assets, ","),
+		LossType:       LossHigh.LossType,
+		MinimumLoss:    LossHigh.MinimumLoss,
+		MaximumLoss:    LossHigh.MaximumLoss,
+		MostLikelyLoss: LossHigh.MostLikelyLoss,
+	}
+
+	if err := db.Create(engine.(*xorm.Engine), &lossInput); err != nil {
 		return err
 	}
 	return nil
-
 }
 
 func GetAggregatedLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 	var lossHighs []db.LossHigh
+	var totalGet []db.LossHighTotal
 	engine, exists := c.Get("db")
 	if !exists {
 		return nil, errors.New("database connection not found")
@@ -66,6 +78,37 @@ func GetAggregatedLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 			total.MostLikelyLoss += detail.MostLikelyLoss
 		}
 		agg.Losses = append(agg.Losses, total)
+
+		existingTotal := db.LossHighTotal{}
+		found, err := engine.(*xorm.Engine).Where("threat_event_i_d = ?", agg.ThreatEventID).Get(&existingTotal)
+		if err != nil {
+			return nil, err
+		}
+
+		if found {
+			if existingTotal.MinimumLoss != total.MinimumLoss || existingTotal.MaximumLoss != total.MaximumLoss || existingTotal.MostLikelyLoss != total.MostLikelyLoss {
+				existingTotal.MinimumLoss = total.MinimumLoss
+				existingTotal.MaximumLoss = total.MaximumLoss
+				existingTotal.MostLikelyLoss = total.MostLikelyLoss
+				if _, err := engine.(*xorm.Engine).ID(existingTotal.ID).Update(&existingTotal); err != nil {
+					return nil, err
+				}
+			}
+		} else {
+			totalGet = append(totalGet, db.LossHighTotal{
+				ThreatEventID:  agg.ThreatEventID,
+				ThreatEvent:    agg.ThreatEvent,
+				MinimumLoss:    total.MinimumLoss,
+				MaximumLoss:    total.MaximumLoss,
+				MostLikelyLoss: total.MostLikelyLoss,
+			})
+		}
+	}
+
+	for _, total := range totalGet {
+		if _, err := engine.(*xorm.Engine).Insert(&total); err != nil {
+			return nil, err
+		}
 	}
 
 	var result []AggregatedLossResponse

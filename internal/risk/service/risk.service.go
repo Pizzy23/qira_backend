@@ -9,13 +9,32 @@ import (
 )
 
 func PullAllRisk(c *gin.Context) {
+	var calcRisk []db.RiskCalculation
+	engine, exists := c.Get("db")
+	if !exists {
+		c.Set("Response", "Database connection not found")
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
 	risk, err := CreateRiskService(c)
 	if err != nil {
 		c.Set("Response", err)
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	c.Set("Response", risk)
+
+	if err := db.GetAll(engine.(*xorm.Engine), &calcRisk); err != nil {
+		c.Set("Response", err)
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	if len(risk) == len(calcRisk) {
+		c.Set("Response", risk)
+		c.Status(http.StatusOK)
+	}
+	c.Set("Response", calcRisk)
 	c.Status(http.StatusOK)
 }
 

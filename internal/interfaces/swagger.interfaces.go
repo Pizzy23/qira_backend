@@ -106,7 +106,6 @@ type InputAssetsInventory struct {
 }
 
 type InputThreatEventCatalogue struct {
-	ID          int64  `json:"id" xorm:"pk autoincr"`
 	ThreatGroup string `json:"threat_group"`
 	ThreatEvent string `json:"threat_event"`
 	Description string `json:"description"`
@@ -122,13 +121,17 @@ type InputFrequency struct {
 }
 
 type InputThreatEventAssets struct {
-	ThreatID      int      `json:"threat_id"`
+	ThreatEvent   string   `json:"threat_event"`
+	AffectedAsset []string `json:"affected_asset"`
+}
+
+type OutPutThreatEventAssets struct {
+	ThreatID      int64    `json:"threat_id" `
 	ThreatEvent   string   `json:"threat_event"`
 	AffectedAsset []string `json:"affected_asset"`
 }
 
 type InputLossHigh struct {
-	ThreatEventID  int      `json:"threat_event_id"`
 	ThreatEvent    string   `json:"threat_event"`
 	Assets         []string `json:"assets"`
 	LossType       string   `json:"loss_type"`

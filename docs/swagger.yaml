@@ -215,6 +215,23 @@ definitions:
       threat_event:
         type: string
     type: object
+  interfaces.InputLossHigh:
+    properties:
+      assets:
+        items:
+          type: string
+        type: array
+      loss_type:
+        type: string
+      maximum_loss:
+        type: number
+      minimum_loss:
+        type: number
+      most_likely_loss:
+        type: number
+      threat_event:
+        type: string
+    type: object
   interfaces.InputThreatEventAssets:
     properties:
       affected_asset:
@@ -223,15 +240,11 @@ definitions:
         type: array
       threat_event:
         type: string
-      threat_id:
-        type: integer
     type: object
   interfaces.InputThreatEventCatalogue:
     properties:
       description:
         type: string
-      id:
-        type: integer
       in_scope:
         type: boolean
       threat_event:
@@ -552,18 +565,23 @@ paths:
       summary: Create Asset
       tags:
       - 1 - Inventory
-  /api/create-losshigh:
-    post:
+  /api/create-losshigh/{id}:
+    put:
       consumes:
       - application/json
       description: Create new LossHigh
       parameters:
+      - description: Threat Event ID
+        in: header
+        name: id
+        required: true
+        type: integer
       - description: Data for create new LossHigh
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/db.LossHigh'
+          $ref: '#/definitions/interfaces.InputLossHigh'
       produces:
       - application/json
       responses:
@@ -602,6 +620,11 @@ paths:
       - application/json
       description: Create Event
       parameters:
+      - description: Threat Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: Data for create new Event
         in: body
         name: request
