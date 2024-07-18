@@ -28,14 +28,14 @@ func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-
-	r.Use(CORSConfig())
-	r.Use(ResponseHandler())
-
 	r.Use(func(c *gin.Context) {
 		c.Set("db", db.Repo)
 		c.Next()
 	})
+	r.GET("/simulation-aggregated", risk.RiskMountAggregated)
+
+	r.Use(CORSConfig())
+	r.Use(ResponseHandler())
 
 	//Use response, but not Token
 
@@ -81,7 +81,6 @@ func SetupRouter() *gin.Engine {
 	auth.GET("/risk", risk.PullAllRisk)
 	auth.GET("/risk/:id", risk.PullRiskId)
 	auth.GET("/simulation", risk.RiskMount)
-	auth.GET("/simulation-aggregated", risk.RiskMountAggregated)
 
 	// Revelance
 	auth.GET("/revelance", revelance.PullAllRevelance)

@@ -25,5 +25,5 @@ func RiskMount(c *gin.Context) {
 // @Success 200 {object} []db.RiskCalculation "List of All Risks"
 // @Router /api/simulation-aggregated [get]
 func RiskMountAggregated(c *gin.Context) {
-	simulation.AggregatedRisk(c)
+	simulation.MonteCarloSimulationAggregated(c)
 }

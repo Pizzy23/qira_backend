@@ -1,10 +1,12 @@
 package simulation
 
 import (
+	"log"
 	"math/rand"
 	"net/http"
 	"qira/db"
 	"sort"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -13,101 +15,100 @@ import (
 )
 
 type AggregatedRiskResult struct {
-	Simulation     int
-	EventRisks     map[string]float64
-	AggregatedRisk float64
-	Frequency      []int     `json:"frequency"`
-	Cumulative     []float64 `json:"cumulative"`
-}
-type MonteCarlo struct {
-	Simulation     int
-	EventRisks     map[string]float64
-	AggregatedRisk float64
+	Simulation     int            `json:"simulation"`
+	AggregatedRisk float64        `json:"aggregated_risk"`
+	Frequency      map[string]int `json:"frequency"` // Change to map[string]int
+	Cumulative     []float64      `json:"cumulative"`
 }
 
-func AggregatedRisk(c *gin.Context) {
-	var events []db.ThreatEventCatalog
+func MonteCarloSimulationAggregated(c *gin.Context) {
 	var riskCalculations []db.RiskCalculation
 	engine, exists := c.Get("db")
 
 	if !exists {
-		c.Set("Error", "Database connection not found")
-		c.Status(http.StatusInternalServerError)
-		return
-	}
-
-	if err := db.GetAll(engine.(*xorm.Engine), &events); err != nil {
-		c.Set("Response", err)
-		c.Status(http.StatusInternalServerError)
+		log.Println("Database connection not found")
+		c.JSON(http.StatusInternalServerError, gin.H{"Response": "Database connection not found"})
 		return
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &riskCalculations); err != nil {
-		c.Set("Response", err)
-		c.Status(http.StatusInternalServerError)
+		log.Println("Error fetching risk calculations:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"Response": err.Error()})
 		return
 	}
 
-	iterations := 10000
-	results := generateAggregatedRisk(iterations, events, riskCalculations)
+	// Calcula o valor predefinido somando todos os campos Estimate dos eventos de risco
+	predefinedValue := 0.0
+	for _, risk := range riskCalculations {
+		if risk.RiskType == "Risk" {
+			predefinedValue += risk.Estimate
+		}
+	}
+	log.Println("Predefined value:", predefinedValue)
 
-	c.Set("Response", results)
-	c.Status(http.StatusOK)
+	iterations := 10
+	results := generateMonteCarloRisk(iterations, predefinedValue)
+
+	c.JSON(http.StatusOK, gin.H{"Response": results})
 }
 
-func generateAggregatedRisk(iterations int, events []db.ThreatEventCatalog, riskCalculations []db.RiskCalculation) []AggregatedRiskResult {
+func generateMonteCarloRisk(iterations int, predefinedValue float64) []AggregatedRiskResult {
 	rand.Seed(time.Now().UnixNano())
 	var results []AggregatedRiskResult
-	eventRiskMap := make(map[string][]float64)
+	frequencyMap := make(map[float64]int)
 
 	for i := 0; i < iterations; i++ {
-		simulationResult := AggregatedRiskResult{
-			Simulation: i + 1,
-			EventRisks: make(map[string]float64),
-		}
-
 		var totalAggregatedRisk float64
 
-		for _, event := range events {
-			riskCalculation := getRiskCalculation(event.ID, riskCalculations)
-			if riskCalculation == nil {
-				continue
-			}
+		// Usando o valor predefinido como a média (Mu) da distribuição log-normal
+		riskSample := distuv.LogNormal{Mu: predefinedValue, Sigma: 1}.Rand()
+		totalAggregatedRisk += riskSample
 
-			riskSample := distuv.LogNormal{Mu: riskCalculation.Estimate, Sigma: 1}.Rand() // Usando a média (estimate) para o cálculo
-			simulationResult.EventRisks[event.ThreatEvent] = riskSample
-			totalAggregatedRisk += riskSample
-
-			eventRiskMap[event.ThreatEvent] = append(eventRiskMap[event.ThreatEvent], riskSample)
+		// Armazenar o risco agregado total para cada simulação
+		simulationResult := AggregatedRiskResult{
+			Simulation:     i + 1,
+			AggregatedRisk: totalAggregatedRisk,
 		}
 
-		simulationResult.AggregatedRisk = totalAggregatedRisk
+		frequencyMap[totalAggregatedRisk]++
 		results = append(results, simulationResult)
 	}
 
-	// Calculate frequency and cumulative distribution
-	for _, risks := range eventRiskMap {
-		sort.Float64s(risks)
-		frequency := make([]int, iterations)
-		cumulative := make([]float64, iterations)
-		for i, risk := range risks {
-			frequency[i] = int(risk)
-			cumulative[i] = float64(i+1) / float64(iterations) * 100
-		}
-		for i := range results {
-			results[i].Frequency = frequency
-			results[i].Cumulative = cumulative
+	log.Println("Simulations completed. Processing frequencies and cumulative data.")
+
+	// Calculate cumulative distribution
+	var freqKeys []float64
+	for k := range frequencyMap {
+		freqKeys = append(freqKeys, k)
+	}
+	sort.Float64s(freqKeys)
+
+	cumulative := make([]float64, len(freqKeys))
+	totalSimulations := float64(len(results))
+	for i, key := range freqKeys {
+		if i == 0 {
+			cumulative[i] = float64(frequencyMap[key]) / totalSimulations * 100
+		} else {
+			cumulative[i] = cumulative[i-1] + float64(frequencyMap[key])/totalSimulations*100
 		}
 	}
 
+	log.Println("Frequencies and cumulative data processed. Assigning to results.")
+
+	// Atribuir frequências e cumulativas corretas para cada resultado
+	for i := range results {
+		results[i].Cumulative = cumulative
+		stringFrequencyMap := make(map[string]int)
+		for k, v := range frequencyMap {
+			stringFrequencyMap[formatFloat(k)] = v
+		}
+		results[i].Frequency = stringFrequencyMap
+	}
+
+	log.Println("Results prepared for response.")
 	return results
 }
 
-func getRiskCalculation(eventID int64, riskCalculations []db.RiskCalculation) *db.RiskCalculation {
-	for _, rc := range riskCalculations {
-		if rc.ThreatEventID == eventID && rc.RiskType == "Risk" {
-			return &rc
-		}
-	}
-	return nil
+func formatFloat(val float64) string {
+	return strconv.FormatFloat(val, 'f', 3, 64)
 }
