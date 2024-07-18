@@ -881,6 +881,32 @@
                     }
                 }
             }
+        },
+        "/api/simulation": {
+            "get": {
+                "description": "Test for simulation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "13 - Simulation"
+                ],
+                "summary": "Test for simulation",
+                "responses": {
+                    "200": {
+                        "description": "List of All Risks",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.RiskCalculation"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
