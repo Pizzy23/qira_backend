@@ -30,14 +30,16 @@ func CreateRiskService(c *gin.Context) ([]db.RiskCalculation, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	if len(threat) <= 0 {
+		return nil, errors.New("not have Event catalogue")
+	}
 	if len(risk) == len(threat)*3 {
 		return risk, nil
 	}
 
 	_, freq, err := getAll(xormEngine)
 	if err != nil {
-		return nil, errors.New("database connection not found")
+		return nil, err
 	}
 
 	aggregatedLossControles, err := aggregateLosses(xormEngine)

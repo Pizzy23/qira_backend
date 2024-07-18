@@ -81,6 +81,7 @@ func SetupRouter() *gin.Engine {
 	auth.GET("/risk", risk.PullAllRisk)
 	auth.GET("/risk/:id", risk.PullRiskId)
 	auth.GET("/simulation", risk.RiskMount)
+	auth.GET("/simulation-aggregated", risk.RiskMountAggregated)
 
 	// Revelance
 	auth.GET("/revelance", revelance.PullAllRevelance)

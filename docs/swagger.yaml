@@ -894,6 +894,23 @@ paths:
       summary: Test for simulation
       tags:
       - 13 - Simulation
+  /api/simulation-aggregated:
+    get:
+      consumes:
+      - application/json
+      description: Test for simulation aggregated
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All Risks
+          schema:
+            items:
+              $ref: '#/definitions/db.RiskCalculation'
+            type: array
+      summary: Test for simulation aggregated
+      tags:
+      - 13 - Simulation
 securityDefinitions:
   BasicAuth:
     type: basic

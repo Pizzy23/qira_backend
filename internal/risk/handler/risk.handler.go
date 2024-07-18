@@ -19,17 +19,6 @@ func PullAllRisk(c *gin.Context) {
 	risk.PullAllRisk(c)
 }
 
-// @Summary Test for simulation
-// @Description Test for simulation
-// @Tags 13 - Simulation
-// @Accept json
-// @Produce json
-// @Success 200 {object} []db.RiskCalculation "List of All Risks"
-// @Router /api/simulation [get]
-func RiskMount(c *gin.Context) {
-	risk.MainSimulation(c)
-}
-
 // @Summary Retrieve Risk by ID
 // @Description Retrieve an Risk by its ID
 // @Tags 6 - Risk
