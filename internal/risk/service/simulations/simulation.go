@@ -64,35 +64,37 @@ func processRiskData(risk []db.RiskCalculation) []RiskData {
 		}
 	}
 
-	meanFrequency := mean(frequencyEstimates)
-	meanLoss := mean(lossEstimates)
+	// Generate slices of log-normal and uniform values for simulation
+	meanFrequency := GenerateLogNormalSlice(2, 0.5, 3)
+	stdFrequency := GenerateUniformSlice(0.1, 1.0, 3)
+	meanLoss := GenerateLogNormalSlice(3, 1, 3)
+	stdLoss := GenerateUniformSlice(0.5, 2.0, 3)
 
-	// stdFrequency := calculateStdDev(frequencyEstimates, meanFrequency)
-	// stdLoss := calculateStdDev(lossEstimates, meanLoss)
+	// Aggregate generated slices into single values (simple average used here for demonstration)
+	aggregatedMeanFrequency := average(meanFrequency)
+	aggregatedStdFrequency := average(stdFrequency)
+	aggregatedMeanLoss := average(meanLoss)
+	aggregatedStdLoss := average(stdLoss)
 
 	manualData := []RiskData{
 		{
 			EventName:     "Risk Event",
-			MeanFrequency: meanFrequency,
-			MeanLoss:      meanLoss,
-			StdFrequency:  1.5,
-			StdLoss:       3.500,
+			MeanFrequency: aggregatedMeanFrequency,
+			StdFrequency:  aggregatedStdFrequency,
+			MeanLoss:      aggregatedMeanLoss,
+			StdLoss:       aggregatedStdLoss,
 		},
 	}
 
 	return manualData
 }
 
-func calculateStdDev(numbers []float64, mean float64) float64 {
-	if len(numbers) == 0 {
-		return 0
+func average(values []float64) float64 {
+	var total float64
+	for _, v := range values {
+		total += v
 	}
-	varianceSum := 0.0
-	for _, number := range numbers {
-		varianceSum += (number - mean) * (number - mean)
-	}
-	variance := varianceSum / float64(len(numbers))
-	return math.Sqrt(variance)
+	return total / float64(len(values))
 }
 
 func generateData(manualData []RiskData, iterations int) ([]RiskData, [][]float64, map[int]int) {
@@ -126,7 +128,6 @@ func generateData(manualData []RiskData, iterations int) ([]RiskData, [][]float6
 		manualData[j].ValueAtRisk = valueAtRisk
 		manualData[j].Error = error
 
-		// Rastreamento de frequência
 		for _, risk := range risks {
 			roundedRisk := int(math.Round(risk))
 			frequencyTrack[roundedRisk]++
@@ -157,4 +158,21 @@ func percentile(data []float64, percent float64) float64 {
 		k = 0
 	}
 	return data[k]
+}
+
+func GenerateUniformSlice(min, max float64, size int) []float64 {
+	slice := make([]float64, size)
+	for i := range slice {
+		slice[i] = min + rand.Float64()*(max-min)
+	}
+	return slice
+}
+
+func GenerateLogNormalSlice(mean, sigma float64, size int) []float64 {
+	slice := make([]float64, size)
+	for i := range slice {
+		normal := rand.NormFloat64()*sigma + mean
+		slice[i] = math.Exp(normal)
+	}
+	return slice
 }
