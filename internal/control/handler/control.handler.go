@@ -10,32 +10,6 @@ import (
 	"xorm.io/xorm"
 )
 
-// @Summary Create New Control
-// @Description Create New Event Control
-// @Tags 7 - Control
-// @Accept json
-// @Produce json
-// @Param request body interfaces.InputControlLibrary true "Data for create new Control"
-// @Success 200 {object} db.ControlLibrary "List of All Controls"
-// @Router /api/control [post]
-func CreateControl(c *gin.Context) {
-	var controlInput interfaces.InputControlLibrary
-
-	if err := c.ShouldBindJSON(&controlInput); err != nil {
-		c.Set("Response", "Parameters are invalid, need a JSON")
-		c.Status(http.StatusInternalServerError)
-		return
-	}
-	if err := control.CreateControlService(c, controlInput); err != nil {
-		c.Set("Response", err.Error())
-		c.Status(http.StatusInternalServerError)
-		return
-	}
-	c.Set("Response", "Event created successfully")
-	c.Status(http.StatusOK)
-
-}
-
 // @Summary Retrieve All Control
 // @Description Retrieve all Event
 // @Tags 7 - Control
@@ -71,18 +45,27 @@ func PullControlId(c *gin.Context) {
 // @Tags 8 - Implementation
 // @Accept json
 // @Produce json
-// @Param request body interfaces.ImplementsInput true "Data for create new Event"
+// @Param id path int true "Implementation Id"
+// @Param request body interfaces.ImplementsInputNoID true "Data for create new Event"
 // @Success 200 {object} db.ControlLibrary "List of All Assets"
-// @Router /api/implementation [post]
-func CreateControlImplementation(c *gin.Context) {
-	var implement interfaces.ImplementsInput
+// @Router /api/implementation [put]
+func EditControlImplementation(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := strconv.ParseInt(idParam, 10, 64)
+
+	if err != nil {
+		c.Set("Response", "Invalid asset ID")
+		c.Status(http.StatusBadRequest)
+		return
+	}
+	var implement interfaces.ImplementsInputNoID
 
 	if err := c.ShouldBindJSON(&implement); err != nil {
 		c.Set("Response", "Parameters are invalid, need a JSON")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	if err := control.CreateImplementService(c, implement); err != nil {
+	if err := control.CreateImplementService(c, implement, id); err != nil {
 		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
@@ -100,7 +83,7 @@ func CreateControlImplementation(c *gin.Context) {
 // @Success 200 {object} db.ControlLibrary "List of All Implementation"
 // @Router /api/all-implementation [get]
 func PullAllControlImplementation(c *gin.Context) {
-	control.PullAllControl(c)
+	control.PullAllImplements(c)
 }
 
 // @Summary Retrieve Implementation by ID
@@ -168,4 +151,35 @@ func PullAggregatedControlStrength(c *gin.Context) {
 
 	c.Set("Response", finalResults)
 	c.Status(http.StatusOK)
+}
+
+// @Summary Update Controll
+// @Description Create Controll
+// @Tags 8 - Implementation
+// @Accept json
+// @Produce json
+// @Param id path int true "Implementation Id"
+// @Param request body interfaces.ImplementsInputNoID true "Data for create new Event"
+// @Success 200 {object} db.ControlLibrary "List of All Assets"
+// @Router /api/control/{id} [put]
+func UpdateControl(c *gin.Context) {
+	var controlInput interfaces.InputControlLibrary
+	if err := c.ShouldBindJSON(&controlInput); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	controlIDStr := c.Param("controlID")
+	controlID, err := strconv.ParseInt(controlIDStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid control ID"})
+		return
+	}
+
+	if err := control.UpdateControlService(c, controlID, controlInput); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "control updated successfully"})
 }

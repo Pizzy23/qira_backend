@@ -22,9 +22,9 @@ func CreateFrequencyService(c *gin.Context, data db.Frequency) error {
 	return nil
 }
 
-func EditFrequencyService(c *gin.Context, freq interfaces.InputFrequency) error {
+func EditFrequencyService(c *gin.Context, freq interfaces.InputFrequency, ThreatEventID int64) error {
 	frequencyTable := db.Frequency{
-		ThreatEventID:         freq.ThreatEventID,
+		ThreatEventID:         ThreatEventID,
 		ThreatEvent:           freq.ThreatEvent,
 		MinFrequency:          freq.MinFrequency,
 		MaxFrequency:          freq.MaxFrequency,

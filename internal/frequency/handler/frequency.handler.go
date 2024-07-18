@@ -14,11 +14,20 @@ import (
 // @Tags 3 - Frequency
 // @Accept json
 // @Produce json
+// @Param id path int true "Threat Event ID"
 // @Param request body interfaces.InputFrequency true "Edit Frequency"
 // @Success 200 {object} db.Frequency "Your Frequency is by add"
-// @Router /api/frequency [put]
+// @Router /api/frequency/{id} [put]
 func EditFrequency(c *gin.Context) {
 	var frequencyInput interfaces.InputFrequency
+
+	idParam := c.Param("id")
+	id, err := strconv.ParseInt(idParam, 10, 64)
+	if err != nil {
+		c.Set("Response", "Parameters are invalid, need a Id")
+		c.Status(http.StatusInternalServerError)
+		return
+	}
 
 	if err := c.ShouldBindJSON(&frequencyInput); err != nil {
 		c.Set("Response", "Parameters are invalid, need a JSON")
@@ -26,7 +35,7 @@ func EditFrequency(c *gin.Context) {
 		return
 	}
 
-	if err := frequency.EditFrequencyService(c, frequencyInput); err != nil {
+	if err := frequency.EditFrequencyService(c, frequencyInput, id); err != nil {
 		c.Set("Response", err)
 		c.Status(http.StatusInternalServerError)
 		return
@@ -58,7 +67,7 @@ func PullFrequencyById(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		c.Set("Response", "Parameters are invalid, need a JSON")
+		c.Set("Response", "Parameters are invalid, need a Id")
 		c.Status(http.StatusInternalServerError)
 		return
 	}

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"qira/db"
+	"qira/internal/interfaces"
 
 	"github.com/gin-gonic/gin"
 	"xorm.io/xorm"
@@ -28,14 +29,21 @@ func PullEventService(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-func CreateEventService(c *gin.Context, input db.ThreatEventAssets) error {
+func CreateEventService(c *gin.Context, input interfaces.InputThreatEventAssets) error {
 	engine, exists := c.Get("db")
 	if !exists {
 		return errors.New("database connection not found")
 	}
 
-	if err := db.Create(engine.(*xorm.Engine), &input); err != nil {
-		return err
+	for _, asset := range input.AffectedAsset {
+		eventAsset := db.ThreatEventAssets{
+			ThreatID:      input.ThreatID,
+			ThreatEvent:   input.ThreatEvent,
+			AffectedAsset: asset,
+		}
+		if err := db.Create(engine.(*xorm.Engine), &eventAsset); err != nil {
+			return err
+		}
 	}
 	return nil
 }

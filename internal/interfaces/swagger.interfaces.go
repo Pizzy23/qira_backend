@@ -114,7 +114,6 @@ type InputThreatEventCatalogue struct {
 }
 
 type InputFrequency struct {
-	ThreatEventID       int64   `json:"threat_event_id"`
 	ThreatEvent         string  `json:"threat_event"`
 	MinFrequency        float64 `json:"min_frequency"`
 	MaxFrequency        float64 `json:"max_frequency"`
@@ -207,6 +206,11 @@ type ImplementsInput struct {
 	Current   int   `json:"current"`
 	Proposed  int   `json:"proposed"`
 	Cost      int   `json:"cost"`
+}
+type ImplementsInputNoID struct {
+	Current  int `json:"current"`
+	Proposed int `json:"proposed"`
+	Cost     int `json:"cost"`
 }
 
 type RelevanceDinamicInput struct {

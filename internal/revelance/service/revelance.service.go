@@ -2,12 +2,8 @@ package revelance
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"qira/db"
-	"qira/internal/interfaces"
-	"reflect"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"xorm.io/xorm"
@@ -61,59 +57,9 @@ func CreateRelevanceService(c *gin.Context, Relevance db.Relevance) error {
 		return errors.New("database connection not found")
 	}
 
-	if err := db.UpdateByControlId(engine.(*xorm.Engine), &Relevance, Relevance.ControlID, Relevance.TypeOfAttack); err != nil {
+	if err := db.UpdateByControlIdAndRisk(engine.(*xorm.Engine), &Relevance, Relevance.ControlID, Relevance.TypeOfAttack); err != nil {
 		return err
 	}
 	return nil
 
-}
-
-func UpdateRelevanceService(c *gin.Context, id int64, relevanceInput interfaces.RelevanceDinamicInput) error {
-	engine, exists := c.Get("db")
-	if !exists {
-		return errors.New("database connection not found")
-	}
-
-	var existingRelevance db.Relevance
-	if _, err := engine.(*xorm.Engine).ID(id).Get(&existingRelevance); err != nil {
-		return err
-	}
-
-	v := reflect.ValueOf(&existingRelevance).Elem()
-	updateMap := map[string]interface{}{}
-
-	for field, value := range relevanceInput.Attributes {
-		fieldName := toCamelCase(field)
-		f := v.FieldByName(fieldName)
-		if f.IsValid() && f.CanSet() {
-			updateMap[strings.ToLower(fieldName)] = value
-		} else {
-			return fmt.Errorf("field %s does not exist in RelevanceDinamic", field)
-		}
-	}
-
-	if _, err := engine.(*xorm.Engine).Table(new(db.Relevance)).ID(id).Update(updateMap); err != nil {
-		return err
-	}
-	return nil
-}
-
-func toCamelCase(input string) string {
-	isToUpper := false
-	camelCase := ""
-	for i, char := range input {
-		if i == 0 {
-			camelCase += string(char - 32)
-		} else {
-			if isToUpper {
-				camelCase += string(char - 32)
-				isToUpper = false
-			} else if char == '_' {
-				isToUpper = true
-			} else {
-				camelCase += string(char)
-			}
-		}
-	}
-	return camelCase
 }

@@ -8,8 +8,8 @@ func CalcLoss(A int, B int) int {
 	return A + B
 }
 
-func CalculateValue(relevance int, current int) float64 {
-	return float64(relevance*relevance) * float64(current) / 100.0
+func CalculateValue(relevance float64, current float64) float64 {
+	return (relevance * relevance * current) / 100.0
 }
 
 type CalculationResult struct {

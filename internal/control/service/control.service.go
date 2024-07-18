@@ -32,7 +32,39 @@ func CreateControlService(c *gin.Context, control interfaces.InputControlLibrary
 	}
 
 	return nil
+}
 
+func UpdateControlService(c *gin.Context, controlID int64, control interfaces.InputControlLibrary) error {
+	engineInterface, exists := c.Get("db")
+	if !exists {
+		return errors.New("database connection not found")
+	}
+
+	engine, ok := engineInterface.(*xorm.Engine)
+	if !ok {
+		return errors.New("invalid database connection")
+	}
+
+	var existingControl db.ControlLibrary
+	has, err := engine.ID(controlID).Get(&existingControl)
+	if err != nil {
+		return err
+	}
+	if !has {
+		return errors.New("control not found")
+	}
+
+	// Atualizar os campos existentes com os novos valores
+	existingControl.ControlType = control.ControlType
+	existingControl.ControlReference = control.ControlReference
+	existingControl.Information = control.Information
+	existingControl.InScope = control.InScope
+
+	if _, err := engine.ID(controlID).Update(&existingControl); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func createTables(engine *xorm.Engine, control *db.ControlLibrary) error {
@@ -52,38 +84,44 @@ func createTables(engine *xorm.Engine, control *db.ControlLibrary) error {
 			Porcent:      0,
 		})
 		propuseds = append(propuseds, db.Propused{
-			ControlID:       control.ID,
-			TypeOfAttack:    e.Name,
-			Porcent:         "0",
-			AggregateTable:  e.Name,
-			Aggregate:       "0",
-			ControlGapTable: e.Name,
-			ControlGap:      "0",
+			ControlID:    control.ID,
+			TypeOfAttack: e.Name,
+			Porcent:      "0",
+			Aggregate:    "0",
+			ControlGap:   "0",
 		})
 		controls = append(controls, db.Control{
-			ControlID:       control.ID,
-			TypeOfAttack:    e.Name,
-			Porcent:         "0",
-			AggregateTable:  e.Name,
-			Aggregate:       "0",
-			ControlGapTable: e.Name,
-			ControlGap:      "0",
+			ControlID:    control.ID,
+			TypeOfAttack: e.Name,
+			Porcent:      "0",
+			Aggregate:    "0",
+			ControlGap:   "0",
 		})
 	}
 
-	if _, err := engine.Insert(&relevances); err != nil {
-		return err
+	if len(relevances) > 0 {
+		if _, err := engine.Insert(&relevances); err != nil {
+			return err
+		}
+		return errors.New("database not have Event")
 	}
-	if _, err := engine.Insert(&propuseds); err != nil {
-		return err
+	if len(propuseds) > 0 {
+		if _, err := engine.Insert(&propuseds); err != nil {
+			return err
+		}
+		return errors.New("database not have Event")
 	}
-	if _, err := engine.Insert(&controls); err != nil {
-		return err
+	if len(controls) > 0 {
+		if _, err := engine.Insert(&controls); err != nil {
+			return err
+		}
+		return errors.New("database not have Event")
 	}
 
 	return nil
 }
-func CreateImplementService(c *gin.Context, data interfaces.ImplementsInput) error {
+
+func CreateImplementService(c *gin.Context, data interfaces.ImplementsInputNoID, id int64) error {
 	averageC, err := mock.FindAverageByScore(data.Current)
 	if err != nil {
 		return errors.New("score not found for Percent Current")
@@ -93,7 +131,7 @@ func CreateImplementService(c *gin.Context, data interfaces.ImplementsInput) err
 		return errors.New("score not found for Percent Proposed")
 	}
 	implement := db.Implements{
-		ControlID:       data.ControlID,
+		ControlID:       id,
 		Current:         data.Current,
 		Proposed:        data.Proposed,
 		Cost:            data.Cost,
@@ -113,6 +151,23 @@ func CreateImplementService(c *gin.Context, data interfaces.ImplementsInput) err
 }
 
 func PullAllControl(c *gin.Context) {
+	var controls []db.ControlLibrary
+	engine, exists := c.Get("db")
+	if !exists {
+		c.Set("Response", "Database connection not found")
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	if err := db.GetAll(engine.(*xorm.Engine), &controls); err != nil {
+		c.Set("Response", err)
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+	c.Set("Response", controls)
+	c.Status(http.StatusOK)
+}
+func PullAllImplements(c *gin.Context) {
 	var controls []db.Implements
 	engine, exists := c.Get("db")
 	if !exists {

@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"qira/db"
 	calculations "qira/internal/math"
+	"qira/internal/mock"
 	"reflect"
 	"strconv"
 	"strings"
@@ -15,11 +16,17 @@ import (
 )
 
 func PullAllControlStrength(c *gin.Context) {
+	var controls []db.ControlLibrary
 	var relevances []db.Relevance
 	var implementations []db.Implements
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Response", "Database connection not found")
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+	if err := db.GetAll(engine.(*xorm.Engine), &controls); err != nil {
+		c.Set("Response", err)
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -34,59 +41,107 @@ func PullAllControlStrength(c *gin.Context) {
 		return
 	}
 
-	implMap := make(map[int64]db.Implements) // Mudança aqui para int64
+	// Mapping control IDs to their relevances and implementations
+	relevanceMap := make(map[int64][]db.Relevance)
+	for _, relevance := range relevances {
+		relevanceMap[relevance.ControlID] = append(relevanceMap[relevance.ControlID], relevance)
+	}
+
+	implMap := make(map[int64]db.Implements)
 	for _, impl := range implementations {
 		implMap[impl.ControlID] = impl
 	}
 
-	var wg sync.WaitGroup
-	resultsChan := make(chan db.Control)
-
-	for controlID, impl := range implMap {
-		wg.Add(1)
-		go func(controlID int64, impl db.Implements) {
-			defer wg.Done()
-			var totalRelevance int
-			var totalAggregated float64
-			for _, relevance := range relevances {
-				if relevance.ControlID == controlID {
-					val := reflect.ValueOf(relevance)
-					for i := 0; i < val.NumField(); i++ {
-						field := val.Type().Field(i)
-						if strings.HasSuffix(field.Name, "Attack") {
-							relevanceValue, err := strconv.Atoi(val.Field(i).String())
-							if err != nil {
-								continue
-							}
-							totalRelevance += relevanceValue
-							totalAggregated += calculations.CalculateValue(relevanceValue, impl.Current)
-						}
-					}
-				}
-			}
-			if totalRelevance > 0 {
-				aggregated := totalAggregated / float64(totalRelevance)
-				controlGap := 100.0 - aggregated
-				result := db.Control{
-					ControlID:       controlID,
-					AggregateTable:  "AuthenticationAttack",
-					Aggregate:       fmt.Sprintf("%f", aggregated),
-					ControlGapTable: "AuthenticationAttack",
-					ControlGap:      fmt.Sprintf("%f", controlGap),
-				}
-				resultsChan <- result
-			}
-		}(controlID, impl)
+	type ControlStrength struct {
+		ControlID    int64
+		TypeOfAttack string
+		Strength     float64
+		Porcent      float64
 	}
 
-	go func() {
-		wg.Wait()
-		close(resultsChan)
-	}()
+	controlStrengths := []ControlStrength{}
+	totalRelevanceMap := make(map[string]float64)
+
+	for _, control := range controls {
+		impl, implExists := implMap[control.ID]
+		if !implExists {
+			continue
+		}
+
+		relevances, relevanceExists := relevanceMap[control.ID]
+		if !relevanceExists {
+			continue
+		}
+
+		for _, relevance := range relevances {
+			typeOfAttack := relevance.TypeOfAttack
+
+			relevanceAvgStr, err := mock.FindAverageByScore(int(relevance.Porcent))
+			if err != nil {
+				continue
+			}
+			relevanceValue, err := strconv.ParseFloat(strings.TrimSuffix(relevanceAvgStr, "%"), 64)
+			if err != nil {
+				continue
+			}
+
+			totalRelevanceMap[typeOfAttack] += relevanceValue
+
+			currentValue, err := strconv.ParseFloat(strings.TrimSuffix(impl.PercentCurrent, "%"), 64)
+			if err != nil {
+				continue
+			}
+
+			porcent := CalculateValue(relevanceValue/100.0, currentValue/100.0)
+
+			controlStrengths = append(controlStrengths, ControlStrength{
+				ControlID:    control.ID,
+				TypeOfAttack: typeOfAttack,
+				Strength:     porcent,
+				Porcent:      porcent,
+			})
+		}
+	}
+
+	controlStrengthMap := make(map[string]float64)
+	porcentMap := make(map[int64]float64)
+	for _, result := range controlStrengths {
+		controlStrengthMap[result.TypeOfAttack] += result.Strength
+		porcentMap[result.ControlID] = result.Porcent
+	}
 
 	var finalResults []db.Control
-	for result := range resultsChan {
-		finalResults = append(finalResults, result)
+	for _, control := range controls {
+		relevances, relevanceExists := relevanceMap[control.ID]
+		if !relevanceExists {
+			continue
+		}
+
+		for _, relevance := range relevances {
+			finalResults = append(finalResults, db.Control{
+				ControlID:    control.ID,
+				TypeOfAttack: relevance.TypeOfAttack,
+				Porcent:      fmt.Sprintf("%.2f%%", porcentMap[control.ID]),
+			})
+		}
+	}
+
+	for typeOfAttack, totalStrength := range controlStrengthMap {
+		totalRelevance := totalRelevanceMap[typeOfAttack]
+		aggregated := (totalStrength / totalRelevance) * 100.0
+		controlGap := 100.0 - aggregated
+
+		finalResults = append(finalResults, db.Control{
+			ControlID:    -1,
+			TypeOfAttack: typeOfAttack,
+			Aggregate:    fmt.Sprintf("%.2f%%", aggregated),
+		})
+
+		finalResults = append(finalResults, db.Control{
+			ControlID:    -2,
+			TypeOfAttack: typeOfAttack,
+			ControlGap:   fmt.Sprintf("%.2f%%", controlGap),
+		})
 	}
 
 	if err := saveResultsControl(engine.(*xorm.Engine), finalResults); err != nil {
@@ -97,6 +152,36 @@ func PullAllControlStrength(c *gin.Context) {
 
 	c.Set("Response", finalResults)
 	c.Status(http.StatusOK)
+}
+
+func CalculateValue(relevance float64, current float64) float64 {
+	return relevance * relevance * current
+
+}
+
+func checkAndSaveControls(engine *xorm.Engine, controls []db.Control) error {
+	for _, control := range controls {
+		existing := db.Control{}
+		has, err := engine.Where("control_id = ? AND type_of_attack = ?", control.ControlID, control.TypeOfAttack).Get(&existing)
+		if err != nil {
+			return err
+		}
+
+		if has {
+			if existing.Porcent == control.Porcent && existing.Aggregate == control.Aggregate && existing.ControlGap == control.ControlGap {
+				continue
+			}
+
+			if _, err := engine.ID(existing.ID).Update(control); err != nil {
+				return err
+			}
+		} else {
+			if _, err := engine.Insert(control); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func PullAllControlProposed(c *gin.Context) {
@@ -144,7 +229,7 @@ func PullAllControlProposed(c *gin.Context) {
 								continue
 							}
 							totalRelevance += relevanceValue
-							totalAggregated += calculations.CalculateValue(relevanceValue, impl.Proposed)
+							totalAggregated += calculations.CalculateValue(float64(relevanceValue), float64(impl.Proposed))
 						}
 					}
 				}
@@ -221,7 +306,7 @@ func CalculateAggregatedControlStrength(engine *xorm.Engine) ([]db.AggregatedStr
 
 	// Aggregate current control strengths
 	for _, cs := range controlStrengths {
-		threatEventID, err := strconv.Atoi(cs.AggregateTable)
+		threatEventID, err := strconv.Atoi(cs.TypeOfAttack)
 		if err != nil {
 			continue
 		}

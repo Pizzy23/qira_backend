@@ -17,6 +17,7 @@ func CreateEventService(c *gin.Context, event interfaces.InputThreatEventCatalog
 	if !exists {
 		return errors.New("database connection not found")
 	}
+
 	event = util.SanitizeInputCatalogue(&event)
 	eventDB := db.ThreatEventCatalog{
 		ThreatGroup: event.ThreatGroup,
@@ -24,13 +25,26 @@ func CreateEventService(c *gin.Context, event interfaces.InputThreatEventCatalog
 		Description: event.Description,
 		InScope:     event.InScope,
 	}
+
 	if _, err := engine.(*xorm.Engine).Insert(&eventDB); err != nil {
 		return err
 	}
+
 	RiskController := db.RiskController{
 		Name: event.ThreatEvent,
 	}
+
+	ThreatEventAssets := db.ThreatEventAssets{
+		ThreatID:      int(eventDB.ID),
+		ThreatEvent:   event.ThreatEvent,
+		AffectedAsset: "",
+	}
+
 	if err := db.Create(engine.(*xorm.Engine), RiskController); err != nil {
+		return err
+	}
+
+	if err := db.Create(engine.(*xorm.Engine), ThreatEventAssets); err != nil {
 		return err
 	}
 

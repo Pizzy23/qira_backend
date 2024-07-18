@@ -2,8 +2,8 @@ package event
 
 import (
 	"net/http"
-	"qira/db"
 	event "qira/internal/event/service"
+	"qira/internal/interfaces"
 
 	"github.com/gin-gonic/gin"
 )
@@ -24,11 +24,11 @@ func PullAllForEvent(c *gin.Context) {
 // @Tags 4 - Event
 // @Accept json
 // @Produce json
-// @Param request body db.ThreatEventAssets true "Data for create new Event"
+// @Param request body db.InputThreatEventAssets true "Data for create new Event"
 // @Success 200 {object} db.ThreatEventAssets "Event created successfully"
-// @Router /api/event [post]
+// @Router /api/event/{id} [put]
 func CreateEvent(c *gin.Context) {
-	var eventCatalogue db.ThreatEventAssets
+	var eventCatalogue interfaces.InputThreatEventAssets
 
 	if err := c.ShouldBindJSON(&eventCatalogue); err != nil {
 		c.Set("Response", "Parameters are invalid, need a JSON")

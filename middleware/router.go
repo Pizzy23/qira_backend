@@ -51,11 +51,11 @@ func SetupRouter() *gin.Engine {
 	//frequency
 	auth.GET("/frequency/:id", frequency.PullFrequencyById)
 	auth.GET("/all-frequency", frequency.PullAllFrequency)
-	auth.PUT("/frequency", frequency.EditFrequency)
+	auth.PUT("/frequency/:id", frequency.EditFrequency)
 
 	//events
 	auth.GET("/all-event", event.PullAllForEvent)
-	auth.POST("/event", event.CreateEvent)
+	auth.PUT("/event", event.CreateEvent)
 
 	//Catalogue
 	auth.GET("/all-catalogue", catalogue.PullAllEvent)
@@ -65,19 +65,18 @@ func SetupRouter() *gin.Engine {
 	//losshigh
 	auth.GET("/losshigh/:id", losshigh.PullLosstId)
 	auth.GET("/losshigh", losshigh.PullAllLossHigh)
-	auth.POST("/create-losshigh", losshigh.CreateLossHigh)
+	auth.PUT("/create-losshigh/:id", losshigh.CreateLossHigh)
 
 	//Control
-	auth.POST("/control", control.CreateControl)
+	auth.PUT("/control/:id", control.EditControlImplementation)
 	auth.GET("/all-control", control.PullAllControl)
 	auth.GET("/control/:id", control.PullControlId)
 
-	auth.POST("/implementation", control.CreateControlImplementation)
 	auth.GET("/all-implementation", control.PullAllControlImplementation)
 	auth.GET("/implementation/:id", control.PullControlImplementationId)
+	auth.PUT("/implementation/:id", control.EditControlImplementation)
 
 	//Risk
-	auth.POST("/create-Risk", risk.CreateRisk)
 	auth.GET("/risk", risk.PullAllRisk)
 	auth.GET("/risk/:id", risk.PullRiskId)
 
@@ -85,7 +84,6 @@ func SetupRouter() *gin.Engine {
 	auth.GET("/revelance", revelance.PullAllRevelance)
 	auth.GET("/revelance/:id", revelance.PullRevelanceId)
 	auth.POST("/create-revelance", revelance.CreateRelevance)
-	auth.PUT("/revelance/:id", revelance.UpdateRelevance)
 
 	auth.GET("/aggregated-control-strength", control.PullAggregatedControlStrength)
 	auth.GET("/all-strength", control.PullAllControlStrength)

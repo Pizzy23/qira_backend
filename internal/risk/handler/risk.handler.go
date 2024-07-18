@@ -8,28 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// @Summary {WIP} Create Risk
-// @Description Create new Risk
-// @Tags 6 - Risk
-// @Accept json
-// @Produce json
-// @Success 200 {object} db.RiskCalculation "Risk Create"
-// @Router /api/create-Risk [post]
-func CreateRisk(c *gin.Context) {
-
-	if risk, err := risk.CreateRiskService(c); err != nil {
-		c.Set("Response", err)
-		c.Status(http.StatusInternalServerError)
-		return
-	} else if risk != nil {
-		c.Set("Response", risk)
-		c.Status(http.StatusOK)
-	}
-	c.Set("Response", "Risk created successfully")
-	c.Status(http.StatusOK)
-
-}
-
 // @Summary Retrieve All Risks
 // @Description Retrieve all Risks
 // @Tags 6 - Risk
