@@ -9,7 +9,6 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-	"sync"
 
 	"github.com/gin-gonic/gin"
 	"xorm.io/xorm"
@@ -156,32 +155,6 @@ func PullAllControlStrength(c *gin.Context) {
 
 func CalculateValue(relevance float64, current float64) float64 {
 	return relevance * relevance * current
-
-}
-
-func checkAndSaveControls(engine *xorm.Engine, controls []db.Control) error {
-	for _, control := range controls {
-		existing := db.Control{}
-		has, err := engine.Where("control_id = ? AND type_of_attack = ?", control.ControlID, control.TypeOfAttack).Get(&existing)
-		if err != nil {
-			return err
-		}
-
-		if has {
-			if existing.Porcent == control.Porcent && existing.Aggregate == control.Aggregate && existing.ControlGap == control.ControlGap {
-				continue
-			}
-
-			if _, err := engine.ID(existing.ID).Update(control); err != nil {
-				return err
-			}
-		} else {
-			if _, err := engine.Insert(control); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
 }
 
 func PullAllControlProposed(c *gin.Context) {
@@ -204,59 +177,73 @@ func PullAllControlProposed(c *gin.Context) {
 		return
 	}
 
-	implMap := make(map[int64]db.Implements) // Mudança aqui para int64
+	// Mapping control IDs to their relevances and implementations
+	relevanceMap := make(map[int64][]db.Relevance)
+	for _, relevance := range relevances {
+		relevanceMap[relevance.ControlID] = append(relevanceMap[relevance.ControlID], relevance)
+	}
+
+	implMap := make(map[int64]db.Implements)
 	for _, impl := range implementations {
 		implMap[impl.ControlID] = impl
 	}
 
-	var wg sync.WaitGroup
-	resultsChan := make(chan db.Propused)
-
-	for controlID, impl := range implMap {
-		wg.Add(1)
-		go func(controlID int64, impl db.Implements) {
-			defer wg.Done()
-			var totalRelevance int
-			var totalAggregated float64
-			for _, relevance := range relevances {
-				if relevance.ControlID == controlID {
-					val := reflect.ValueOf(relevance)
-					for i := 0; i < val.NumField(); i++ {
-						field := val.Type().Field(i)
-						if strings.HasSuffix(field.Name, "Attack") {
-							relevanceValue, err := strconv.Atoi(val.Field(i).String())
-							if err != nil {
-								continue
-							}
-							totalRelevance += relevanceValue
-							totalAggregated += calculations.CalculateValue(float64(relevanceValue), float64(impl.Proposed))
-						}
-					}
-				}
-			}
-			if totalRelevance > 0 {
-				aggregated := totalAggregated / float64(totalRelevance)
-				controlGap := 100.0 - aggregated
-				result := db.Propused{
-					ControlID:       controlID,
-					AggregateTable:  "AuthenticationAttack",
-					Aggregate:       fmt.Sprintf("%f", aggregated),
-					ControlGapTable: "AuthenticationAttack",
-					ControlGap:      fmt.Sprintf("%f", controlGap),
-				}
-				resultsChan <- result
-			}
-		}(controlID, impl)
+	type ControlProposed struct {
+		ControlID       int64
+		AggregateTable  string
+		Aggregate       float64
+		ControlGapTable string
+		ControlGap      float64
 	}
 
-	go func() {
-		wg.Wait()
-		close(resultsChan)
-	}()
+	controlProposeds := []ControlProposed{}
+
+	for controlID, impl := range implMap {
+		relevances, relevanceExists := relevanceMap[controlID]
+		if !relevanceExists {
+			continue
+		}
+
+		var totalRelevance int
+		var totalAggregated float64
+
+		for _, relevance := range relevances {
+			val := reflect.ValueOf(relevance)
+			for i := 0; i < val.NumField(); i++ {
+				field := val.Type().Field(i)
+				if strings.HasSuffix(field.Name, "Attack") {
+					relevanceValue, err := strconv.Atoi(val.Field(i).String())
+					if err != nil {
+						continue
+					}
+					totalRelevance += relevanceValue
+					totalAggregated += calculations.CalculateValue(float64(relevanceValue), float64(impl.Proposed))
+				}
+			}
+		}
+
+		if totalRelevance > 0 {
+			aggregated := totalAggregated / float64(totalRelevance)
+			controlGap := 100.0 - aggregated
+			controlProposeds = append(controlProposeds, ControlProposed{
+				ControlID:       controlID,
+				AggregateTable:  "AuthenticationAttack",
+				Aggregate:       aggregated,
+				ControlGapTable: "AuthenticationAttack",
+				ControlGap:      controlGap,
+			})
+		}
+	}
 
 	var finalResults []db.Propused
-	for result := range resultsChan {
-		finalResults = append(finalResults, result)
+	for _, control := range controlProposeds {
+		finalResults = append(finalResults, db.Propused{
+			ControlID:       control.ControlID,
+			AggregateTable:  control.AggregateTable,
+			Aggregate:       fmt.Sprintf("%.2f%%", control.Aggregate),
+			ControlGapTable: control.ControlGapTable,
+			ControlGap:      fmt.Sprintf("%.2f%%", control.ControlGap),
+		})
 	}
 
 	if err := saveResultsPropused(engine.(*xorm.Engine), finalResults); err != nil {
@@ -269,16 +256,25 @@ func PullAllControlProposed(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-func saveResultsControl(engine *xorm.Engine, results []db.Control) error {
+func saveResultsPropused(engine *xorm.Engine, results []db.Propused) error {
+	session := engine.NewSession()
+	defer session.Close()
+
+	if err := session.Begin(); err != nil {
+		return err
+	}
+
 	for _, result := range results {
-		if err := db.Create(engine, &result); err != nil {
+		if _, err := engine.Insert(&result); err != nil {
+			session.Rollback()
 			return err
 		}
 	}
-	return nil
+
+	return session.Commit()
 }
 
-func saveResultsPropused(engine *xorm.Engine, results []db.Propused) error {
+func saveResultsControl(engine *xorm.Engine, results []db.Control) error {
 	for _, result := range results {
 		if err := db.Create(engine, &result); err != nil {
 			return err

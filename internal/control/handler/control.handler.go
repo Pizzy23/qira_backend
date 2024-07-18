@@ -10,6 +10,29 @@ import (
 	"xorm.io/xorm"
 )
 
+// @Summary Update Controll
+// @Description Create Controll
+// @Tags 7 - Control
+// @Accept json
+// @Produce json
+// @Param request body interfaces.InputControlLibrary true "Data for create new Control"
+// @Success 200 {object} db.ControlLibrary "List of All Assets"
+// @Router /api/control [post]
+func CreateControl(c *gin.Context) {
+	var controlInput interfaces.InputControlLibrary
+	if err := c.ShouldBindJSON(&controlInput); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := control.CreateControlService(c, controlInput); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "control updated successfully"})
+}
+
 // @Summary Retrieve All Control
 // @Description Retrieve all Event
 // @Tags 7 - Control

@@ -374,6 +374,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/control": {
+            "post": {
+                "description": "Create Controll",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "7 - Control"
+                ],
+                "summary": "Update Controll",
+                "parameters": [
+                    {
+                        "description": "Data for create new Control",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/interfaces.InputControlLibrary"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of All Assets",
+                        "schema": {
+                            "$ref": "#/definitions/db.ControlLibrary"
+                        }
+                    }
+                }
+            }
+        },
         "/api/control/{id}": {
             "get": {
                 "description": "Retrieve an Event by its ID",
@@ -1239,6 +1273,23 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "users": {
+                    "type": "string"
+                }
+            }
+        },
+        "interfaces.InputControlLibrary": {
+            "type": "object",
+            "properties": {
+                "control_reference": {
+                    "type": "string"
+                },
+                "control_type": {
+                    "type": "string"
+                },
+                "in_scope": {
+                    "type": "boolean"
+                },
+                "information": {
                     "type": "string"
                 }
             }

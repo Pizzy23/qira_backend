@@ -202,6 +202,17 @@ definitions:
       users:
         type: string
     type: object
+  interfaces.InputControlLibrary:
+    properties:
+      control_reference:
+        type: string
+      control_type:
+        type: string
+      in_scope:
+        type: boolean
+      information:
+        type: string
+    type: object
   interfaces.InputFrequency:
     properties:
       max_frequency:
@@ -496,6 +507,28 @@ paths:
       summary: Retrieve Catalogue by ID
       tags:
       - 2 - Catalogue
+  /api/control:
+    post:
+      consumes:
+      - application/json
+      description: Create Controll
+      parameters:
+      - description: Data for create new Control
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.InputControlLibrary'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All Assets
+          schema:
+            $ref: '#/definitions/db.ControlLibrary'
+      summary: Update Controll
+      tags:
+      - 7 - Control
   /api/control/{id}:
     get:
       consumes:

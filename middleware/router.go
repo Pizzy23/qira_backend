@@ -68,9 +68,10 @@ func SetupRouter() *gin.Engine {
 	auth.PUT("/create-losshigh/:id", losshigh.CreateLossHigh)
 
 	//Control
-	auth.PUT("/control/:id", control.EditControlImplementation)
+	auth.PUT("/control/:id", control.UpdateControl)
 	auth.GET("/all-control", control.PullAllControl)
 	auth.GET("/control/:id", control.PullControlId)
+	auth.POST("/control", control.CreateControl)
 
 	auth.GET("/all-implementation", control.PullAllControlImplementation)
 	auth.GET("/implementation/:id", control.PullControlImplementationId)
