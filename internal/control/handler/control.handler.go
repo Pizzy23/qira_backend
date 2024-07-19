@@ -133,7 +133,7 @@ func PullControlImplementationId(c *gin.Context) {
 
 // @Summary {WIP} Retrieve All Control Strength
 // @Description Retrieve all Control Strength
-// @Tags Control
+// @Tags 10 - Control Strength
 // @Accept json
 // @Produce json
 // @Success 200 {object} []db.Control "List of All Control Strength"
@@ -144,7 +144,7 @@ func PullAllControlStrength(c *gin.Context) {
 
 // @Summary {WIP} Retrieve All Control Proposed
 // @Description Retrieve all Control Proposed
-// @Tags Control
+// @Tags 11 - Control Proposed
 // @Accept json
 // @Produce json
 // @Success 200 {object} []db.Propused "List of All Control Strength"
@@ -155,7 +155,7 @@ func PullAllControlProposed(c *gin.Context) {
 
 // @Summary {WIP} Retrieve Aggregated Control Strength
 // @Description Retrieve aggregated control strength for all threat events
-// @Tags Control
+// @Tags 12 - Aggregated Control
 // @Accept json
 // @Produce json
 // @Success 200 {object} []db.AggregatedStrength "List of Aggregated Control Strength"

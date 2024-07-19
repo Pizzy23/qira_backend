@@ -103,11 +103,7 @@ definitions:
     properties:
       aggregate:
         type: string
-      aggregateTable:
-        type: string
       controlGap:
-        type: string
-      controlGapTable:
         type: string
       controlId:
         type: integer
@@ -126,6 +122,15 @@ definitions:
         type: integer
       porcent:
         type: integer
+      type_of_attack:
+        type: string
+    type: object
+  db.RelevanceDinamicInput:
+    properties:
+      controlId:
+        type: integer
+      porcent:
+        type: string
       type_of_attack:
         type: string
     type: object
@@ -288,7 +293,7 @@ paths:
             type: array
       summary: '{WIP} Retrieve Aggregated Control Strength'
       tags:
-      - Control
+      - 12 - Aggregated Control
   /api/all-catalogue:
     get:
       consumes:
@@ -382,7 +387,7 @@ paths:
             type: array
       summary: '{WIP} Retrieve All Control Proposed'
       tags:
-      - Control
+      - 11 - Control Proposed
   /api/all-strength:
     get:
       consumes:
@@ -399,7 +404,7 @@ paths:
             type: array
       summary: '{WIP} Retrieve All Control Strength'
       tags:
-      - Control
+      - 10 - Control Strength
   /api/asset/{id}:
     get:
       consumes:
@@ -609,7 +614,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/db.Relevance'
+          $ref: '#/definitions/db.RelevanceDinamicInput'
       produces:
       - application/json
       responses:

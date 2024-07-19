@@ -25,7 +25,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Control"
+                    "12 - Aggregated Control"
                 ],
                 "summary": "{WIP} Retrieve Aggregated Control Strength",
                 "responses": {
@@ -169,7 +169,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Control"
+                    "11 - Control Proposed"
                 ],
                 "summary": "{WIP} Retrieve All Control Proposed",
                 "responses": {
@@ -195,7 +195,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Control"
+                    "10 - Control Strength"
                 ],
                 "summary": "{WIP} Retrieve All Control Strength",
                 "responses": {
@@ -533,7 +533,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/db.Relevance"
+                            "$ref": "#/definitions/db.RelevanceDinamicInput"
                         }
                     }
                 ],
@@ -1193,13 +1193,7 @@ const docTemplate = `{
                 "aggregate": {
                     "type": "string"
                 },
-                "aggregateTable": {
-                    "type": "string"
-                },
                 "controlGap": {
-                    "type": "string"
-                },
-                "controlGapTable": {
                     "type": "string"
                 },
                 "controlId": {
@@ -1227,6 +1221,20 @@ const docTemplate = `{
                 },
                 "porcent": {
                     "type": "integer"
+                },
+                "type_of_attack": {
+                    "type": "string"
+                }
+            }
+        },
+        "db.RelevanceDinamicInput": {
+            "type": "object",
+            "properties": {
+                "controlId": {
+                    "type": "integer"
+                },
+                "porcent": {
+                    "type": "string"
                 },
                 "type_of_attack": {
                     "type": "string"

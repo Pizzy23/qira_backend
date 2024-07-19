@@ -51,7 +51,7 @@ func PullRevelanceId(c *gin.Context, id int) {
 	c.Status(http.StatusOK)
 }
 
-func CreateRelevanceService(c *gin.Context, Relevance db.Relevance) error {
+func CreateRelevanceService(c *gin.Context, Relevance db.RelevanceDinamicInput) error {
 	engine, exists := c.Get("db")
 	if !exists {
 		return errors.New("database connection not found")

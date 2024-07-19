@@ -4,15 +4,21 @@ import (
 	"fmt"
 	"net/http"
 	"qira/db"
-	calculations "qira/internal/math"
 	"qira/internal/mock"
-	"reflect"
 	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"xorm.io/xorm"
 )
+
+type ControlProposed struct {
+	ControlID       int64
+	AggregateTable  string
+	Aggregate       float64
+	ControlGapTable string
+	ControlGap      float64
+}
 
 func PullAllControlStrength(c *gin.Context) {
 	var controls []db.ControlLibrary
@@ -188,15 +194,8 @@ func PullAllControlProposed(c *gin.Context) {
 		implMap[impl.ControlID] = impl
 	}
 
-	type ControlProposed struct {
-		ControlID       int64
-		AggregateTable  string
-		Aggregate       float64
-		ControlGapTable string
-		ControlGap      float64
-	}
-
-	controlProposeds := []ControlProposed{}
+	controlStrengthMap := make(map[string]float64)
+	totalRelevanceMap := make(map[string]float64)
 
 	for controlID, impl := range implMap {
 		relevances, relevanceExists := relevanceMap[controlID]
@@ -204,45 +203,38 @@ func PullAllControlProposed(c *gin.Context) {
 			continue
 		}
 
-		var totalRelevance int
-		var totalAggregated float64
-
 		for _, relevance := range relevances {
-			val := reflect.ValueOf(relevance)
-			for i := 0; i < val.NumField(); i++ {
-				field := val.Type().Field(i)
-				if strings.HasSuffix(field.Name, "Attack") {
-					relevanceValue, err := strconv.Atoi(val.Field(i).String())
-					if err != nil {
-						continue
-					}
-					totalRelevance += relevanceValue
-					totalAggregated += calculations.CalculateValue(float64(relevanceValue), float64(impl.Proposed))
-				}
+			relevanceAvgStr, err := mock.FindAverageByScore(int(relevance.Porcent))
+			if err != nil {
+				continue
 			}
-		}
+			relevanceValue, err := strconv.ParseFloat(strings.TrimSuffix(relevanceAvgStr, "%"), 64)
+			if err != nil {
+				continue
+			}
 
-		if totalRelevance > 0 {
-			aggregated := totalAggregated / float64(totalRelevance)
-			controlGap := 100.0 - aggregated
-			controlProposeds = append(controlProposeds, ControlProposed{
-				ControlID:       controlID,
-				AggregateTable:  "AuthenticationAttack",
-				Aggregate:       aggregated,
-				ControlGapTable: "AuthenticationAttack",
-				ControlGap:      controlGap,
-			})
+			totalRelevanceMap[relevance.TypeOfAttack] += relevanceValue
+			controlStrengthMap[relevance.TypeOfAttack] += CalculateValue(relevanceValue/100.0, float64(impl.Proposed)/100.0)
 		}
 	}
 
 	var finalResults []db.Propused
-	for _, control := range controlProposeds {
+
+	for typeOfAttack, totalStrength := range controlStrengthMap {
+		totalRelevance := totalRelevanceMap[typeOfAttack]
+		aggregated := (totalStrength / totalRelevance) * 100.0
+		controlGap := 100.0 - aggregated
+
 		finalResults = append(finalResults, db.Propused{
-			ControlID:       control.ControlID,
-			AggregateTable:  control.AggregateTable,
-			Aggregate:       fmt.Sprintf("%.2f%%", control.Aggregate),
-			ControlGapTable: control.ControlGapTable,
-			ControlGap:      fmt.Sprintf("%.2f%%", control.ControlGap),
+			ControlID:    -1,
+			TypeOfAttack: typeOfAttack,
+			Aggregate:    fmt.Sprintf("%.2f%%", aggregated),
+		})
+
+		finalResults = append(finalResults, db.Propused{
+			ControlID:    -2,
+			TypeOfAttack: typeOfAttack,
+			ControlGap:   fmt.Sprintf("%.2f%%", controlGap),
 		})
 	}
 
@@ -320,7 +312,7 @@ func CalculateAggregatedControlStrength(engine *xorm.Engine) ([]db.AggregatedStr
 
 	// Aggregate proposed control strengths
 	for _, ps := range proposedStrengths {
-		threatEventID, err := strconv.Atoi(ps.AggregateTable)
+		threatEventID, err := strconv.Atoi(ps.TypeOfAttack)
 		if err != nil {
 			continue
 		}
