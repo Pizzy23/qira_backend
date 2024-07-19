@@ -17,23 +17,60 @@ import (
 	"xorm.io/xorm"
 )
 
-func MonteCarloSimulation(c *gin.Context, threatEvent string, reciverEmail string) {
+func MonteCarloSimulationReport(c *gin.Context, threatEvent string, receiverEmail string) {
 	var loss db.LossHighTotal
+	var frequencies []db.Frequency
+	var riskCalculations []db.RiskCalculation
 
 	engine, exists := c.Get("db")
 	if !exists {
-		c.Set("Response", "Database connection not found")
-		c.Status(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection not found"})
 		return
 	}
 
 	found, err := engine.(*xorm.Engine).Where("threat_event = ?", threatEvent).Get(&loss)
 	if err != nil || !found {
-		c.Set("Response", "LossHigh not found")
-		c.Status(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "LossHigh not found"})
 		return
 	}
 
+	err = engine.(*xorm.Engine).Where("threat_event = ?", threatEvent).Find(&frequencies)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving frequencies"})
+		return
+	}
+
+	err = engine.(*xorm.Engine).Where("threat_event = ?", threatEvent).Find(&riskCalculations)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving risk calculations"})
+		return
+	}
+
+	// Generate the Monte Carlo Simulation
+	generateMonteCarloSimulation(c, loss)
+
+	// Combine all information into a report
+	reportPath := "report.txt"
+	err = createReport(reportPath, loss, frequencies, riskCalculations)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating report"})
+		return
+	}
+
+	// Send the report by email
+	sendEmailWithAttachmentsReport(receiverEmail, reportPath)
+
+	// Delete the report after sending
+	err = os.Remove(reportPath)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error deleting report"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Simulation report generated and sent via email successfully!"})
+}
+
+func generateMonteCarloSimulation(c *gin.Context, loss db.LossHighTotal) {
 	// Usando os valores do banco de dados
 	minimo := loss.MinimumLoss
 	maximo := loss.MaximumLoss
@@ -42,7 +79,7 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string, reciverEmail strin
 	// Validação dos valores
 	if minimo == 0 && maximo == 0 && maisProvavel == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": fmt.Sprintf("Sua perda é igual a 0 no threatEvent '%s', por favor coloque valores válidos.", threatEvent),
+			"error": fmt.Sprintf("Sua perda é igual a 0 no threatEvent '%s', por favor coloque valores válidos.", loss.ThreatEvent),
 		})
 		return
 	}
@@ -134,33 +171,44 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string, reciverEmail strin
 	fmt.Println("Plots saved as hist.png and lec.png")
 
 	// Enviar os arquivos por email
-	sendEmailWithAttachments(reciverEmail, histPath, lecPath)
+	sendEmailWithAttachments("recipient@example.com", histPath, lecPath)
 
 	// Excluir os arquivos
 	os.Remove(histPath)
 	os.Remove(lecPath)
-
-	c.JSON(200, gin.H{
-		"bins": binData,
-	})
 }
 
-func sendEmailWithAttachments(recipient, histPath, lecPath string) {
+func createReport(path string, loss db.LossHighTotal, frequencies []db.Frequency, riskCalculations []db.RiskCalculation) error {
+	report := fmt.Sprintf("Loss High Total:\nMinimum Loss: %f\nMaximum Loss: %f\nMost Likely Loss: %f\n\nFrequencies:\n", loss.MinimumLoss, loss.MaximumLoss, loss.MostLikelyLoss)
+
+	for _, freq := range frequencies {
+		report += fmt.Sprintf("Threat Event: %s, Min Frequency: %f, Max Frequency: %f, Most Likely Frequency: %f\n", freq.ThreatEvent, freq.MinFrequency, freq.MaxFrequency, freq.MostLikelyFrequency)
+	}
+
+	report += "\nRisk Calculations:\n"
+	for _, risk := range riskCalculations {
+		report += fmt.Sprintf("Threat Event: %s, Min: %f, Max: %f, Mode: %f, Estimate: %f\n", risk.ThreatEvent, risk.Min, risk.Max, risk.Mode, risk.Estimate)
+	}
+
+	return os.WriteFile(path, []byte(report), 0644)
+}
+
+func sendEmailWithAttachmentsReport(recipient, attachmentPath string) error {
 	user := os.Getenv("EMAIL")
 	pass := os.Getenv("EPASSWORD")
 	m := mail.NewMessage()
 	m.SetHeader("From", user)
 	m.SetHeader("To", recipient)
-	m.SetHeader("Subject", "Monte Carlo Simulation Results")
-	m.SetBody("text/plain", "Please find attached the results of the Monte Carlo Simulation.")
-	m.Attach(histPath)
-	m.Attach(lecPath)
+	m.SetHeader("Subject", "Simulation Report")
+	m.SetBody("text/plain", "Please find attached the simulation report.")
+	m.Attach(attachmentPath)
 
 	d := mail.NewDialer("smtp.gmail.com", 587, user, pass)
 
 	if err := d.DialAndSend(m); err != nil {
-		panic(err)
+		return err
 	}
 
 	fmt.Println("Email sent successfully")
+	return nil
 }

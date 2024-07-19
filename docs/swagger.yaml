@@ -555,17 +555,17 @@ paths:
       - application/json
       description: Create Controll
       parameters:
-      - description: Implementation Id
+      - description: Control Id
         in: path
         name: id
         required: true
         type: integer
-      - description: Data for create new Event
+      - description: Data for update new control
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/interfaces.ImplementsInputNoID'
+          $ref: '#/definitions/interfaces.InputControlLibrary'
       produces:
       - application/json
       responses:
@@ -575,7 +575,7 @@ paths:
             $ref: '#/definitions/db.ControlLibrary'
       summary: Update Controll
       tags:
-      - 8 - Implementation
+      - 7 - Control
   /api/create-asset:
     post:
       consumes:
@@ -688,33 +688,6 @@ paths:
       summary: Edit Frequency
       tags:
       - 3 - Frequency
-  /api/implementation:
-    put:
-      consumes:
-      - application/json
-      description: Create New Event Implementation
-      parameters:
-      - description: Implementation Id
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Data for create new Event
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/interfaces.ImplementsInputNoID'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of All Assets
-          schema:
-            $ref: '#/definitions/db.ControlLibrary'
-      summary: Create New Implementation
-      tags:
-      - 8 - Implementation
   /api/implementation/{id}:
     get:
       consumes:
@@ -734,6 +707,32 @@ paths:
           schema:
             $ref: '#/definitions/db.ControlLibrary'
       summary: Retrieve Implementation by ID
+      tags:
+      - 8 - Implementation
+    put:
+      consumes:
+      - application/json
+      description: Create New Event Implementation
+      parameters:
+      - description: Control Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data for create new Event
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.ImplementsInputNoID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All Assets
+          schema:
+            $ref: '#/definitions/db.ControlLibrary'
+      summary: Create New Implementation
       tags:
       - 8 - Implementation
   /api/losshigh:
@@ -888,6 +887,11 @@ paths:
         name: threatEvent
         required: true
         type: integer
+      - description: 'Email for recive '
+        in: header
+        name: email
+        required: true
+        type: integer
       produces:
       - application/json
       responses: {}
@@ -914,6 +918,28 @@ paths:
       - application/json
       responses: {}
       summary: Test for simulation appetite
+      tags:
+      - 13 - Simulation
+  /simulation-report:
+    get:
+      consumes:
+      - application/json
+      description: Test for simulation
+      parameters:
+      - description: 'Threat Event '
+        in: header
+        name: threatEvent
+        required: true
+        type: integer
+      - description: 'Email for recive '
+        in: header
+        name: email
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: Test for simulation
       tags:
       - 13 - Simulation
 securityDefinitions:

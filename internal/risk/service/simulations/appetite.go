@@ -1,114 +1,145 @@
 package simulation
 
-// import (
-// 	"math"
-// 	"net/http"
-// 	"qira/db"
-// 	"sort"
+import (
+	"fmt"
+	"net/http"
+	"qira/db"
+	"sort"
 
-// 	"github.com/gin-gonic/gin"
-// 	"gonum.org/v1/gonum/stat"
-// 	"xorm.io/xorm"
-// )
+	"github.com/gin-gonic/gin"
+	"golang.org/x/exp/rand"
+	"gonum.org/v1/gonum/stat/distuv"
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/plotter"
+	"gonum.org/v1/plot/vg"
+	"xorm.io/xorm"
+)
 
-// type RiskAppetiteData struct {
-// 	EventID               int64       `json:"event_id"`
-// 	EventName             string      `json:"event_name"`
-// 	CurrentControl        float64     `json:"current_control"`
-// 	ProposedControl       float64     `json:"proposed_control"`
-// 	AcceptableLosses      []LossLevel `json:"acceptable_losses"`
-// 	ProbabilityThresholds map[float64]float64
-// }
+func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string) {
+	var losses []db.LossHighTotal
 
-// type LossLevel struct {
-// 	Probability    float64 `json:"probability"`
-// 	AcceptableLoss float64 `json:"acceptable_loss"`
-// }
+	engine, exists := c.Get("db")
+	if !exists {
+		c.Set("Response", "Database connection not found")
+		c.Status(http.StatusInternalServerError)
+		return
+	}
 
-// func FetchRiskAppetite() (RiskAppetiteData, error) {
-// 	return RiskAppetiteData{
-// 		EventID:         1,
-// 		EventName:       "Example Event",
-// 		CurrentControl:  15.0,
-// 		ProposedControl: 25.0,
-// 		AcceptableLosses: []LossLevel{
-// 			{Probability: 100, AcceptableLoss: 5000000},
-// 			{Probability: 75, AcceptableLoss: 3750000},
-// 			{Probability: 50, AcceptableLoss: 2500000},
-// 			{Probability: 25, AcceptableLoss: 1250000},
-// 			{Probability: 0, AcceptableLoss: 625000},
-// 		},
-// 		ProbabilityThresholds: map[float64]float64{
-// 			100: 5000000,
-// 			75:  3750000,
-// 			50:  2500000,
-// 			25:  1250000,
-// 			0:   625000,
-// 		},
-// 	}, nil
-// }
+	err := engine.(*xorm.Engine).Where("threat_event = ?", threatEvent).Find(&losses)
+	if err != nil {
+		c.Set("Response", "LossHigh not found")
+		c.Status(http.StatusInternalServerError)
+		return
+	}
 
-// func MonteCarloSimulationAppetite(c *gin.Context) {
-// 	engine := c.MustGet("db").(*xorm.Engine)
+	if len(losses) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": fmt.Sprintf("No loss data found for threatEvent '%s'", threatEvent),
+		})
+		return
+	}
 
-// 	riskAppetite, err := FetchRiskAppetite()
-// 	if err != nil {
-// 		c.Set("Response", "Failed to fetch risk calculations")
-// 		c.Status(http.StatusInternalServerError)
-// 		return
-// 	}
+	// Calculando os valores agregados
+	var totalMinimo, totalMaximo, totalMaisProvavel float64
+	for _, loss := range losses {
+		totalMinimo += loss.MinimumLoss
+		totalMaximo += loss.MaximumLoss
+		totalMaisProvavel += loss.MostLikelyLoss
+	}
 
-// 	var riskCalculations []db.RiskCalculation
-// 	if err := engine.Find(&riskCalculations); err != nil {
-// 		c.Set("Response", "Failed to fetch risk calculations")
-// 		c.Status(http.StatusInternalServerError)
-// 		return
-// 	}
+	// Validação dos valores
+	if totalMinimo == 0 && totalMaximo == 0 && totalMaisProvavel == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": fmt.Sprintf("Sua perda é igual a 0 no threatEvent '%s', por favor coloque valores válidos.", threatEvent),
+		})
+		return
+	}
 
-// 	results := make(map[string]RiskAnalysisResults)
-// 	for _, calc := range riskCalculations {
-// 		eventData := EventData{
-// 			Event:        calc.ThreatEvent,
-// 			MinFrequency: calc.Min, PertFrequency: calc.Mode, MaxFrequency: calc.Max,
-// 			MinLoss: calc.Min, PertLoss: calc.Mode, MaxLoss: calc.Max,
-// 		}
-// 		result := generateRiskDataAppetite(eventData, sims, riskAppetite)
-// 		results[calc.ThreatEvent] = result
-// 	}
-// 	c.JSON(http.StatusOK, results)
-// }
+	const (
+		amostras = 10000 // valores repeticao
+		numBins  = 70    // setado
+	)
 
-// func generateRiskDataAppetite(event EventData, iterations int, appetite RiskAppetiteData) RiskAnalysisResults {
-// 	riskSamples := make([]float64, iterations)
-// 	frequencyMap := make(map[int]int)
+	binWidth := (totalMaximo - totalMinimo) / float64(numBins)
 
-// 	for i := 0; i < iterations; i++ {
-// 		freqSample := PERTLogNormal(event.MinFrequency, event.PertFrequency, event.MaxFrequency)
-// 		lossSample := PERTLogNormal(event.MinLoss, event.PertLoss, event.MaxLoss)
-// 		riskResult := freqSample * lossSample
+	a := (4*totalMaisProvavel + totalMaximo - 5*totalMinimo) / (totalMaximo - totalMinimo)
+	b := (5*totalMaximo - totalMinimo - 4*totalMaisProvavel) / (totalMaximo - totalMinimo)
 
-// 		// Apply risk appetite filter
-// 		if isAcceptableRisk(riskResult, appetite) {
-// 			roundedRiskResult := int(math.Round(riskResult/100000)) * 100000
-// 			frequencyMap[roundedRiskResult]++
-// 		}
-// 	}
+	source := rand.NewSource(uint64(99))
+	distribuicao := distuv.Beta{
+		Alpha: a,
+		Beta:  b,
+		Src:   rand.New(source),
+	}
+	valores := make([]float64, amostras)
+	for i := range valores {
+		valores[i] = distribuicao.Rand()*(totalMaximo-totalMinimo) + totalMinimo
+	}
 
-// 	sort.Float64s(riskSamples)
-// 	return RiskAnalysisResults{
-// 		Event:        event.Event,
-// 		AverageRisk:  stat.Mean(riskSamples, nil),
-// 		P95Risk:      stat.Quantile(0.95, stat.Empirical, riskSamples, nil),
-// 		ValueAtRisk:  stat.Quantile(0.99, stat.Empirical, riskSamples, nil),
-// 		FrequencyMap: frequencyMap,
-// 	}
-// }
+	frequencias := make([]int, numBins)
+	for _, valor := range valores {
+		index := int((valor - totalMinimo) / binWidth)
+		if index >= numBins {
+			index = numBins - 1
+		}
+		frequencias[index]++
+	}
 
-// func isAcceptableRisk(loss float64, appetite RiskAppetiteData) bool {
-// 	for _, level := range appetite.AcceptableLosses {
-// 		if loss <= level.AcceptableLoss {
-// 			return true
-// 		}
-// 	}
-// 	return false
-// }
+	fmt.Println("Frequências dos bins:")
+	binData := make([]map[string]interface{}, numBins)
+	for i, freq := range frequencias {
+		lowerBound := totalMinimo + float64(i)*binWidth
+		upperBound := lowerBound + binWidth
+		fmt.Printf("Bin %d: [%.2f - %.2f], Frequência: %d\n", i, lowerBound, upperBound, freq)
+		midPoint := (lowerBound + upperBound) / 2
+		binData[i] = map[string]interface{}{
+			"midPoint":  midPoint,
+			"frequency": freq,
+		}
+	}
+
+	p := plot.New()
+	p.Title.Text = "Distribuição PERT de Perdas Financeiras"
+	p.X.Label.Text = "Perdas (R$)"
+	p.Y.Label.Text = "Frequência de Aparição"
+
+	hist, err := plotter.NewHist(plotter.Values(valores), numBins)
+	if err != nil {
+		panic(err)
+	}
+	hist.Normalize(1)
+	p.Add(hist)
+
+	if err := p.Save(12*vg.Inch, 6*vg.Inch, "hist.png"); err != nil {
+		panic(err)
+	}
+
+	sort.Float64s(valores)
+	pLEC := plot.New()
+	pLEC.Title.Text = "Curva de Excedência de Perdas (LEC)"
+	pLEC.X.Label.Text = "Perdas (R$)"
+	pLEC.Y.Label.Text = "Probabilidade de Excedência"
+
+	lec := make(plotter.XYs, amostras)
+	for i := range lec {
+		lec[i].X = valores[i]
+		lec[i].Y = 1 - float64(i)/float64(amostras)
+	}
+
+	line, err := plotter.NewLine(lec)
+	if err != nil {
+		panic(err)
+	}
+	pLEC.Add(line)
+	pLEC.Add(plotter.NewGrid())
+
+	if err := pLEC.Save(12*vg.Inch, 6*vg.Inch, "lec.png"); err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Plots saved as hist.png and lec.png")
+
+	c.JSON(200, gin.H{
+		"bins": binData,
+	})
+}

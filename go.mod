@@ -5,10 +5,16 @@ go 1.21.4
 require github.com/golang-jwt/jwt v3.2.2+incompatible
 
 require (
+	git.sr.ht/~sbinet/gg v0.5.0 // indirect
+	github.com/ajstarks/svgo v0.0.0-20211024235047-1546f124cd8b // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
+	github.com/campoy/embedmd v1.0.0 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/gin-contrib/cors v1.7.2 // indirect
+	github.com/go-fonts/liberation v0.3.2 // indirect
+	github.com/go-latex/latex v0.0.0-20231108140139-5c1ce85aa4ea // indirect
+	github.com/go-pdf/fpdf v0.9.0 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
@@ -17,12 +23,16 @@ require (
 	github.com/maseology/mmaths v0.0.0-20240712214536-94a31ecf4bf0 // indirect
 	github.com/maseology/mmio v0.0.0-20240502130918-de71b95553ef // indirect
 	github.com/paulmach/go.geojson v1.5.0 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/syndtr/goleveldb v1.0.0 // indirect
 	github.com/wcharczuk/go-chart v2.0.1+incompatible // indirect
 	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa // indirect
 	golang.org/x/image v0.14.0 // indirect
 	gonum.org/v1/gonum v0.15.0 // indirect
+	gonum.org/v1/plot v0.14.0 // indirect
+	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
+	gopkg.in/mail.v2 v2.3.1 // indirect
 	xorm.io/builder v0.3.11-0.20220531020008-1bd24a7dc978 // indirect
 )
 

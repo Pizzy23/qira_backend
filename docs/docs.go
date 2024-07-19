@@ -448,24 +448,24 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "8 - Implementation"
+                    "7 - Control"
                 ],
                 "summary": "Update Controll",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Implementation Id",
+                        "description": "Control Id",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Data for create new Event",
+                        "description": "Data for update new control",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/interfaces.ImplementsInputNoID"
+                            "$ref": "#/definitions/interfaces.InputControlLibrary"
                         }
                     }
                 ],
@@ -650,47 +650,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/implementation": {
-            "put": {
-                "description": "Create New Event Implementation",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "8 - Implementation"
-                ],
-                "summary": "Create New Implementation",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Implementation Id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Data for create new Event",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/interfaces.ImplementsInputNoID"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "List of All Assets",
-                        "schema": {
-                            "$ref": "#/definitions/db.ControlLibrary"
-                        }
-                    }
-                }
-            }
-        },
         "/api/implementation/{id}": {
             "get": {
                 "description": "Retrieve an Implementation by its ID",
@@ -716,6 +675,45 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "Implementation Details",
+                        "schema": {
+                            "$ref": "#/definitions/db.ControlLibrary"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Create New Event Implementation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "8 - Implementation"
+                ],
+                "summary": "Create New Implementation",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Control Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Data for create new Event",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/interfaces.ImplementsInputNoID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of All Assets",
                         "schema": {
                             "$ref": "#/definitions/db.ControlLibrary"
                         }
@@ -958,6 +956,13 @@ const docTemplate = `{
                         "name": "threatEvent",
                         "in": "header",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Email for recive ",
+                        "name": "email",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {}
@@ -992,6 +997,38 @@ const docTemplate = `{
                     "13 - Simulation"
                 ],
                 "summary": "Test for simulation appetite",
+                "responses": {}
+            }
+        },
+        "/simulation-report": {
+            "get": {
+                "description": "Test for simulation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "13 - Simulation"
+                ],
+                "summary": "Test for simulation",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Threat Event ",
+                        "name": "threatEvent",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Email for recive ",
+                        "name": "email",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {}
             }
         }

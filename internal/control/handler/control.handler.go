@@ -21,16 +21,19 @@ import (
 func CreateControl(c *gin.Context) {
 	var controlInput interfaces.InputControlLibrary
 	if err := c.ShouldBindJSON(&controlInput); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.Set("Response", err.Error())
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	if err := control.CreateControlService(c, controlInput); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.Set("Response", err.Error())
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "control updated successfully"})
+	c.Set("Response", "Control created successfully")
+	c.Status(http.StatusOK)
 }
 
 // @Summary Retrieve All Control
@@ -68,10 +71,10 @@ func PullControlId(c *gin.Context) {
 // @Tags 8 - Implementation
 // @Accept json
 // @Produce json
-// @Param id path int true "Implementation Id"
+// @Param id path int true "Control Id"
 // @Param request body interfaces.ImplementsInputNoID true "Data for create new Event"
 // @Success 200 {object} db.ControlLibrary "List of All Assets"
-// @Router /api/implementation [put]
+// @Router /api/implementation/{id} [put]
 func EditControlImplementation(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.ParseInt(idParam, 10, 64)
@@ -93,7 +96,7 @@ func EditControlImplementation(c *gin.Context) {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	c.Set("Response", "Event created successfully")
+	c.Set("Response", "Implementation created successfully")
 	c.Status(http.StatusOK)
 
 }
@@ -178,11 +181,11 @@ func PullAggregatedControlStrength(c *gin.Context) {
 
 // @Summary Update Controll
 // @Description Create Controll
-// @Tags 8 - Implementation
+// @Tags 7 - Control
 // @Accept json
 // @Produce json
-// @Param id path int true "Implementation Id"
-// @Param request body interfaces.ImplementsInputNoID true "Data for create new Event"
+// @Param id path int true "Control Id"
+// @Param request body interfaces.InputControlLibrary true "Data for update new control"
 // @Success 200 {object} db.ControlLibrary "List of All Assets"
 // @Router /api/control/{id} [put]
 func UpdateControl(c *gin.Context) {
