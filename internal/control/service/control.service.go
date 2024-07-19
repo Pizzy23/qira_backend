@@ -119,11 +119,11 @@ func createTables(engine *xorm.Engine, control *db.ControlLibrary) error {
 }
 
 func CreateImplementService(c *gin.Context, data interfaces.ImplementsInputNoID, id int64) error {
-	averageC, err := mock.FindAverageByScore(data.Current)
+	averageC, err := mock.FindAverageByScoreImp(data.Current)
 	if err != nil {
 		return errors.New("score not found for Percent Current")
 	}
-	averageP, err := mock.FindAverageByScore(data.Proposed)
+	averageP, err := mock.FindAverageByScoreImp(data.Proposed)
 	if err != nil {
 		return errors.New("score not found for Percent Proposed")
 	}

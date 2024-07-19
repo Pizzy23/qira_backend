@@ -29,3 +29,22 @@ func FindAverageByScore(score int) (string, error) {
 	}
 	return "", fmt.Errorf("score %d not found", score)
 }
+func getSecurityRatingsImp() []SecurityRating {
+	return []SecurityRating{
+		{Score: 0, Range: "0-5%", Min: "0%", Max: "5%", Average: "3%"},
+		{Score: 1, Range: "6-35%", Min: "6%", Max: "35%", Average: "21%"},
+		{Score: 2, Range: "36-65%", Min: "36%", Max: "65%", Average: "51%"},
+		{Score: 3, Range: "66-95%", Min: "66%", Max: "95%", Average: "81%"},
+		{Score: 4, Range: "96-100%", Min: "96%", Max: "100%", Average: "98%"},
+	}
+}
+
+func FindAverageByScoreImp(score int) (string, error) {
+	ratings := getSecurityRatingsImp()
+	for _, rating := range ratings {
+		if rating.Score == score {
+			return rating.Average, nil
+		}
+	}
+	return "", fmt.Errorf("score %d not found", score)
+}
