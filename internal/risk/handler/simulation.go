@@ -12,8 +12,8 @@ import (
 // @Tags 13 - Simulation
 // @Accept json
 // @Produce json
-// @Param threatEvent header int true "Threat Event "
-// @Param email header int true "Email for recive "
+// @Param threatEvent header string true "Threat Event "
+// @Param email header string false "Email for recive "
 // @Router /simulation [get]
 func RiskMount(c *gin.Context) {
 	threatEvent := c.GetHeader("ThreatEvent")
@@ -34,8 +34,8 @@ func RiskMount(c *gin.Context) {
 // @Tags 13 - Simulation
 // @Accept json
 // @Produce json
-// @Param threatEvent header int true "Threat Event "
-// @Param email header int true "Email for recive "
+// @Param threatEvent header string true "Threat Event "
+// @Param email header string false "Email for recive"
 // @Router /simulation-report [get]
 func RiskMountReport(c *gin.Context) {
 	threatEvent := c.GetHeader("ThreatEvent")

@@ -951,18 +951,17 @@ const docTemplate = `{
                 "summary": "Test for simulation",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Threat Event ",
                         "name": "threatEvent",
                         "in": "header",
                         "required": true
                     },
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Email for recive ",
                         "name": "email",
-                        "in": "header",
-                        "required": true
+                        "in": "header"
                     }
                 ],
                 "responses": {}
@@ -1015,18 +1014,17 @@ const docTemplate = `{
                 "summary": "Test for simulation",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Threat Event ",
                         "name": "threatEvent",
                         "in": "header",
                         "required": true
                     },
                     {
-                        "type": "integer",
-                        "description": "Email for recive ",
+                        "type": "string",
+                        "description": "Email for recive",
                         "name": "email",
-                        "in": "header",
-                        "required": true
+                        "in": "header"
                     }
                 ],
                 "responses": {}

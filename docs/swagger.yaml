@@ -891,12 +891,11 @@ paths:
         in: header
         name: threatEvent
         required: true
-        type: integer
+        type: string
       - description: 'Email for recive '
         in: header
         name: email
-        required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses: {}
@@ -935,12 +934,11 @@ paths:
         in: header
         name: threatEvent
         required: true
-        type: integer
-      - description: 'Email for recive '
+        type: string
+      - description: Email for recive
         in: header
         name: email
-        required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses: {}
