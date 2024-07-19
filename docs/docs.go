@@ -954,7 +954,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Threat Event ID",
+                        "description": "Threat Event ",
                         "name": "threatEvent",
                         "in": "header",
                         "required": true

@@ -883,7 +883,7 @@ paths:
       - application/json
       description: Test for simulation
       parameters:
-      - description: Threat Event ID
+      - description: 'Threat Event '
         in: header
         name: threatEvent
         required: true
