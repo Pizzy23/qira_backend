@@ -220,3 +220,8 @@ type RelevanceDinamicInput struct {
 	ControlID  int            `json:"controlId"`
 	Attributes map[string]int `json:"attributes"` // dynamic attributes
 }
+
+type LossLevel struct {
+	Probability    float64 `json:"probability"`
+	AcceptableLoss float64 `json:"acceptable_loss"`
+}

@@ -9,147 +9,92 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"gonum.org/v1/gonum/stat"
+	"gonum.org/v1/gonum/stat/distuv"
 	"xorm.io/xorm"
 )
 
 const sims = 10000
 
-type RiskData struct {
-	EventName     string  `json:"event_name"`
-	MeanFrequency float64 `json:"mean_frequency"`
-	StdFrequency  float64 `json:"std_frequency"`
-	MeanLoss      float64 `json:"mean_loss"`
-	StdLoss       float64 `json:"std_loss"`
-	MeanRisk      float64 `json:"mean_risk"`
-	Percentile95  float64 `json:"percentile_95"`
-	ValueAtRisk   float64 `json:"value_at_risk"`
-	Error         float64 `json:"error"`
+type EventData struct {
+	Event                                     string
+	MinFrequency, PertFrequency, MaxFrequency float64
+	MinLoss, PertLoss, MaxLoss                float64
+}
+
+type RiskAnalysisResults struct {
+	Event        string
+	AverageRisk  float64
+	P95Risk      float64
+	ValueAtRisk  float64
+	Error        float64
+	FrequencyMap map[int]int
+}
+
+func PERTLogNormal(min, pert, max float64) float64 {
+	rand.Seed(time.Now().UnixNano())
+	logPert := math.Log(pert)
+	sigma := (math.Log(max) - math.Log(min)) / 6
+	mu := logPert - (sigma * sigma / 2)
+
+	dist := distuv.LogNormal{
+		Mu:    mu,
+		Sigma: sigma,
+	}
+	return dist.Rand()
 }
 
 func MonteCarloSimulation(c *gin.Context) {
+	engine := c.MustGet("db").(*xorm.Engine)
+
 	var riskCalculations []db.RiskCalculation
-	var events []db.ThreatEventCatalog
-	engine, exists := c.Get("db")
-	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection not found"})
+	err := engine.Find(&riskCalculations)
+	if err != nil {
+		c.Set("Response", "Failed to fetch risk calculations")
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
-	if err := db.GetAll(engine.(*xorm.Engine), &riskCalculations); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	if err := db.GetAll(engine.(*xorm.Engine), &events); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Processar os dados de risco para calcular médias e desvios padrão
-	manualData := processRiskCalculations(riskCalculations)
-	iterations := 10000 // Número de Simulações Monte Carlo
-
-	updatedData, riskArray, frequencyTrack := generateData(manualData, iterations)
-
-	c.JSON(http.StatusOK, gin.H{
-		"data":            updatedData,
-		"risk_array":      riskArray,
-		"frequency_track": frequencyTrack,
-	})
-}
-
-func processRiskCalculations(riskCalculations []db.RiskCalculation) []RiskData {
-	eventMap := make(map[int64]*RiskData)
+	results := make(map[string]RiskAnalysisResults)
 	for _, calc := range riskCalculations {
-		if _, exists := eventMap[calc.ThreatEventID]; !exists {
-			eventMap[calc.ThreatEventID] = &RiskData{
-				EventName: calc.ThreatEvent,
-			}
+		eventData := EventData{
+			Event:        calc.ThreatEvent,
+			MinFrequency: calc.Min, PertFrequency: calc.Mode, MaxFrequency: calc.Max,
+			MinLoss: calc.Min, PertLoss: calc.Mode, MaxLoss: calc.Max,
 		}
-		event := eventMap[calc.ThreatEventID]
-		if calc.RiskType == "Frequency" {
-			event.MeanFrequency = (calc.Min + 4*calc.Mode + calc.Max) / 6
-			event.StdFrequency = (calc.Max - calc.Min) / 6
-		} else if calc.RiskType == "Loss" {
-			event.MeanLoss = (calc.Min + 4*calc.Mode + calc.Max) / 6
-			event.StdLoss = (calc.Max - calc.Min) / 6
-		}
+		results[calc.ThreatEvent] = generateRiskData(eventData, sims)
 	}
-	var manualData []RiskData
-	for _, data := range eventMap {
-		manualData = append(manualData, *data)
-	}
-	return manualData
+
+	c.Set("Response", results)
+	c.Status(http.StatusOK)
 }
 
-func generateData(manualData []RiskData, iterations int) ([]RiskData, [][]float64, map[int]int) {
-	rand.Seed(time.Now().UnixNano())
-	riskArray := make([][]float64, iterations)
-	frequencyTrack := make(map[int]int)
+func generateRiskData(event EventData, iterations int) RiskAnalysisResults {
+	riskSamples := make([]float64, iterations)
+	frequencyMap := make(map[int]int)
 
-	for i := 0; i < iterations; i++ {
-		riskArray[i] = make([]float64, len(manualData))
-		for j, data := range manualData {
-			freqSamples := GenerateLogNormalSlice(math.Log(data.MeanFrequency), data.StdFrequency, 1)
-			lossSamples := GenerateLogNormalSlice(math.Log(data.MeanLoss), data.StdLoss, 1)
-			riskArray[i][j] = freqSamples[0] * lossSamples[0]
-		}
+	for i := range riskSamples {
+		freqSample := PERTLogNormal(event.MinFrequency, event.PertFrequency, event.MaxFrequency)
+		lossSample := PERTLogNormal(event.MinLoss, event.PertLoss, event.MaxLoss)
+		riskResult := freqSample * lossSample
+		riskSamples[i] = riskResult
+		// Arredondar para a centena de milhar mais próxima para menos granularidade
+		roundedRiskResult := int(math.Round(riskResult/100000)) * 100000
+		frequencyMap[roundedRiskResult]++
 	}
 
-	for j := range manualData {
-		risks := make([]float64, iterations)
-		for i := 0; i < iterations; i++ {
-			risks[i] = riskArray[i][j]
-		}
-		meanRisk := mean(risks)
-		percentile95 := percentile(risks, 95)
-		valueAtRisk := percentile(risks, 99)
-		error := percentile95 - meanRisk
+	sort.Float64s(riskSamples)
 
-		manualData[j].MeanRisk = meanRisk
-		manualData[j].Percentile95 = percentile95
-		manualData[j].ValueAtRisk = valueAtRisk
-		manualData[j].Error = error
+	meanRisk := stat.Mean(riskSamples, nil)
+	p95Risk := stat.Quantile(0.95, stat.Empirical, riskSamples, nil)
+	varRisk := stat.Quantile(0.99, stat.Empirical, riskSamples, nil)
 
-		// Rastreamento de frequência
-		for _, risk := range risks {
-			roundedRisk := int(math.Round(risk))
-			frequencyTrack[roundedRisk]++
-		}
+	return RiskAnalysisResults{
+		Event:        event.Event,
+		AverageRisk:  meanRisk,
+		P95Risk:      p95Risk,
+		ValueAtRisk:  varRisk,
+		Error:        p95Risk - meanRisk,
+		FrequencyMap: frequencyMap,
 	}
-
-	return manualData, riskArray, frequencyTrack
-}
-
-func mean(data []float64) float64 {
-	total := 0.0
-	for _, value := range data {
-		total += value
-	}
-	return total / float64(len(data))
-}
-
-func percentile(data []float64, percent float64) float64 {
-	sort.Float64s(data)
-	k := int(math.Ceil(percent/100*float64(len(data)))) - 1
-	if k < 0 {
-		k = 0
-	}
-	return data[k]
-}
-
-func GenerateUniformSlice(min, max float64, size int) []float64 {
-	slice := make([]float64, size)
-	for i := range slice {
-		slice[i] = min + rand.Float64()*(max-min)
-	}
-	return slice
-}
-
-func GenerateLogNormalSlice(mean, sigma float64, size int) []float64 {
-	slice := make([]float64, size)
-	for i := range slice {
-		normal := rand.NormFloat64()*sigma + mean
-		slice[i] = math.Exp(normal)
-	}
-	return slice
 }

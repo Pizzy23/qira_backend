@@ -46,6 +46,11 @@ func CreateEventService(c *gin.Context, event interfaces.InputThreatEventCatalog
 		MinFrequency:  0,
 		MaxFrequency:  0,
 	}
+	EventAssets := db.ThreatEventAssets{
+		ThreatID:      eventID,
+		ThreatEvent:   event.ThreatEvent,
+		AffectedAsset: "",
+	}
 
 	LossInput1 := db.LossHigh{
 		ThreatEventID:  eventID,
@@ -76,6 +81,9 @@ func CreateEventService(c *gin.Context, event interfaces.InputThreatEventCatalog
 	}
 
 	if err := db.Create(engine.(*xorm.Engine), &LossInput2); err != nil {
+		return err
+	}
+	if err := db.Create(engine.(*xorm.Engine), &EventAssets); err != nil {
 		return err
 	}
 

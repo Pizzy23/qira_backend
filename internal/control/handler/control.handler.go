@@ -188,21 +188,24 @@ func PullAggregatedControlStrength(c *gin.Context) {
 func UpdateControl(c *gin.Context) {
 	var controlInput interfaces.InputControlLibrary
 	if err := c.ShouldBindJSON(&controlInput); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.Set("Response", err.Error())
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	controlIDStr := c.Param("controlID")
 	controlID, err := strconv.ParseInt(controlIDStr, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid control ID"})
+		c.Set("Response", err.Error())
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	if err := control.UpdateControlService(c, controlID, controlInput); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.Set("Response", err.Error())
+		c.Status(http.StatusInternalServerError)
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "control updated successfully"})
+	c.Set("Response", "Control updated successfully")
+	c.Status(http.StatusOK)
 }

@@ -23,6 +23,21 @@ func CreateFrequencyService(c *gin.Context, data db.Frequency) error {
 }
 
 func EditFrequencyService(c *gin.Context, freq interfaces.InputFrequency, ThreatEventID int64) error {
+	engine, exists := c.Get("db")
+	if !exists {
+		return errors.New("database connection not found")
+	}
+
+	var existingFreq db.Frequency
+	found, err := db.GetByID(engine.(*xorm.Engine), &existingFreq, ThreatEventID)
+	if err != nil {
+		return errors.New("failed to fetch existing frequency data")
+	}
+	if !found || existingFreq.ThreatEvent != freq.ThreatEvent {
+		return errors.New("threat event mismatch or not found")
+	}
+
+	// If check passes, proceed with update
 	frequencyTable := db.Frequency{
 		ThreatEventID:         ThreatEventID,
 		ThreatEvent:           freq.ThreatEvent,
@@ -30,10 +45,6 @@ func EditFrequencyService(c *gin.Context, freq interfaces.InputFrequency, Threat
 		MaxFrequency:          freq.MaxFrequency,
 		MostLikelyFrequency:   freq.MostCommonFrequency,
 		SupportingInformation: freq.SupportInformation,
-	}
-	engine, exists := c.Get("db")
-	if !exists {
-		return errors.New("database connection not found")
 	}
 
 	if err := db.UpdateByThreat(engine.(*xorm.Engine), frequencyTable, ThreatEventID); err != nil {

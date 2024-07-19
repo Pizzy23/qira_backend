@@ -32,7 +32,6 @@ func SetupRouter() *gin.Engine {
 		c.Set("db", db.Repo)
 		c.Next()
 	})
-	r.GET("/simulation-aggregated", risk.RiskMountAggregated)
 
 	r.Use(CORSConfig())
 	r.Use(ResponseHandler())
@@ -80,7 +79,10 @@ func SetupRouter() *gin.Engine {
 	//Risk
 	auth.GET("/risk", risk.PullAllRisk)
 	auth.GET("/risk/:id", risk.PullRiskId)
+
 	auth.GET("/simulation", risk.RiskMount)
+	auth.GET("/simulation-aggregated", risk.RiskMountAggregated)
+	auth.GET("/simulation-appetite", risk.RiskMountAppetite)
 
 	// Revelance
 	auth.GET("/revelance", revelance.PullAllRevelance)

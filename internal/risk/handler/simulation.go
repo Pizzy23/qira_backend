@@ -11,7 +11,6 @@ import (
 // @Tags 13 - Simulation
 // @Accept json
 // @Produce json
-// @Success 200 {object} []db.RiskCalculation "List of All Risks"
 // @Router /api/simulation [get]
 func RiskMount(c *gin.Context) {
 	simulation.MonteCarloSimulation(c)
@@ -22,8 +21,17 @@ func RiskMount(c *gin.Context) {
 // @Tags 13 - Simulation
 // @Accept json
 // @Produce json
-// @Success 200 {object} []db.RiskCalculation "List of All Risks"
 // @Router /api/simulation-aggregated [get]
 func RiskMountAggregated(c *gin.Context) {
 	simulation.MonteCarloSimulationAggregated(c)
+}
+
+// @Summary Test for simulation appetite
+// @Description Test for simulation appetite
+// @Tags 13 - Simulation
+// @Accept json
+// @Produce json
+// @Router /api/simulation-appetite [get]
+func RiskMountAppetite(c *gin.Context) {
+	simulation.MonteCarloSimulationAppetite(c)
 }
