@@ -13,30 +13,21 @@ import (
 	"xorm.io/xorm"
 )
 
-const sims = 10000
-const stdev = 3.29
-
 type RiskData struct {
 	EventName     string  `json:"event_name"`
-	MinFreq       float64 `json:"min_freq"`
-	PertFreq      float64 `json:"pert_freq"`
-	MaxFreq       float64 `json:"max_freq"`
-	MinLoss       float64 `json:"min_loss"`
-	PertLoss      float64 `json:"pert_loss"`
-	MaxLoss       float64 `json:"max_loss"`
-	MeanRisk      float64 `json:"mean_risk"`
-	Percentile95  float64 `json:"percentile_95"`
-	ValueAtRisk   float64 `json:"value_at_risk"`
-	Error         float64 `json:"error"`
 	MeanFrequency float64 `json:"mean_frequency"`
 	StdFrequency  float64 `json:"std_frequency"`
 	MeanLoss      float64 `json:"mean_loss"`
 	StdLoss       float64 `json:"std_loss"`
+	MeanRisk      float64 `json:"mean_risk"`
+	Percentile95  float64 `json:"percentile_95"`
+	ValueAtRisk   float64 `json:"value_at_risk"`
+	Error         float64 `json:"error"`
 }
 
 func MonteCarloSimulation(c *gin.Context) {
 	var risk []db.RiskCalculation
-	var event []db.ThreatEventCatalog
+	var catalog []db.ThreatEventCatalog
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Response", "Database connection not found")
@@ -49,9 +40,15 @@ func MonteCarloSimulation(c *gin.Context) {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
+	if err := db.GetAll(engine.(*xorm.Engine), &catalog); err != nil {
+		c.Set("Response", err)
+		c.Status(http.StatusInternalServerError)
+		return
+	}
 
-	manualData := processRiskData(risk, event)
-	iterations := sims // Número de Simulações Monte Carlo
+	manualData := processRiskData(risk, len(catalog))
+
+	iterations := 10000 // Número de Simulações Monte Carlo
 
 	updatedData, riskArray, frequencyTrack := generateData(manualData, iterations)
 
@@ -62,93 +59,48 @@ func MonteCarloSimulation(c *gin.Context) {
 	})
 }
 
-func processRiskData(risks []db.RiskCalculation, events []db.ThreatEventCatalog) []RiskData {
-	eventSize := len(events)
-	if eventSize == 0 {
-		return nil
-	}
+func processRiskData(risk []db.RiskCalculation, catalogSize int) []RiskData {
+	var frequencyEstimates, lossEstimates []float64
 
-	var totalMinFreq, totalPertFreq, totalMaxFreq float64
-	var totalMinLoss, totalPertLoss, totalMaxLoss float64
-	var totalEstimativeLoss, totalEstimativeFreq float64
-
-	for _, risk := range risks {
-		if risk.RiskType == "Frequency" {
-			totalMinFreq += risk.Min
-			totalPertFreq += risk.Mode
-			totalMaxFreq += risk.Max
-			totalEstimativeFreq += risk.Estimate
-		} else if risk.RiskType == "Loss" {
-			totalMinLoss += risk.Min
-			totalPertLoss += risk.Mode
-			totalMaxLoss += risk.Max
-			totalEstimativeLoss += risk.Estimate
+	for _, r := range risk {
+		if r.RiskType == "Frequency" {
+			frequencyEstimates = append(frequencyEstimates, r.Min, r.Max, r.Mode)
+		} else if r.RiskType == "Loss" {
+			lossEstimates = append(lossEstimates, r.Min, r.Max, r.Mode)
 		}
 	}
-	riskSize := len(risks)
-	meanMinFreq := totalMinFreq / float64(riskSize)
-	meanPertFreq := totalPertFreq / float64(riskSize)
-	meanMaxFreq := totalMaxFreq / float64(riskSize)
-	meanMinLoss := totalMinLoss / float64(riskSize)
-	meanPertLoss := totalPertLoss / float64(riskSize)
-	meanMaxLoss := totalMaxLoss / float64(riskSize)
 
-	meanFrequency := (meanMinFreq + meanMaxFreq) / 2
-	stdFrequency := calculateStdDevFromMinMax(meanMinFreq, meanMaxFreq)
-	meanLoss := (meanMinLoss + meanMaxLoss) / 2
-	stdLoss := calculateStdDevFromMinMax(meanMinLoss, meanMaxLoss)
+	// Generate slices of log-normal and uniform values for simulation
+	meanFrequency := GenerateLogNormalSlice(2, 0.5, catalogSize)
+	stdFrequency := GenerateUniformSlice(0.1, 1.0, catalogSize)
+	meanLoss := GenerateLogNormalSlice(3, 1, catalogSize)
+	stdLoss := GenerateUniformSlice(0.5, 2.0, catalogSize)
 
-	manualData := make([]RiskData, eventSize)
-	for i := 0; i < eventSize; i++ {
-		manualData[i] = RiskData{
-			EventName:     events[i].ThreatEvent,
-			MinFreq:       meanMinFreq,
-			PertFreq:      meanPertFreq,
-			MaxFreq:       meanMaxFreq,
-			MinLoss:       meanMinLoss,
-			PertLoss:      meanPertLoss,
-			MaxLoss:       meanMaxLoss,
-			MeanFrequency: meanFrequency,
-			StdFrequency:  stdFrequency,
-			MeanLoss:      meanLoss,
-			StdLoss:       stdLoss,
-		}
+	// Aggregate generated slices into single values (simple average used here for demonstration)
+	aggregatedMeanFrequency := average(meanFrequency)
+	aggregatedStdFrequency := average(stdFrequency)
+	aggregatedMeanLoss := average(meanLoss)
+	aggregatedStdLoss := average(stdLoss)
+
+	manualData := []RiskData{
+		{
+			EventName:     "Risk Event",
+			MeanFrequency: aggregatedMeanFrequency,
+			StdFrequency:  aggregatedStdFrequency,
+			MeanLoss:      aggregatedMeanLoss,
+			StdLoss:       aggregatedStdLoss,
+		},
 	}
 
 	return manualData
 }
 
-func calculateStdDevFromMinMax(min, max float64) float64 {
-	mean := (min + max) / 2
-	variance := ((min-mean)*(min-mean) + (max-mean)*(max-mean)) / 2
-	return math.Sqrt(variance)
-}
-
-func lognorminvpert(min, pert, max float64) float64 {
-	mu := math.Log(pert)
-	sigma := (math.Log(max) - math.Log(min)) / stdev
-	return math.Exp(distuv.LogNormal{Mu: mu, Sigma: sigma}.Rand())
-}
-
-func lognormRiskPert(minfreq, pertfreq, maxfreq, minloss, pertloss, maxloss float64) float64 {
-	freq := lognorminvpert(minfreq, pertfreq, maxfreq)
-	loss := lognorminvpert(minloss, pertloss, maxloss)
-	return freq * loss
-}
-
-func generateSimData(rdata RiskData, totalTE, teNo int) []float64 {
-	simData := make([]float64, sims)
-	totalSims := sims * totalTE
-	cumulativeTotal := sims * teNo
-
-	for simCtr := 0; simCtr < sims; simCtr++ {
-		simData[simCtr] = lognormRiskPert(rdata.MinFreq, rdata.PertFreq, rdata.MaxFreq, rdata.MinLoss, rdata.PertLoss, rdata.MaxLoss)
-		if simCtr%1000 == 0 {
-			pct := float64(simCtr+cumulativeTotal) / float64(totalSims)
-			progressBar(pct)
-		}
+func average(values []float64) float64 {
+	var total float64
+	for _, v := range values {
+		total += v
 	}
-	return simData
+	return total / float64(len(values))
 }
 
 func generateData(manualData []RiskData, iterations int) ([]RiskData, [][]float64, map[int]int) {
@@ -159,7 +111,11 @@ func generateData(manualData []RiskData, iterations int) ([]RiskData, [][]float6
 	for i := 0; i < iterations; i++ {
 		riskArray[i] = make([]float64, len(manualData))
 		for j, data := range manualData {
-			riskArray[i][j] = lognormRiskPert(data.MinFreq, data.PertFreq, data.MaxFreq, data.MinLoss, data.PertLoss, data.MaxLoss)
+			freqDist := distuv.LogNormal{Mu: math.Log(data.MeanFrequency), Sigma: data.StdFrequency}
+			lossDist := distuv.LogNormal{Mu: math.Log(data.MeanLoss), Sigma: data.StdLoss}
+			frequencySample := freqDist.Rand()
+			lossSample := lossDist.Rand()
+			riskArray[i][j] = frequencySample * lossSample
 		}
 	}
 
@@ -210,6 +166,19 @@ func percentile(data []float64, percent float64) float64 {
 	return data[k]
 }
 
-func progressBar(pct float64) {
-	// Implemente a lógica do progressBar conforme necessário
+func GenerateUniformSlice(min, max float64, size int) []float64 {
+	slice := make([]float64, size)
+	for i := range slice {
+		slice[i] = min + rand.Float64()*(max-min)
+	}
+	return slice
+}
+
+func GenerateLogNormalSlice(mean, sigma float64, size int) []float64 {
+	slice := make([]float64, size)
+	for i := range slice {
+		normal := rand.NormFloat64()*sigma + mean
+		slice[i] = math.Exp(normal)
+	}
+	return slice
 }
