@@ -951,17 +951,7 @@ const docTemplate = `{
                     "13 - Simulation"
                 ],
                 "summary": "Test for simulation",
-                "responses": {
-                    "200": {
-                        "description": "List of All Risks",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/db.RiskCalculation"
-                            }
-                        }
-                    }
-                }
+                "responses": {}
             }
         },
         "/api/simulation-aggregated": {
@@ -977,17 +967,23 @@ const docTemplate = `{
                     "13 - Simulation"
                 ],
                 "summary": "Test for simulation aggregated",
-                "responses": {
-                    "200": {
-                        "description": "List of All Risks",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/db.RiskCalculation"
-                            }
-                        }
-                    }
-                }
+                "responses": {}
+            }
+        },
+        "/api/simulation-appetite": {
+            "get": {
+                "description": "Test for simulation appetite",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "13 - Simulation"
+                ],
+                "summary": "Test for simulation appetite",
+                "responses": {}
             }
         }
     },

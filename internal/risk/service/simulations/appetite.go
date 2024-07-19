@@ -53,13 +53,15 @@ func MonteCarloSimulationAppetite(c *gin.Context) {
 
 	riskAppetite, err := FetchRiskAppetite()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch risk appetite settings"})
+		c.Set("Response", "Failed to fetch risk calculations")
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	var riskCalculations []db.RiskCalculation
 	if err := engine.Find(&riskCalculations); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch risk calculations"})
+		c.Set("Response", "Failed to fetch risk calculations")
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
@@ -74,7 +76,8 @@ func MonteCarloSimulationAppetite(c *gin.Context) {
 		results[calc.ThreatEvent] = result
 	}
 
-	c.JSON(http.StatusOK, results)
+	c.Set("Response", results)
+	c.Status(http.StatusOK)
 }
 
 func generateRiskDataAppetite(event EventData, iterations int, appetite RiskAppetiteData) RiskAnalysisResults {

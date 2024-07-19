@@ -884,13 +884,7 @@ paths:
       description: Test for simulation
       produces:
       - application/json
-      responses:
-        "200":
-          description: List of All Risks
-          schema:
-            items:
-              $ref: '#/definitions/db.RiskCalculation'
-            type: array
+      responses: {}
       summary: Test for simulation
       tags:
       - 13 - Simulation
@@ -901,14 +895,19 @@ paths:
       description: Test for simulation aggregated
       produces:
       - application/json
-      responses:
-        "200":
-          description: List of All Risks
-          schema:
-            items:
-              $ref: '#/definitions/db.RiskCalculation'
-            type: array
+      responses: {}
       summary: Test for simulation aggregated
+      tags:
+      - 13 - Simulation
+  /api/simulation-appetite:
+    get:
+      consumes:
+      - application/json
+      description: Test for simulation appetite
+      produces:
+      - application/json
+      responses: {}
+      summary: Test for simulation appetite
       tags:
       - 13 - Simulation
 securityDefinitions:
