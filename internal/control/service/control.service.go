@@ -103,19 +103,16 @@ func createTables(engine *xorm.Engine, control *db.ControlLibrary) error {
 		if _, err := engine.Insert(&relevances); err != nil {
 			return err
 		}
-		return errors.New("database not have Event")
 	}
 	if len(propuseds) > 0 {
 		if _, err := engine.Insert(&propuseds); err != nil {
 			return err
 		}
-		return errors.New("database not have Event")
 	}
 	if len(controls) > 0 {
 		if _, err := engine.Insert(&controls); err != nil {
 			return err
 		}
-		return errors.New("database not have Event")
 	}
 
 	return nil
