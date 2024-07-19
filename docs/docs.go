@@ -513,47 +513,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/create-losshigh/{id}": {
-            "put": {
-                "description": "Create new LossHigh",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "5 - Loss-High"
-                ],
-                "summary": "Create LossHigh",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Threat Event ID",
-                        "name": "id",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "Data for create new LossHigh",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/interfaces.InputLossHigh"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "LossHigh Create",
-                        "schema": {
-                            "$ref": "#/definitions/db.LossHigh"
-                        }
-                    }
-                }
-            }
-        },
         "/api/create-revelance": {
             "post": {
                 "description": "Create new Relevance",
@@ -938,7 +897,48 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/simulation": {
+        "/api/update-losshigh/{id}": {
+            "put": {
+                "description": "Create new LossHigh",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "5 - Loss-High"
+                ],
+                "summary": "Create LossHigh",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Threat Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Data for create new LossHigh",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/interfaces.InputLossHigh"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "LossHigh Create",
+                        "schema": {
+                            "$ref": "#/definitions/db.LossHigh"
+                        }
+                    }
+                }
+            }
+        },
+        "/simulation": {
             "get": {
                 "description": "Test for simulation",
                 "consumes": [
@@ -951,10 +951,19 @@ const docTemplate = `{
                     "13 - Simulation"
                 ],
                 "summary": "Test for simulation",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Threat Event ID",
+                        "name": "threatEvent",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {}
             }
         },
-        "/api/simulation-aggregated": {
+        "/simulation-aggregated": {
             "get": {
                 "description": "Test for simulation aggregated",
                 "consumes": [
@@ -970,7 +979,7 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/api/simulation-appetite": {
+        "/simulation-appetite": {
             "get": {
                 "description": "Test for simulation appetite",
                 "consumes": [

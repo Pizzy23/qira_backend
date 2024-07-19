@@ -1,6 +1,7 @@
 package risk
 
 import (
+	"net/http"
 	simulation "qira/internal/risk/service/simulations"
 
 	"github.com/gin-gonic/gin"
@@ -11,9 +12,15 @@ import (
 // @Tags 13 - Simulation
 // @Accept json
 // @Produce json
-// @Router /api/simulation [get]
+// @Param threatEvent header int true "Threat Event "
+// @Router /simulation [get]
 func RiskMount(c *gin.Context) {
-	simulation.MonteCarloSimulation(c)
+	threatEvent := c.GetHeader("ThreatEvent")
+	if threatEvent == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ThreatEvent header is required"})
+		return
+	}
+	simulation.MonteCarloSimulation(c, threatEvent)
 }
 
 // @Summary Test for simulation aggregated
@@ -21,7 +28,7 @@ func RiskMount(c *gin.Context) {
 // @Tags 13 - Simulation
 // @Accept json
 // @Produce json
-// @Router /api/simulation-aggregated [get]
+// @Router /simulation-aggregated [get]
 func RiskMountAggregated(c *gin.Context) {
 	simulation.MonteCarloSimulationAggregated(c)
 }
@@ -31,7 +38,7 @@ func RiskMountAggregated(c *gin.Context) {
 // @Tags 13 - Simulation
 // @Accept json
 // @Produce json
-// @Router /api/simulation-appetite [get]
+// @Router /simulation-appetite [get]
 func RiskMountAppetite(c *gin.Context) {
 	simulation.MonteCarloSimulationAppetite(c)
 }

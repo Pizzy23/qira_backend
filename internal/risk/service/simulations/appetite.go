@@ -75,9 +75,7 @@ func MonteCarloSimulationAppetite(c *gin.Context) {
 		result := generateRiskDataAppetite(eventData, sims, riskAppetite)
 		results[calc.ThreatEvent] = result
 	}
-
-	c.Set("Response", results)
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, results)
 }
 
 func generateRiskDataAppetite(event EventData, iterations int, appetite RiskAppetiteData) RiskAnalysisResults {

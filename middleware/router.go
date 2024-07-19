@@ -33,6 +33,10 @@ func SetupRouter() *gin.Engine {
 		c.Next()
 	})
 
+	r.GET("/simulation", risk.RiskMount)
+	r.GET("/simulation-aggregated", risk.RiskMountAggregated)
+	r.GET("/simulation-appetite", risk.RiskMountAppetite)
+
 	r.Use(CORSConfig())
 	r.Use(ResponseHandler())
 
@@ -64,7 +68,7 @@ func SetupRouter() *gin.Engine {
 	//losshigh
 	auth.GET("/losshigh/:id", losshigh.PullLosstId)
 	auth.GET("/losshigh", losshigh.PullAllLossHigh)
-	auth.PUT("/create-losshigh/:id", losshigh.CreateLossHigh)
+	auth.PUT("/update-losshigh/:id", losshigh.CreateLossHigh)
 
 	//Control
 	auth.PUT("/control/:id", control.UpdateControl)
@@ -79,10 +83,6 @@ func SetupRouter() *gin.Engine {
 	//Risk
 	auth.GET("/risk", risk.PullAllRisk)
 	auth.GET("/risk/:id", risk.PullRiskId)
-
-	auth.GET("/simulation", risk.RiskMount)
-	auth.GET("/simulation-aggregated", risk.RiskMountAggregated)
-	auth.GET("/simulation-appetite", risk.RiskMountAppetite)
 
 	// Revelance
 	auth.GET("/revelance", revelance.PullAllRevelance)

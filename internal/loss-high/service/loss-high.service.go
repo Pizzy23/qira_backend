@@ -17,19 +17,38 @@ func CreateLossHighService(c *gin.Context, LossHigh interfaces.InputLossHigh, id
 		return errors.New("database connection not found")
 	}
 
-	lossInput := db.LossHigh{
-		ThreatEventID:  id,
-		ThreatEvent:    LossHigh.ThreatEvent,
-		Assets:         strings.Join(LossHigh.Assets, ","),
-		LossType:       LossHigh.LossType,
-		MinimumLoss:    LossHigh.MinimumLoss,
-		MaximumLoss:    LossHigh.MaximumLoss,
-		MostLikelyLoss: LossHigh.MostLikelyLoss,
-	}
-
-	if err := db.Create(engine.(*xorm.Engine), &lossInput); err != nil {
+	var existingLoss db.LossHigh
+	found, err := engine.(*xorm.Engine).Where("threat_event_id = ? AND loss_type = ?", id, LossHigh.LossType).Get(&existingLoss)
+	if err != nil {
 		return err
 	}
+
+	if found {
+		existingLoss.ThreatEvent = LossHigh.ThreatEvent
+		existingLoss.Assets = strings.Join(LossHigh.Assets, ",")
+		existingLoss.MinimumLoss = LossHigh.MinimumLoss
+		existingLoss.MaximumLoss = LossHigh.MaximumLoss
+		existingLoss.MostLikelyLoss = LossHigh.MostLikelyLoss
+
+		if _, err := engine.(*xorm.Engine).ID(existingLoss.ID).Update(&existingLoss); err != nil {
+			return err
+		}
+	} else {
+		newLoss := db.LossHigh{
+			ThreatEventID:  id,
+			ThreatEvent:    LossHigh.ThreatEvent,
+			Assets:         strings.Join(LossHigh.Assets, ","),
+			LossType:       LossHigh.LossType,
+			MinimumLoss:    LossHigh.MinimumLoss,
+			MaximumLoss:    LossHigh.MaximumLoss,
+			MostLikelyLoss: LossHigh.MostLikelyLoss,
+		}
+
+		if err := db.Create(engine.(*xorm.Engine), &newLoss); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

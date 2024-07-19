@@ -32,9 +32,7 @@ func MonteCarloSimulationAggregated(c *gin.Context) {
 		}
 		results[calc.ThreatEvent] = generateRiskDataAggregated(eventData, sims)
 	}
-
-	c.Set("Response", results)
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, results)
 }
 
 func generateRiskDataAggregated(event EventData, iterations int) RiskAnalysisResults {

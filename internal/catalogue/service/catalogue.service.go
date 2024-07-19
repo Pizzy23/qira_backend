@@ -47,9 +47,8 @@ func CreateEventService(c *gin.Context, event interfaces.InputThreatEventCatalog
 		MaxFrequency:  0,
 	}
 	EventAssets := db.ThreatEventAssets{
-		ThreatID:      eventID,
-		ThreatEvent:   event.ThreatEvent,
-		AffectedAsset: "",
+		ThreatID:    eventID,
+		ThreatEvent: event.ThreatEvent,
 	}
 
 	LossInput1 := db.LossHigh{

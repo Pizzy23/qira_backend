@@ -598,33 +598,6 @@ paths:
       summary: Create Asset
       tags:
       - 1 - Inventory
-  /api/create-losshigh/{id}:
-    put:
-      consumes:
-      - application/json
-      description: Create new LossHigh
-      parameters:
-      - description: Threat Event ID
-        in: header
-        name: id
-        required: true
-        type: integer
-      - description: Data for create new LossHigh
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/interfaces.InputLossHigh'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: LossHigh Create
-          schema:
-            $ref: '#/definitions/db.LossHigh'
-      summary: Create LossHigh
-      tags:
-      - 5 - Loss-High
   /api/create-revelance:
     post:
       consumes:
@@ -877,18 +850,51 @@ paths:
       summary: Retrieve Risk by ID
       tags:
       - 6 - Risk
-  /api/simulation:
+  /api/update-losshigh/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Create new LossHigh
+      parameters:
+      - description: Threat Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data for create new LossHigh
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.InputLossHigh'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: LossHigh Create
+          schema:
+            $ref: '#/definitions/db.LossHigh'
+      summary: Create LossHigh
+      tags:
+      - 5 - Loss-High
+  /simulation:
     get:
       consumes:
       - application/json
       description: Test for simulation
+      parameters:
+      - description: Threat Event ID
+        in: header
+        name: threatEvent
+        required: true
+        type: integer
       produces:
       - application/json
       responses: {}
       summary: Test for simulation
       tags:
       - 13 - Simulation
-  /api/simulation-aggregated:
+  /simulation-aggregated:
     get:
       consumes:
       - application/json
@@ -899,7 +905,7 @@ paths:
       summary: Test for simulation aggregated
       tags:
       - 13 - Simulation
-  /api/simulation-appetite:
+  /simulation-appetite:
     get:
       consumes:
       - application/json

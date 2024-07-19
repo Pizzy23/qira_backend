@@ -14,18 +14,17 @@ import (
 // @Tags 5 - Loss-High
 // @Accept json
 // @Produce json
-// @Param id header int true "Threat Event ID"
+// @Param id path int true "Threat Event ID"
 // @Param request body interfaces.InputLossHigh true "Data for create new LossHigh"
 // @Success 200 {object} db.LossHigh "LossHigh Create"
-// @Router /api/create-losshigh/{id} [put]
+// @Router /api/update-losshigh/{id} [put]
 func CreateLossHigh(c *gin.Context) {
 	var LossHigh interfaces.InputLossHigh
 
 	idParam := c.Param("id")
 	id, err := strconv.ParseInt(idParam, 10, 64)
-
 	if err != nil {
-		c.Set("Response", "Parameters are invalid, need a Id")
+		c.Set("Response", "Invalid ID")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
