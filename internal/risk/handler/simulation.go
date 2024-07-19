@@ -20,7 +20,7 @@ func RiskMount(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ThreatEvent header is required"})
 		return
 	}
-	simulation.MonteCarloSimulation(c, threatEvent)
+	simulation.MonteCarloSimulation(c)
 }
 
 // @Summary Test for simulation aggregated
@@ -30,7 +30,7 @@ func RiskMount(c *gin.Context) {
 // @Produce json
 // @Router /simulation-aggregated [get]
 func RiskMountAggregated(c *gin.Context) {
-	simulation.MonteCarloSimulationAggregated(c)
+	//simulation.MonteCarloSimulationAggregated(c)
 }
 
 // @Summary Test for simulation appetite
@@ -40,5 +40,5 @@ func RiskMountAggregated(c *gin.Context) {
 // @Produce json
 // @Router /simulation-appetite [get]
 func RiskMountAppetite(c *gin.Context) {
-	simulation.MonteCarloSimulationAppetite(c)
+	//simulation.MonteCarloSimulationAppetite(c)
 }

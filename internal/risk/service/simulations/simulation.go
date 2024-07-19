@@ -33,8 +33,8 @@ type RiskAnalysisResults struct {
 }
 
 func PERTLogNormal(min, pert, max float64) float64 {
-
 	if min <= 0 || pert <= 0 || max <= 0 || min >= max || pert >= max {
+		log.Printf("Invalid PERT parameters: min=%f, pert=%f, max=%f", min, pert, max)
 		return 0
 	}
 
@@ -55,21 +55,14 @@ func PERTLogNormal(min, pert, max float64) float64 {
 	return dist.Rand()
 }
 
-func MonteCarloSimulation(c *gin.Context, threatEvent string) {
+func MonteCarloSimulation(c *gin.Context) {
 	engine := c.MustGet("db").(*xorm.Engine)
 
-	// Get the threat event from the query parameter
-
 	var riskCalculations []db.RiskCalculation
-	err := engine.Where("threat_event = ?", threatEvent).Find(&riskCalculations)
+	err := engine.Find(&riskCalculations)
 	if err != nil {
 		log.Println("Failed to fetch risk calculations:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch risk calculations"})
-		return
-	}
-
-	if len(riskCalculations) == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Threat event not found"})
 		return
 	}
 
@@ -85,7 +78,6 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string) {
 			MaxLoss:       calc.Max,
 		}
 		results[calc.ThreatEvent] = generateRiskData(eventData, sims)
-		break
 	}
 
 	c.JSON(http.StatusOK, results)
