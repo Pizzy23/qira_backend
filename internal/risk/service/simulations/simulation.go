@@ -134,8 +134,9 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string, reciverEmail strin
 	fmt.Println("Plots saved as hist.png and lec.png")
 
 	// Enviar os arquivos por email
-	sendEmailWithAttachments(reciverEmail, histPath, lecPath)
-
+	if reciverEmail != "" {
+		sendEmailWithAttachments(reciverEmail, histPath, lecPath)
+	}
 	// Excluir os arquivos
 	os.Remove(histPath)
 	os.Remove(lecPath)
