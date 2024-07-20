@@ -22,10 +22,6 @@ func RiskMount(c *gin.Context) {
 		return
 	}
 	email := c.GetHeader("Email")
-	if email == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Email header is required"})
-		return
-	}
 	simulation.MonteCarloSimulation(c, threatEvent, email)
 }
 
@@ -44,10 +40,6 @@ func RiskMountReport(c *gin.Context) {
 		return
 	}
 	email := c.GetHeader("Email")
-	if email == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Email header is required"})
-		return
-	}
 	simulation.MonteCarloSimulationReport(c, threatEvent, email)
 }
 
