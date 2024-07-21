@@ -57,6 +57,13 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string, reciverEmail strin
 	a := (4*maisProvavel + maximo - 5*minimo) / (maximo - minimo)
 	b := (5*maximo - minimo - 4*maisProvavel) / (maximo - minimo)
 
+	if a <= 0 {
+		a = 0.1
+	}
+	if b <= 0 {
+		b = 0.1
+	}
+
 	source := rand.NewSource(uint64(99))
 	distribuicao := distuv.Beta{
 		Alpha: a,
