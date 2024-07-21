@@ -137,6 +137,7 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string, reciverEmail strin
 	if reciverEmail != "" {
 		sendEmailWithAttachments(reciverEmail, histPath, lecPath)
 	}
+
 	// Excluir os arquivos
 	os.Remove(histPath)
 	os.Remove(lecPath)
