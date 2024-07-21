@@ -33,7 +33,17 @@ func CreateRiskService(c *gin.Context) ([]db.RiskCalculation, error) {
 	if len(threat) <= 0 {
 		return nil, errors.New("not have Event catalogue")
 	}
-	if len(risk) == len(threat)*3 {
+
+	// Verificar se todos os campos dos riscos estão atualizados
+	risksUpdated := true
+	for _, t := range threat {
+		if !riskExistsAndUpdated(risk, t.ID) {
+			risksUpdated = false
+			break
+		}
+	}
+
+	if risksUpdated {
 		return risk, nil
 	}
 
@@ -272,46 +282,15 @@ func hasFrequency(threatEventID int64, freqs []db.Frequency) bool {
 	}
 	return false
 }
-func handleLossHighTotal(engine *xorm.Engine, loss *db.LossHighTotal) error {
-	existingLoss := db.LossHighTotal{}
-	has, err := engine.Where("threat_event_id = ?", loss.ThreatEventID).Get(&existingLoss)
-	if err != nil {
-		return err
-	}
 
-	if has {
-		if existingLoss.MinimumLoss != loss.MinimumLoss || existingLoss.MaximumLoss != loss.MaximumLoss || existingLoss.MostLikelyLoss != loss.MostLikelyLoss {
-			_, err := engine.ID(existingLoss.ID).Update(loss)
-			if err != nil {
-				return err
+func riskExistsAndUpdated(risks []db.RiskCalculation, threatEventID int64) bool {
+	for _, risk := range risks {
+		if risk.ThreatEventID == threatEventID {
+			if risk.Min == 0 && risk.Max == 0 && risk.Mode == 0 {
+				return false
 			}
-		}
-	} else {
-		if _, err := engine.Insert(loss); err != nil {
-			return err
+			return true
 		}
 	}
-	return nil
-}
-
-func handleFrequency(engine *xorm.Engine, frequency *db.Frequency) error {
-	existingFrequency := db.Frequency{}
-	has, err := engine.Where("threat_event_id = ?", frequency.ThreatEventID).Get(&existingFrequency)
-	if err != nil {
-		return err
-	}
-
-	if has {
-		if existingFrequency.MinFrequency != frequency.MinFrequency || existingFrequency.MaxFrequency != frequency.MaxFrequency || existingFrequency.MostLikelyFrequency != frequency.MostLikelyFrequency {
-			_, err := engine.ID(existingFrequency.ID).Update(frequency)
-			if err != nil {
-				return err
-			}
-		}
-	} else {
-		if _, err := engine.Insert(frequency); err != nil {
-			return err
-		}
-	}
-	return nil
+	return false
 }
