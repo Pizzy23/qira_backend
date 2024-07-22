@@ -67,22 +67,31 @@ func RiskMountAggregated(c *gin.Context) {
 // @Tags 13 - Simulation
 // @Accept json
 // @Produce json
-// @Param request body []interfaces.LossExceedance true "Loss Exceedance Graph"
 // @Param threatEvent header string true "Threat Event "
 // @Param email header string false "Email for recive "
 // @Router /simulation-appetite [get]
 func RiskMountAppetite(c *gin.Context) {
-	var lossData []interfaces.LossExceedance
-	if err := c.ShouldBindJSON(&lossData); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Parameters are invalid, need a JSON array of LossExceedance"})
-		return
-	}
-
 	threatEvent := c.GetHeader("ThreatEvent")
 	if threatEvent == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ThreatEvent header is required"})
 		return
 	}
 	email := c.GetHeader("Email")
-	simulation.MonteCarloSimulationAppetite(c, threatEvent, email, lossData)
+	simulation.MonteCarloSimulationAppetite(c, threatEvent, email)
+}
+
+// @Summary Test for simulation appetite
+// @Description Test for simulation appetite
+// @Tags 13 - Simulation
+// @Accept json
+// @Produce json
+// @Param request body []interfaces.LossExceedance true "Loss Exceedance Graph"
+// @Router /api/upload-appetite [put]
+func UploadAppetite(c *gin.Context) {
+	var lossData []interfaces.LossExceedance
+	if err := c.ShouldBindJSON(&lossData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Parameters are invalid, need a JSON array of LossExceedance"})
+		return
+	}
+	simulation.UploadLossData(c, lossData)
 }

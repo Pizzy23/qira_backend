@@ -6,6 +6,8 @@ import (
 	"os"
 	"qira/db"
 	"sort"
+	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/rand"
@@ -17,10 +19,17 @@ import (
 	"xorm.io/xorm"
 )
 
+type MonteCarloRisk struct {
+	InherentMin  float64 `json:"inherent_min"`
+	InherentMax  float64 `json:"inherent_max"`
+	InherentMode float64 `json:"inherent_mode"`
+}
+
 func MonteCarloSimulationReport(c *gin.Context, threatEvent string, receiverEmail string) {
-	var loss db.LossHighTotal
 	var frequencies []db.Frequency
 	var riskCalculations []db.RiskCalculation
+	var control []db.Control
+	var proposed []db.Propused
 
 	engine, exists := c.Get("db")
 	if !exists {
@@ -28,13 +37,7 @@ func MonteCarloSimulationReport(c *gin.Context, threatEvent string, receiverEmai
 		return
 	}
 
-	found, err := engine.(*xorm.Engine).Where("threat_event = ?", threatEvent).Get(&loss)
-	if err != nil || !found {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "LossHigh not found"})
-		return
-	}
-
-	err = engine.(*xorm.Engine).Where("threat_event = ?", threatEvent).Find(&frequencies)
+	err := engine.(*xorm.Engine).Where("threat_event = ?", threatEvent).Find(&frequencies)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving frequencies"})
 		return
@@ -46,19 +49,70 @@ func MonteCarloSimulationReport(c *gin.Context, threatEvent string, receiverEmai
 		return
 	}
 
-	// Generate the Monte Carlo Simulation
-	generateMonteCarloSimulation(c, loss)
+	err = engine.(*xorm.Engine).Where("control_id = ?", -2).Find(&control)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving control data"})
+		return
+	}
+
+	err = engine.(*xorm.Engine).Find(&proposed)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving proposed control data"})
+		return
+	}
+
+	// Calculate the Inherent Risks
+	var totalRiskMin, totalRiskMax, totalRiskMode float64
+	for _, risk := range riskCalculations {
+		if risk.RiskType == "Risk" {
+			totalRiskMin += risk.Min
+			totalRiskMax += risk.Max
+			totalRiskMode += risk.Mode
+		}
+	}
+
+	// Aggregate Control Gap
+	var aggregateControlGap float64
+	for _, ctrl := range control {
+		gapStr := strings.TrimSuffix(ctrl.ControlGap, "%")
+		gap, err := strconv.ParseFloat(gapStr, 64)
+		if err == nil {
+			aggregateControlGap += gap / 100.0 // Convertendo de porcentagem para valor decimal
+		}
+	}
+
+	// Calculate the Inherent Risks adjusted by the Aggregate Control Gap
+	inherentRiskMin := totalRiskMin / aggregateControlGap
+	inherentRiskMax := totalRiskMax / aggregateControlGap
+	inherentRiskMode := totalRiskMode / aggregateControlGap
+
+	// Proposed Risks
+	var proposedRiskMin, proposedRiskMax, proposedRiskMode float64
+	for _, prop := range proposed {
+		gapStr := strings.TrimSuffix(prop.ControlGap, "%")
+		gap, err := strconv.ParseFloat(gapStr, 64)
+		if err == nil {
+			gap /= 100.0 // Convertendo de porcentagem para valor decimal
+			proposedRiskMin += inherentRiskMin * gap
+			proposedRiskMax += inherentRiskMax * gap
+			proposedRiskMode += inherentRiskMode * gap
+		}
+	}
+
+	// Generate the Monte Carlo Simulation and get bin data
+	binData := generateMonteCarloSimulation(c, inherentRiskMin, inherentRiskMax, inherentRiskMode)
 
 	// Combine all information into a report
 	reportPath := "report.txt"
-	err = createReport(reportPath, loss, frequencies, riskCalculations)
+	err = createReport(reportPath, inherentRiskMin, inherentRiskMax, inherentRiskMode, proposedRiskMin, proposedRiskMax, proposedRiskMode)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating report"})
 		return
 	}
 
-	// Send the report by email
-	sendEmailWithAttachmentsReport(receiverEmail, reportPath)
+	if receiverEmail != "" {
+		sendEmailWithAttachmentsReport(receiverEmail, reportPath)
+	}
 
 	// Delete the report after sending
 	err = os.Remove(reportPath)
@@ -67,32 +121,22 @@ func MonteCarloSimulationReport(c *gin.Context, threatEvent string, receiverEmai
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Simulation report generated and sent via email successfully!"})
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Simulation report generated and sent via email successfully!",
+		"bins":    binData,
+	})
 }
 
-func generateMonteCarloSimulation(c *gin.Context, loss db.LossHighTotal) {
-	// Usando os valores do banco de dados
-	minimo := loss.MinimumLoss
-	maximo := loss.MaximumLoss
-	maisProvavel := loss.MostLikelyLoss
-
-	// Validação dos valores
-	if minimo == 0 && maximo == 0 && maisProvavel == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": fmt.Sprintf("Sua perda é igual a 0 no threatEvent '%s', por favor coloque valores válidos.", loss.ThreatEvent),
-		})
-		return
-	}
-
+func generateMonteCarloSimulation(c *gin.Context, inherentRiskMin, inherentRiskMax, inherentRiskMode float64) []map[string]interface{} {
 	const (
-		amostras = 10000 // valores repeticao
-		numBins  = 70    // setado
+		amostras = 10000
+		numBins  = 70
 	)
 
-	binWidth := (maximo - minimo) / float64(numBins)
+	binWidth := (inherentRiskMax - inherentRiskMin) / float64(numBins)
 
-	a := (4*maisProvavel + maximo - 5*minimo) / (maximo - minimo)
-	b := (5*maximo - minimo - 4*maisProvavel) / (maximo - minimo)
+	a := (4*inherentRiskMode + inherentRiskMax - 5*inherentRiskMin) / (inherentRiskMax - inherentRiskMin)
+	b := (5*inherentRiskMax - inherentRiskMin - 4*inherentRiskMode) / (inherentRiskMax - inherentRiskMin)
 
 	source := rand.NewSource(uint64(99))
 	distribuicao := distuv.Beta{
@@ -102,12 +146,12 @@ func generateMonteCarloSimulation(c *gin.Context, loss db.LossHighTotal) {
 	}
 	valores := make([]float64, amostras)
 	for i := range valores {
-		valores[i] = distribuicao.Rand()*(maximo-minimo) + minimo
+		valores[i] = distribuicao.Rand()*(inherentRiskMax-inherentRiskMin) + inherentRiskMin
 	}
 
 	frequencias := make([]int, numBins)
 	for _, valor := range valores {
-		index := int((valor - minimo) / binWidth)
+		index := int((valor - inherentRiskMin) / binWidth)
 		if index >= numBins {
 			index = numBins - 1
 		}
@@ -117,7 +161,7 @@ func generateMonteCarloSimulation(c *gin.Context, loss db.LossHighTotal) {
 	fmt.Println("Frequências dos bins:")
 	binData := make([]map[string]interface{}, numBins)
 	for i, freq := range frequencias {
-		lowerBound := minimo + float64(i)*binWidth
+		lowerBound := inherentRiskMin + float64(i)*binWidth
 		upperBound := lowerBound + binWidth
 		fmt.Printf("Bin %d: [%.2f - %.2f], Frequência: %d\n", i, lowerBound, upperBound, freq)
 		midPoint := (lowerBound + upperBound) / 2
@@ -170,25 +214,15 @@ func generateMonteCarloSimulation(c *gin.Context, loss db.LossHighTotal) {
 
 	fmt.Println("Plots saved as hist.png and lec.png")
 
-	// Enviar os arquivos por email
-	sendEmailWithAttachments("recipient@example.com", histPath, lecPath)
-
 	// Excluir os arquivos
 	os.Remove(histPath)
 	os.Remove(lecPath)
+
+	return binData
 }
 
-func createReport(path string, loss db.LossHighTotal, frequencies []db.Frequency, riskCalculations []db.RiskCalculation) error {
-	report := fmt.Sprintf("Loss High Total:\nMinimum Loss: %f\nMaximum Loss: %f\nMost Likely Loss: %f\n\nFrequencies:\n", loss.MinimumLoss, loss.MaximumLoss, loss.MostLikelyLoss)
-
-	for _, freq := range frequencies {
-		report += fmt.Sprintf("Threat Event: %s, Min Frequency: %f, Max Frequency: %f, Most Likely Frequency: %f\n", freq.ThreatEvent, freq.MinFrequency, freq.MaxFrequency, freq.MostLikelyFrequency)
-	}
-
-	report += "\nRisk Calculations:\n"
-	for _, risk := range riskCalculations {
-		report += fmt.Sprintf("Threat Event: %s, Min: %f, Max: %f, Mode: %f, Estimate: %f\n", risk.ThreatEvent, risk.Min, risk.Max, risk.Mode, risk.Estimate)
-	}
+func createReport(path string, inherentRiskMin, inherentRiskMax, inherentRiskMode, proposedRiskMin, proposedRiskMax, proposedRiskMode float64) error {
+	report := fmt.Sprintf("Inherent Risk:\nMin: %f\nMax: %f\nMode: %f\n\nProposed Risk:\nMin: %f\nMax: %f\nMode: %f\n", inherentRiskMin, inherentRiskMax, inherentRiskMode, proposedRiskMin, proposedRiskMax, proposedRiskMode)
 
 	return os.WriteFile(path, []byte(report), 0644)
 }

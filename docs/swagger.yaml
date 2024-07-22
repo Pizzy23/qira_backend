@@ -890,6 +890,26 @@ paths:
       summary: Create LossHigh
       tags:
       - 5 - Loss-High
+  /api/upload-appetite:
+    put:
+      consumes:
+      - application/json
+      description: Test for simulation appetite
+      parameters:
+      - description: Loss Exceedance Graph
+        in: body
+        name: request
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/interfaces.LossExceedance'
+          type: array
+      produces:
+      - application/json
+      responses: {}
+      summary: Test for simulation appetite
+      tags:
+      - 13 - Simulation
   /simulation:
     get:
       consumes:
@@ -938,14 +958,6 @@ paths:
       - application/json
       description: Test for simulation appetite
       parameters:
-      - description: Loss Exceedance Graph
-        in: body
-        name: request
-        required: true
-        schema:
-          items:
-            $ref: '#/definitions/interfaces.LossExceedance'
-          type: array
       - description: 'Threat Event '
         in: header
         name: threatEvent

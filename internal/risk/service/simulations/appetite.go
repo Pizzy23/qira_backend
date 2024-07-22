@@ -19,8 +19,9 @@ import (
 	"xorm.io/xorm"
 )
 
-func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string, reciverEmail string, lossData []interfaces.LossExceedance) {
+func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string, reciverEmail string) {
 	var losses []db.LossHighTotal
+	var lossData []db.LossExceedance
 
 	engine, exists := c.Get("db")
 	if !exists {
@@ -36,6 +37,13 @@ func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string, reciverEma
 		return
 	}
 
+	err = db.GetAll(engine.(*xorm.Engine), &lossData)
+	if err != nil {
+		c.Set("Response", "LossExceedance not found")
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
 	if len(losses) == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": fmt.Sprintf("No loss data found for threatEvent '%s'", threatEvent),
@@ -43,7 +51,6 @@ func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string, reciverEma
 		return
 	}
 
-	// Calculando os valores agregados
 	var totalMinimo, totalMaximo, totalMaisProvavel float64
 	for _, loss := range losses {
 		totalMinimo += loss.MinimumLoss
@@ -51,7 +58,6 @@ func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string, reciverEma
 		totalMaisProvavel += loss.MostLikelyLoss
 	}
 
-	// Validação dos valores
 	if totalMinimo == 0 && totalMaximo == 0 && totalMaisProvavel == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": fmt.Sprintf("Sua perda é igual a 0 no threatEvent '%s', por favor coloque valores válidos.", threatEvent),
@@ -60,8 +66,8 @@ func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string, reciverEma
 	}
 
 	const (
-		amostras = 10000 // valores repeticao
-		numBins  = 70    // setado
+		amostras = 10000
+		numBins  = 70
 	)
 
 	binWidth := (totalMaximo - totalMinimo) / float64(numBins)
@@ -102,7 +108,6 @@ func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string, reciverEma
 		}
 	}
 
-	// Criar o gráfico de histograma
 	p := plot.New()
 	p.Title.Text = "Distribuição PERT de Perdas Financeiras"
 	p.X.Label.Text = "Perdas (R$)"
@@ -120,7 +125,6 @@ func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string, reciverEma
 		panic(err)
 	}
 
-	// Criar a curva de excedência de perdas
 	sort.Float64s(valores)
 	pLEC := plot.New()
 	pLEC.Title.Text = "Curva de Excedência de Perdas (LEC)"
@@ -133,14 +137,13 @@ func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string, reciverEma
 		lec[i].Y = 1 - float64(i)/float64(amostras)
 	}
 
-	// Plotar a linha da simulação Monte Carlo
 	line, err := plotter.NewLine(lec)
 	if err != nil {
 		panic(err)
 	}
+	line.LineStyle.Color = color.RGBA{R: 255, A: 255} // Vermelho
 	pLEC.Add(line)
 
-	// Plotar os pontos da curva do usuário
 	userLEC := make(plotter.XYs, len(lossData))
 	for i, ld := range lossData {
 		userLEC[i].X = float64(ld.Loss)
@@ -165,7 +168,6 @@ func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string, reciverEma
 
 	fmt.Println("Plots saved as hist.png and lec.png")
 
-	// Enviar os arquivos por email
 	if reciverEmail != "" {
 		sendEmailWithAttachments(reciverEmail, histPath, lecPath)
 	}
@@ -173,22 +175,6 @@ func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string, reciverEma
 	// Excluir os arquivos
 	os.Remove(histPath)
 	os.Remove(lecPath)
-
-	// Adicionar dados de loss ao banco de dados, se não forem duplicados
-	for _, ld := range lossData {
-		existing := &db.LossExceedance{}
-		has, err := engine.(*xorm.Engine).Where("risk = ? AND loss = ?", ld.Risk, ld.Loss).Get(existing)
-		if err == nil && !has {
-			newLoss := db.LossExceedance{
-				Risk: ld.Risk,
-				Loss: ld.Loss,
-			}
-			_, err := engine.(*xorm.Engine).Insert(newLoss)
-			if err != nil {
-				fmt.Printf("Error inserting loss data: %v\n", err)
-			}
-		}
-	}
 
 	c.JSON(200, gin.H{
 		"bins": binData,
@@ -210,4 +196,34 @@ func parseRiskToFloat(risk string) float64 {
 	default:
 		return 0.0
 	}
+}
+
+func UploadLossData(c *gin.Context, lossData []interfaces.LossExceedance) {
+
+	engine, exists := c.Get("db")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Database connection not found",
+		})
+		return
+	}
+
+	for _, ld := range lossData {
+		existing := &db.LossExceedance{}
+		has, err := engine.(*xorm.Engine).Where("risk = ? AND loss = ?", ld.Risk, ld.Loss).Get(existing)
+		if err == nil && !has {
+			newLoss := db.LossExceedance{
+				Risk: ld.Risk,
+				Loss: ld.Loss,
+			}
+			_, err := engine.(*xorm.Engine).Insert(newLoss)
+			if err != nil {
+				fmt.Printf("Error inserting loss data: %v\n", err)
+			}
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Loss data uploaded successfully",
+	})
 }

@@ -936,6 +936,36 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/upload-appetite": {
+            "put": {
+                "description": "Test for simulation appetite",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "13 - Simulation"
+                ],
+                "summary": "Test for simulation appetite",
+                "parameters": [
+                    {
+                        "description": "Loss Exceedance Graph",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/interfaces.LossExceedance"
+                            }
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/simulation": {
             "get": {
                 "description": "Test for simulation",
@@ -1012,18 +1042,6 @@ const docTemplate = `{
                 ],
                 "summary": "Test for simulation appetite",
                 "parameters": [
-                    {
-                        "description": "Loss Exceedance Graph",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/interfaces.LossExceedance"
-                            }
-                        }
-                    },
                     {
                         "type": "string",
                         "description": "Threat Event ",

@@ -222,7 +222,6 @@ type LossLevel struct {
 }
 
 type LossExceedance struct {
-	ID   int    `json:"id" `
 	Risk string `json:"risk" `
 	Loss int64  `json:"loss" `
 }

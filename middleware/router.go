@@ -36,6 +36,7 @@ func SetupRouter() *gin.Engine {
 	r.GET("/simulation", risk.RiskMount)
 	r.GET("/simulation-aggregated", risk.RiskMountAggregated)
 	r.GET("/simulation-appetite", risk.RiskMountAppetite)
+	r.GET("/simulation-report", risk.RiskMountReport)
 
 	r.Use(CORSConfig())
 	r.Use(ResponseHandler())
@@ -92,5 +93,7 @@ func SetupRouter() *gin.Engine {
 	auth.GET("/aggregated-control-strength", control.PullAggregatedControlStrength)
 	auth.GET("/all-proposed", control.PullAllControlProposed)
 	auth.GET("/all-strength", control.PullAllControlStrength)
+
+	auth.PUT("/upload-appetite", risk.UploadAppetite)
 	return r
 }
