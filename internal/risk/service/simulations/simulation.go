@@ -154,6 +154,9 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string, reciverEmail strin
 	os.Remove(lecPath)
 
 	c.JSON(200, gin.H{
+		"Min":  minimo,
+		"Max":  maximo,
+		"Mode": maisProvavel,
 		"bins": binData,
 	})
 }
