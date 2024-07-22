@@ -3,6 +3,7 @@ package simulation
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"qira/db"
 
@@ -36,10 +37,15 @@ type Bin struct {
 }
 
 type FrontEndResponse struct {
-	Max  float64 `json:"Max"`
-	Min  float64 `json:"Min"`
-	Mode float64 `json:"Mode"`
-	Bins []Bin   `json:"bins"`
+	FrequencyMax  float64   `json:"FrequencyMax"`
+	FrequencyMin  float64   `json:"FrequencyMin"`
+	FrequencyMode float64   `json:"FrequencyMode"`
+	LossMax       float64   `json:"LossMax"`
+	LossMin       float64   `json:"LossMin"`
+	LossMode      float64   `json:"LossMode"`
+	Bins          []Bin     `json:"bins"`
+	Lecs          []float64 `json:"lecs"`
+	CumLecs       []float64 `json:"cum_lecs"`
 }
 
 func MonteCarloSimulation(c *gin.Context, threatEvent string, reciverEmail string) {
@@ -88,7 +94,7 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string, reciverEmail strin
 
 	response, err := http.Post("https://qira-bellujrb-test.replit.app/analyze", "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
-		c.Set("Response", "Error sending request")
+		c.Set("Response", fmt.Sprintf("Error sending request: %v", err))
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -114,10 +120,15 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string, reciverEmail strin
 
 	// Preparar a resposta final
 	finalResponse := FrontEndResponse{
-		Max:  708499968,
-		Min:  354249984,
-		Mode: 508500000,
-		Bins: bins,
+		FrequencyMax:  threatEventRequests[0].MaxFreq,
+		FrequencyMin:  threatEventRequests[0].MinFreq,
+		FrequencyMode: threatEventRequests[0].PertFreq,
+		LossMax:       threatEventRequests[0].MaxLoss,
+		LossMin:       threatEventRequests[0].MinLoss,
+		LossMode:      threatEventRequests[0].PertLoss,
+		Bins:          bins,
+		Lecs:          analyzeResponse.Lecs,
+		CumLecs:       analyzeResponse.CumFreqs,
 	}
 
 	// Enviar a resposta para o cliente
