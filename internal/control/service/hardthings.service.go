@@ -126,7 +126,7 @@ func PullAllControlStrength(c *gin.Context) {
 			finalResults = append(finalResults, db.Control{
 				ControlID:    control.ID,
 				TypeOfAttack: relevance.TypeOfAttack,
-				Porcent:      fmt.Sprintf("%.2f%%", porcentMap[control.ID]),
+				Porcent:      fmt.Sprintf("%.2f%%", porcentMap[control.ID]*100), // Convertendo de decimal para percentual
 			})
 		}
 	}
@@ -321,8 +321,25 @@ func saveResultsPropused(engine *xorm.Engine, results []db.Propused) error {
 
 func saveResultsControl(engine *xorm.Engine, results []db.Control) error {
 	for _, result := range results {
-		if err := db.Create(engine, &result); err != nil {
+		var existing db.Control
+		found, err := engine.Where("control_i_d = ? AND type_of_attack = ?", result.ControlID, result.TypeOfAttack).Get(&existing)
+		if err != nil {
 			return err
+		}
+
+		if found {
+			if existing.Porcent != result.Porcent || existing.Aggregate != result.Aggregate || existing.ControlGap != result.ControlGap {
+				existing.Porcent = result.Porcent
+				existing.Aggregate = result.Aggregate
+				existing.ControlGap = result.ControlGap
+				if _, err := engine.ID(existing.ID).Update(&existing); err != nil {
+					return err
+				}
+			}
+		} else {
+			if err := db.Create(engine, &result); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
