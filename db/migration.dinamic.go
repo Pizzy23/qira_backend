@@ -28,7 +28,7 @@ type Propused struct {
 type RelevanceDinamicInput struct {
 	ControlID    int64  `json:"controlId" xorm:"INT notnull"`
 	TypeOfAttack string `json:"type_of_attack" xorm:"VARCHAR(255)"`
-	Porcent      string `json:"porcent" xorm:"VARCHAR(255)notnull"`
+	Porcent      int64  `json:"porcent" xorm:"VARCHAR(255)notnull"`
 }
 
 type ControlDinamicInput struct {

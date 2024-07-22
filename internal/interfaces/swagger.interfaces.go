@@ -199,11 +199,6 @@ type CombinedRisk struct {
 	MostLikelyLoss      float64
 }
 
-type InputRevelance struct {
-	Name      string `json:"name"`
-	TypeTable string `json:"type_table"`
-}
-
 type ImplementsInput struct {
 	ControlID int64 `json:"controlId"`
 	Current   int   `json:"current"`
@@ -224,4 +219,10 @@ type RelevanceDinamicInput struct {
 type LossLevel struct {
 	Probability    float64 `json:"probability"`
 	AcceptableLoss float64 `json:"acceptable_loss"`
+}
+
+type LossExceedance struct {
+	ID   int    `json:"id" `
+	Risk string `json:"risk" `
+	Loss int64  `json:"loss" `
 }

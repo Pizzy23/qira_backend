@@ -64,6 +64,7 @@ func Migrate(engine *xorm.Engine) error {
 		new(Control),
 		new(Relevance),
 		new(LossHighTotal),
+		new(LossExceedance),
 	}
 
 	for _, table := range tables {

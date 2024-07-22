@@ -51,15 +51,40 @@ func PullRevelanceId(c *gin.Context, id int) {
 	c.Status(http.StatusOK)
 }
 
-func CreateRelevanceService(c *gin.Context, Relevance db.RelevanceDinamicInput) error {
+func CreateRelevanceService(c *gin.Context, relevanceInput db.RelevanceDinamicInput) error {
 	engine, exists := c.Get("db")
 	if !exists {
 		return errors.New("database connection not found")
 	}
 
-	if err := db.UpdateByControlIdAndRisk(engine.(*xorm.Engine), &Relevance, Relevance.ControlID, Relevance.TypeOfAttack); err != nil {
+	var relevanceDb db.Relevance
+	found, err := engine.(*xorm.Engine).Where("control_i_d = ? AND type_of_attack = ?", relevanceInput.ControlID, relevanceInput.TypeOfAttack).Get(&relevanceDb)
+	if err != nil {
 		return err
 	}
-	return nil
 
+	if found {
+		relevanceDb.Porcent = relevanceInput.Porcent
+		relevanceDb.TypeOfAttack = relevanceInput.TypeOfAttack
+
+		affected, err := engine.(*xorm.Engine).ID(relevanceDb.ID).Update(&relevanceDb)
+		if err != nil {
+			return err
+		}
+		if affected == 0 {
+			return errors.New("no columns found to be updated")
+		}
+	} else {
+		relevanceDb = db.Relevance{
+			ControlID:    relevanceInput.ControlID,
+			TypeOfAttack: relevanceInput.TypeOfAttack,
+			Porcent:      relevanceInput.Porcent,
+		}
+		_, err := engine.(*xorm.Engine).Insert(&relevanceDb)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

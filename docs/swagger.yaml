@@ -130,7 +130,7 @@ definitions:
       controlId:
         type: integer
       porcent:
-        type: string
+        type: integer
       type_of_attack:
         type: string
     type: object
@@ -266,6 +266,15 @@ definitions:
       threat_event:
         type: string
       threat_group:
+        type: string
+    type: object
+  interfaces.LossExceedance:
+    properties:
+      id:
+        type: integer
+      loss:
+        type: integer
+      risk:
         type: string
     type: object
 externalDocs:
@@ -604,7 +613,7 @@ paths:
       tags:
       - 1 - Inventory
   /api/create-revelance:
-    post:
+    put:
       consumes:
       - application/json
       description: Create new Relevance
@@ -907,6 +916,16 @@ paths:
       consumes:
       - application/json
       description: Test for simulation aggregated
+      parameters:
+      - description: 'Threat Event '
+        in: header
+        name: threatEvent
+        required: true
+        type: string
+      - description: 'Email for recive '
+        in: header
+        name: email
+        type: string
       produces:
       - application/json
       responses: {}
@@ -918,6 +937,24 @@ paths:
       consumes:
       - application/json
       description: Test for simulation appetite
+      parameters:
+      - description: Loss Exceedance Graph
+        in: body
+        name: request
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/interfaces.LossExceedance'
+          type: array
+      - description: 'Threat Event '
+        in: header
+        name: threatEvent
+        required: true
+        type: string
+      - description: 'Email for recive '
+        in: header
+        name: email
+        type: string
       produces:
       - application/json
       responses: {}

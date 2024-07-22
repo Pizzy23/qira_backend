@@ -46,7 +46,7 @@ func PullRevelanceId(c *gin.Context) {
 // @Produce json
 // @Param request body db.RelevanceDinamicInput true "Data for create new Relevance"
 // @Success 200 {object} db.Relevance "Relevance Create"
-// @Router /api/create-revelance [post]
+// @Router /api/create-revelance [put]
 func CreateRelevance(c *gin.Context) {
 	var RelevanceInput db.RelevanceDinamicInput
 	if err := c.ShouldBindJSON(&RelevanceInput); err != nil {

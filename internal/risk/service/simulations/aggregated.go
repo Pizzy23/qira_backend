@@ -3,6 +3,7 @@ package simulation
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"qira/db"
 	"sort"
 
@@ -15,7 +16,7 @@ import (
 	"xorm.io/xorm"
 )
 
-func MonteCarloSimulationAggregated(c *gin.Context, threatEvent string) {
+func MonteCarloSimulationAggregated(c *gin.Context, threatEvent string, reciverEmail string) {
 	var losses []db.LossHighTotal
 
 	engine, exists := c.Get("db")
@@ -110,7 +111,8 @@ func MonteCarloSimulationAggregated(c *gin.Context, threatEvent string) {
 	hist.Normalize(1)
 	p.Add(hist)
 
-	if err := p.Save(12*vg.Inch, 6*vg.Inch, "hist.png"); err != nil {
+	histPath := "hist.png"
+	if err := p.Save(12*vg.Inch, 6*vg.Inch, histPath); err != nil {
 		panic(err)
 	}
 
@@ -133,11 +135,21 @@ func MonteCarloSimulationAggregated(c *gin.Context, threatEvent string) {
 	pLEC.Add(line)
 	pLEC.Add(plotter.NewGrid())
 
-	if err := pLEC.Save(12*vg.Inch, 6*vg.Inch, "lec.png"); err != nil {
+	lecPath := "lec.png"
+	if err := pLEC.Save(12*vg.Inch, 6*vg.Inch, lecPath); err != nil {
 		panic(err)
 	}
 
 	fmt.Println("Plots saved as hist.png and lec.png")
+
+	// Enviar os arquivos por email
+	if reciverEmail != "" {
+		sendEmailWithAttachments(reciverEmail, histPath, lecPath)
+	}
+
+	// Excluir os arquivos
+	os.Remove(histPath)
+	os.Remove(lecPath)
 
 	c.JSON(200, gin.H{
 		"bins": binData,

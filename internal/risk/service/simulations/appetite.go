@@ -2,8 +2,11 @@ package simulation
 
 import (
 	"fmt"
+	"image/color"
 	"net/http"
+	"os"
 	"qira/db"
+	"qira/internal/interfaces"
 	"sort"
 
 	"github.com/gin-gonic/gin"
@@ -12,10 +15,11 @@ import (
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
+	"gonum.org/v1/plot/vg/draw"
 	"xorm.io/xorm"
 )
 
-func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string) {
+func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string, reciverEmail string, lossData []interfaces.LossExceedance) {
 	var losses []db.LossHighTotal
 
 	engine, exists := c.Get("db")
@@ -98,6 +102,7 @@ func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string) {
 		}
 	}
 
+	// Criar o gráfico de histograma
 	p := plot.New()
 	p.Title.Text = "Distribuição PERT de Perdas Financeiras"
 	p.X.Label.Text = "Perdas (R$)"
@@ -110,10 +115,12 @@ func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string) {
 	hist.Normalize(1)
 	p.Add(hist)
 
-	if err := p.Save(12*vg.Inch, 6*vg.Inch, "hist.png"); err != nil {
+	histPath := "hist.png"
+	if err := p.Save(12*vg.Inch, 6*vg.Inch, histPath); err != nil {
 		panic(err)
 	}
 
+	// Criar a curva de excedência de perdas
 	sort.Float64s(valores)
 	pLEC := plot.New()
 	pLEC.Title.Text = "Curva de Excedência de Perdas (LEC)"
@@ -126,20 +133,81 @@ func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string) {
 		lec[i].Y = 1 - float64(i)/float64(amostras)
 	}
 
+	// Plotar a linha da simulação Monte Carlo
 	line, err := plotter.NewLine(lec)
 	if err != nil {
 		panic(err)
 	}
 	pLEC.Add(line)
+
+	// Plotar os pontos da curva do usuário
+	userLEC := make(plotter.XYs, len(lossData))
+	for i, ld := range lossData {
+		userLEC[i].X = float64(ld.Loss)
+		userLEC[i].Y = parseRiskToFloat(ld.Risk)
+	}
+
+	scatter, err := plotter.NewScatter(userLEC)
+	if err != nil {
+		panic(err)
+	}
+	scatter.GlyphStyle.Shape = draw.CircleGlyph{}
+	scatter.GlyphStyle.Radius = vg.Points(2)
+	scatter.GlyphStyle.Color = color.RGBA{B: 255, A: 255} // Azul
+
+	pLEC.Add(scatter)
 	pLEC.Add(plotter.NewGrid())
 
-	if err := pLEC.Save(12*vg.Inch, 6*vg.Inch, "lec.png"); err != nil {
+	lecPath := "lec.png"
+	if err := pLEC.Save(12*vg.Inch, 6*vg.Inch, lecPath); err != nil {
 		panic(err)
 	}
 
 	fmt.Println("Plots saved as hist.png and lec.png")
 
+	// Enviar os arquivos por email
+	if reciverEmail != "" {
+		sendEmailWithAttachments(reciverEmail, histPath, lecPath)
+	}
+
+	// Excluir os arquivos
+	os.Remove(histPath)
+	os.Remove(lecPath)
+
+	// Adicionar dados de loss ao banco de dados, se não forem duplicados
+	for _, ld := range lossData {
+		existing := &db.LossExceedance{}
+		has, err := engine.(*xorm.Engine).Where("risk = ? AND loss = ?", ld.Risk, ld.Loss).Get(existing)
+		if err == nil && !has {
+			newLoss := db.LossExceedance{
+				Risk: ld.Risk,
+				Loss: ld.Loss,
+			}
+			_, err := engine.(*xorm.Engine).Insert(newLoss)
+			if err != nil {
+				fmt.Printf("Error inserting loss data: %v\n", err)
+			}
+		}
+	}
+
 	c.JSON(200, gin.H{
 		"bins": binData,
 	})
+}
+
+func parseRiskToFloat(risk string) float64 {
+	switch risk {
+	case "100%":
+		return 1.0
+	case "75%":
+		return 0.75
+	case "50%":
+		return 0.5
+	case "25%":
+		return 0.25
+	case "0%":
+		return 0.0
+	default:
+		return 0.0
+	}
 }

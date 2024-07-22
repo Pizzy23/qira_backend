@@ -100,8 +100,12 @@ type Implements struct {
 
 type AggregatedStrength struct {
 	ID          int    `json:"id" xorm:"pk autoincr 'id' INT"`
-	ThreatID    int    `json:"threat_id" xorm:"INT notnull"`
+	ThreatID    int64  `json:"threat_id" xorm:"INT notnull"`
 	ThreatEvent string `json:"threat_event" xorm:"VARCHAR(255) notnull"`
 	Current     string `json:"current" xorm:"VARCHAR(255) notnull"`
 	Proposed    string `json:"proposed" xorm:"VARCHAR(255) notnull"`
+}
+type LossExceedance struct {
+	Risk string `json:"risk" xorm:"VARCHAR(255) notnull"`
+	Loss int64  `json:"loss" xorm:"INT notnull"`
 }

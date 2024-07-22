@@ -514,7 +514,7 @@ const docTemplate = `{
             }
         },
         "/api/create-revelance": {
-            "post": {
+            "put": {
                 "description": "Create new Relevance",
                 "consumes": [
                     "application/json"
@@ -980,6 +980,21 @@ const docTemplate = `{
                     "13 - Simulation"
                 ],
                 "summary": "Test for simulation aggregated",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Threat Event ",
+                        "name": "threatEvent",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Email for recive ",
+                        "name": "email",
+                        "in": "header"
+                    }
+                ],
                 "responses": {}
             }
         },
@@ -996,6 +1011,33 @@ const docTemplate = `{
                     "13 - Simulation"
                 ],
                 "summary": "Test for simulation appetite",
+                "parameters": [
+                    {
+                        "description": "Loss Exceedance Graph",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/interfaces.LossExceedance"
+                            }
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Threat Event ",
+                        "name": "threatEvent",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Email for recive ",
+                        "name": "email",
+                        "in": "header"
+                    }
+                ],
                 "responses": {}
             }
         },
@@ -1232,7 +1274,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "porcent": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "type_of_attack": {
                     "type": "string"
@@ -1441,6 +1483,20 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "threat_group": {
+                    "type": "string"
+                }
+            }
+        },
+        "interfaces.LossExceedance": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "loss": {
+                    "type": "integer"
+                },
+                "risk": {
                     "type": "string"
                 }
             }
