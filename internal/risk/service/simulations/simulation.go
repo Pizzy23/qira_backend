@@ -54,6 +54,10 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string, reciverEmail strin
 
 	binWidth := (maximo - minimo) / float64(numBins)
 
+	fmt.Printf("Min: %f", minimo)
+	fmt.Printf("Max: %f", maximo)
+	fmt.Printf("Mode: %f", maisProvavel)
+
 	a := (4*maisProvavel + maximo - 5*minimo) / (maximo - minimo)
 	b := (5*maximo - minimo - 4*maisProvavel) / (maximo - minimo)
 
