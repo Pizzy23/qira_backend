@@ -169,7 +169,7 @@ func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string, reciverEma
 	fmt.Println("Plots saved as hist.png and lec.png")
 
 	if reciverEmail != "" {
-		sendEmailWithAttachments(reciverEmail, histPath, lecPath)
+		//sendEmailWithAttachments(reciverEmail, histPath, lecPath)
 	}
 
 	// Excluir os arquivos

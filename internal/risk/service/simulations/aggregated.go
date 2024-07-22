@@ -144,7 +144,7 @@ func MonteCarloSimulationAggregated(c *gin.Context, threatEvent string, reciverE
 
 	// Enviar os arquivos por email
 	if reciverEmail != "" {
-		sendEmailWithAttachments(reciverEmail, histPath, lecPath)
+		//sendEmailWithAttachments(reciverEmail, histPath, lecPath)
 	}
 
 	// Excluir os arquivos
