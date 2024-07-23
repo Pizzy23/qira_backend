@@ -270,8 +270,6 @@ definitions:
     type: object
   interfaces.LossExceedance:
     properties:
-      id:
-        type: integer
       loss:
         type: integer
       risk:
@@ -921,10 +919,6 @@ paths:
         name: threatEvent
         required: true
         type: string
-      - description: 'Email for recive '
-        in: header
-        name: email
-        type: string
       produces:
       - application/json
       responses: {}
@@ -941,10 +935,6 @@ paths:
         in: header
         name: threatEvent
         required: true
-        type: string
-      - description: 'Email for recive '
-        in: header
-        name: email
         type: string
       produces:
       - application/json
@@ -963,10 +953,6 @@ paths:
         name: threatEvent
         required: true
         type: string
-      - description: 'Email for recive '
-        in: header
-        name: email
-        type: string
       produces:
       - application/json
       responses: {}
@@ -983,10 +969,6 @@ paths:
         in: header
         name: threatEvent
         required: true
-        type: string
-      - description: Email for recive
-        in: header
-        name: email
         type: string
       produces:
       - application/json

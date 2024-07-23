@@ -986,12 +986,6 @@ const docTemplate = `{
                         "name": "threatEvent",
                         "in": "header",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Email for recive ",
-                        "name": "email",
-                        "in": "header"
                     }
                 ],
                 "responses": {}
@@ -1017,12 +1011,6 @@ const docTemplate = `{
                         "name": "threatEvent",
                         "in": "header",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Email for recive ",
-                        "name": "email",
-                        "in": "header"
                     }
                 ],
                 "responses": {}
@@ -1048,12 +1036,6 @@ const docTemplate = `{
                         "name": "threatEvent",
                         "in": "header",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Email for recive ",
-                        "name": "email",
-                        "in": "header"
                     }
                 ],
                 "responses": {}
@@ -1079,12 +1061,6 @@ const docTemplate = `{
                         "name": "threatEvent",
                         "in": "header",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Email for recive",
-                        "name": "email",
-                        "in": "header"
                     }
                 ],
                 "responses": {}
@@ -1508,9 +1484,6 @@ const docTemplate = `{
         "interfaces.LossExceedance": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer"
-                },
                 "loss": {
                     "type": "integer"
                 },
