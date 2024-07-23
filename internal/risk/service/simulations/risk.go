@@ -37,7 +37,7 @@ func MonteCarloSimulationRisk(c *gin.Context, threatEvent string) {
 	}
 
 	// Fetching control gaps
-	err = engine.(*xorm.Engine).Where("control_id = ?", -2).Find(&controlGaps)
+	err = engine.(*xorm.Engine).Where("control_i_d = ?", -2).Find(&controlGaps)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving control gap data"})
 		return

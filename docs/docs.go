@@ -513,40 +513,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/create-revelance": {
-            "put": {
-                "description": "Create new Relevance",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "9 - Revelance"
-                ],
-                "summary": "Create Relevance",
-                "parameters": [
-                    {
-                        "description": "Data for create new Relevance",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/db.RelevanceDinamicInput"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Relevance Create",
-                        "schema": {
-                            "$ref": "#/definitions/db.Relevance"
-                        }
-                    }
-                }
-            }
-        },
         "/api/event/{id}": {
             "put": {
                 "description": "Create Event",
@@ -936,6 +902,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/update-revelance": {
+            "put": {
+                "description": "Create new Relevance",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "9 - Revelance"
+                ],
+                "summary": "Update Relevance",
+                "parameters": [
+                    {
+                        "description": "Data for create new Relevance",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/db.RelevanceDinamicInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Relevance Create",
+                        "schema": {
+                            "$ref": "#/definitions/db.Relevance"
+                        }
+                    }
+                }
+            }
+        },
         "/api/upload-appetite": {
             "put": {
                 "description": "Test for simulation appetite",
@@ -1004,15 +1004,6 @@ const docTemplate = `{
                     "13 - Simulation"
                 ],
                 "summary": "Test for simulation aggregated",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Threat Event ",
-                        "name": "threatEvent",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {}
             }
         },

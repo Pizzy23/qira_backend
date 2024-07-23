@@ -88,7 +88,7 @@ func SetupRouter() *gin.Engine {
 	// Revelance
 	auth.GET("/revelance", revelance.PullAllRevelance)
 	auth.GET("/revelance/:id", revelance.PullRevelanceId)
-	auth.PUT("/create-revelance", revelance.CreateRelevance)
+	auth.PUT("/update-revelance", revelance.UpdateRelevance)
 
 	auth.GET("/aggregated-control-strength", control.PullAggregatedControlStrength)
 	auth.GET("/all-proposed", control.PullAllControlProposed)

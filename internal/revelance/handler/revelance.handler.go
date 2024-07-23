@@ -39,15 +39,15 @@ func PullRevelanceId(c *gin.Context) {
 	revelance.PullRevelanceId(c, id)
 }
 
-// @Summary Create Relevance
+// @Summary Update Relevance
 // @Description Create new Relevance
 // @Tags 9 - Revelance
 // @Accept json
 // @Produce json
 // @Param request body db.RelevanceDinamicInput true "Data for create new Relevance"
 // @Success 200 {object} db.Relevance "Relevance Create"
-// @Router /api/create-revelance [put]
-func CreateRelevance(c *gin.Context) {
+// @Router /api/update-revelance [put]
+func UpdateRelevance(c *gin.Context) {
 	var RelevanceInput db.RelevanceDinamicInput
 	if err := c.ShouldBindJSON(&RelevanceInput); err != nil {
 		c.Set("Response", "Parameters are invalid, need a JSON")
@@ -60,7 +60,7 @@ func CreateRelevance(c *gin.Context) {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	c.Set("Response", "Relevance created successfully")
+	c.Set("Response", "Relevance Update successfully")
 	c.Status(http.StatusOK)
 
 }

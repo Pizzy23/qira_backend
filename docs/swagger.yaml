@@ -610,28 +610,6 @@ paths:
       summary: Create Asset
       tags:
       - 1 - Inventory
-  /api/create-revelance:
-    put:
-      consumes:
-      - application/json
-      description: Create new Relevance
-      parameters:
-      - description: Data for create new Relevance
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/db.RelevanceDinamicInput'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Relevance Create
-          schema:
-            $ref: '#/definitions/db.Relevance'
-      summary: Create Relevance
-      tags:
-      - 9 - Revelance
   /api/event/{id}:
     put:
       consumes:
@@ -888,6 +866,28 @@ paths:
       summary: Create LossHigh
       tags:
       - 5 - Loss-High
+  /api/update-revelance:
+    put:
+      consumes:
+      - application/json
+      description: Create new Relevance
+      parameters:
+      - description: Data for create new Relevance
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/db.RelevanceDinamicInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Relevance Create
+          schema:
+            $ref: '#/definitions/db.Relevance'
+      summary: Update Relevance
+      tags:
+      - 9 - Revelance
   /api/upload-appetite:
     put:
       consumes:
@@ -930,12 +930,6 @@ paths:
       consumes:
       - application/json
       description: Test for simulation aggregated
-      parameters:
-      - description: 'Threat Event '
-        in: header
-        name: threatEvent
-        required: true
-        type: string
       produces:
       - application/json
       responses: {}

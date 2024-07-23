@@ -126,7 +126,6 @@ func UploadLossData(c *gin.Context, lossData []interfaces.LossExceedance) {
 		}
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Loss data uploaded successfully",
-	})
+	c.Set("Response", "LossExceedance Update")
+	c.Status(201)
 }
