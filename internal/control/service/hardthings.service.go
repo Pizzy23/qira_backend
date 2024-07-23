@@ -24,22 +24,26 @@ func PullAllControlStrength(c *gin.Context) {
 	var controls []db.ControlLibrary
 	var relevances []db.Relevance
 	var implementations []db.Implements
+
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Response", "Database connection not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
+
 	if err := db.GetAll(engine.(*xorm.Engine), &controls); err != nil {
 		c.Set("Response", err)
 		c.Status(http.StatusInternalServerError)
 		return
 	}
+
 	if err := db.GetAll(engine.(*xorm.Engine), &relevances); err != nil {
 		c.Set("Response", err)
 		c.Status(http.StatusInternalServerError)
 		return
 	}
+
 	if err := db.GetAll(engine.(*xorm.Engine), &implementations); err != nil {
 		c.Set("Response", err)
 		c.Status(http.StatusInternalServerError)
@@ -78,6 +82,10 @@ func PullAllControlStrength(c *gin.Context) {
 		}
 
 		for _, relevance := range relevances {
+			if relevance.Porcent < 0 {
+				continue
+			}
+
 			typeOfAttack := relevance.TypeOfAttack
 
 			relevanceAvgStr, err := mock.FindAverageByScore(int(relevance.Porcent))
@@ -123,6 +131,7 @@ func PullAllControlStrength(c *gin.Context) {
 
 		for _, relevance := range relevances {
 			finalResults = append(finalResults, db.Control{
+				ID:           relevance.ID,
 				ControlID:    control.ID,
 				TypeOfAttack: relevance.TypeOfAttack,
 				Porcent:      fmt.Sprintf("%.0f%%", porcentMap[control.ID]*100), // Arredondando para o valor inteiro

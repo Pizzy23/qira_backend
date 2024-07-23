@@ -69,10 +69,7 @@ func GetAggregatedLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 	for _, loss := range lossHighs {
 		if _, exists := aggregatedData[loss.ThreatEventID]; !exists {
 			aggregatedData[loss.ThreatEventID] = &AggregatedLossResponse{
-				ThreatEventID: loss.ThreatEventID,
-				ThreatEvent:   loss.ThreatEvent,
-				Assets:        loss.Assets,
-				Losses:        []AggregatedLossDetail{},
+				Losses: []AggregatedLossDetail{},
 			}
 		}
 		detail := AggregatedLossDetail{
@@ -80,6 +77,13 @@ func GetAggregatedLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 			MinimumLoss:    loss.MinimumLoss,
 			MaximumLoss:    loss.MaximumLoss,
 			MostLikelyLoss: loss.MostLikelyLoss,
+		}
+		if loss.Assets != "" && loss.ThreatEvent != "" && loss.ThreatEventID != 0 {
+			aggregatedData[loss.ThreatEventID] = &AggregatedLossResponse{
+				ThreatEventID: loss.ThreatEventID,
+				ThreatEvent:   loss.ThreatEvent,
+				Assets:        loss.Assets,
+			}
 		}
 		aggregatedData[loss.ThreatEventID].Losses = append(aggregatedData[loss.ThreatEventID].Losses, detail)
 	}

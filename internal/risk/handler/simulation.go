@@ -55,15 +55,10 @@ func RiskMountAggregated(c *gin.Context) {
 // @Tags 13 - Simulation
 // @Accept json
 // @Produce json
-// @Param threatEvent header string true "Threat Event "
 // @Router /simulation-appetite [get]
 func RiskMountAppetite(c *gin.Context) {
-	threatEvent := c.GetHeader("ThreatEvent")
-	if threatEvent == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ThreatEvent header is required"})
-		return
-	}
-	simulation.MonteCarloSimulationAppetite(c, threatEvent)
+
+	simulation.MonteCarloSimulationAppetite(c)
 }
 
 // @Summary Test for simulation appetite
