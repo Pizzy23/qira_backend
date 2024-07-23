@@ -3,6 +3,7 @@ package simulation
 import (
 	"net/http"
 	"qira/db"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"xorm.io/xorm"
@@ -24,6 +25,12 @@ type FrontEndResponseT struct {
 	LossMax           float64 `json:"LossMax"`
 	LossMin           float64 `json:"LossMin"`
 	LossEstimate      float64 `json:"LossEstimate"`
+}
+
+func truncateToOneDecimal(value float64) float64 {
+	strValue := strconv.FormatFloat(value, 'f', 1, 64)
+	truncatedValue, _ := strconv.ParseFloat(strValue, 64)
+	return truncatedValue
 }
 
 func MonteCarloSimulation(c *gin.Context, threatEvent string) {
@@ -62,9 +69,9 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string) {
 		FrequencyMax:      totalMaxFreq,
 		FrequencyMin:      totalMinFreq,
 		FrequencyEstimate: totalPertFreq,
-		LossMax:           totalMaxLoss,
-		LossMin:           totalMinLoss,
-		LossEstimate:      totalPertLoss,
+		LossMax:           truncateToOneDecimal(totalMaxLoss),
+		LossMin:           truncateToOneDecimal(totalMinLoss),
+		LossEstimate:      truncateToOneDecimal(totalPertLoss),
 	}
 
 	c.JSON(http.StatusOK, finalResponse)
