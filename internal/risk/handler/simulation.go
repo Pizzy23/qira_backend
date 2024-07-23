@@ -37,8 +37,7 @@ func RiskMountReport(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ThreatEvent header is required"})
 		return
 	}
-	email := c.GetHeader("Email")
-	simulation.MonteCarloSimulationReport(c, threatEvent, email)
+	simulation.MonteCarloSimulationRisk(c, threatEvent)
 }
 
 // @Summary Test for simulation aggregated

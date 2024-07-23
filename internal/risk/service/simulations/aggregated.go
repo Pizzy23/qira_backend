@@ -3,6 +3,7 @@ package simulation
 import (
 	"net/http"
 	"qira/db"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"xorm.io/xorm"
@@ -31,11 +32,11 @@ func MonteCarloSimulationAggregated(c *gin.Context, threatEvent string) {
 	for _, risk := range riskCalculations {
 		if risk.RiskType == "Frequency" {
 			totalMinFreq += risk.Min
-			totalPertFreq += risk.Mode
+			totalPertFreq += risk.Estimate
 			totalMaxFreq += risk.Max
 		} else if risk.RiskType == "Loss" {
 			totalMinLoss += risk.Min
-			totalPertLoss += risk.Mode
+			totalPertLoss += risk.Estimate
 			totalMaxLoss += risk.Max
 		}
 	}
@@ -48,13 +49,13 @@ func MonteCarloSimulationAggregated(c *gin.Context, threatEvent string) {
 	}
 
 	finalResponse := FrontEndResponseApp{
-		FrequencyMax:   totalMaxFreq,
-		FrequencyMin:   totalMinFreq,
-		FrequencyMode:  totalPertFreq,
-		LossMax:        totalMaxLoss,
-		LossMin:        totalMinLoss,
-		LossMode:       totalPertLoss,
-		LossExceedance: lossEc,
+		FrequencyMax:      strconv.FormatFloat(totalMaxFreq, 'f', -1, 64),
+		FrequencyMin:      strconv.FormatFloat(totalMinFreq, 'f', -1, 64),
+		FrequencyEstimate: strconv.FormatFloat(totalPertFreq, 'f', -1, 64),
+		LossMax:           strconv.FormatFloat(totalMaxLoss, 'f', -1, 64),
+		LossMin:           strconv.FormatFloat(totalMinLoss, 'f', -1, 64),
+		LossEstimate:      strconv.FormatFloat(totalPertLoss, 'f', -1, 64),
+		LossExceedance:    lossEc,
 	}
 
 	c.JSON(http.StatusOK, finalResponse)
