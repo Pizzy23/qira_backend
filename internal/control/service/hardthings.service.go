@@ -2,6 +2,7 @@ package control
 
 import (
 	"fmt"
+	"math"
 	"net/http"
 	"qira/db"
 	"qira/internal/mock"
@@ -139,15 +140,16 @@ func PullAllControlStrength(c *gin.Context) {
 				ID:           relevance.ID,
 				ControlID:    control.ID,
 				TypeOfAttack: relevance.TypeOfAttack,
-				Porcent:      fmt.Sprintf("%.0f%%", porcentMap[control.ID]*100), // Truncando para o valor inteiro
+				Porcent:      fmt.Sprintf("%.0f%%", math.Floor(porcentMap[control.ID]*100)), // Usando math.Floor para truncar
 			})
 		}
 	}
 
 	for typeOfAttack, totalStrength := range controlStrengthMap {
 		totalRelevance := totalRelevanceMap[typeOfAttack]
-		aggregated := ((totalStrength * 100.0) / totalRelevance) * 100.0
-		controlGap := 100.0 - aggregated
+		notPorcent := (totalStrength * 100.0)
+		aggregated := (notPorcent / totalRelevance) * 100.0
+		controlGap := 100.0 - int(aggregated)
 
 		finalResults = append(finalResults, db.Control{
 			ControlID:    -1,
@@ -158,7 +160,7 @@ func PullAllControlStrength(c *gin.Context) {
 		finalResults = append(finalResults, db.Control{
 			ControlID:    -2,
 			TypeOfAttack: typeOfAttack,
-			ControlGap:   fmt.Sprintf("%.0f%%", controlGap),
+			ControlGap:   fmt.Sprintf("%d%%", controlGap),
 		})
 	}
 
@@ -285,8 +287,9 @@ func PullAllControlProposed(c *gin.Context) {
 
 	for typeOfAttack, totalStrength := range controlStrengthMap {
 		totalRelevance := totalRelevanceMap[typeOfAttack]
-		aggregated := ((totalStrength * 100.0) / totalRelevance) * 100.0
-		controlGap := 100.0 - aggregated
+		notPorcent := (totalStrength * 100.0)
+		aggregated := (notPorcent / totalRelevance) * 100.0
+		controlGap := 100.0 - int(aggregated)
 
 		finalResults = append(finalResults, db.Propused{
 			ControlID:    -1,
@@ -297,7 +300,7 @@ func PullAllControlProposed(c *gin.Context) {
 		finalResults = append(finalResults, db.Propused{
 			ControlID:    -2,
 			TypeOfAttack: typeOfAttack,
-			ControlGap:   fmt.Sprintf("%.0f%%", controlGap),
+			ControlGap:   fmt.Sprintf("%d%%", controlGap),
 		})
 	}
 
