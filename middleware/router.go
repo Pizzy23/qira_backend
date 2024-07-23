@@ -66,6 +66,7 @@ func SetupRouter() *gin.Engine {
 	auth.GET("/all-catalogue", catalogue.PullAllEvent)
 	auth.GET("/catalogue/:id", catalogue.PullEventId)
 	auth.POST("/catalogue", catalogue.CreateEvent)
+	auth.DELETE("/catalogue/:id", catalogue.DeleteEventId)
 
 	//losshigh
 	auth.GET("/losshigh/:id", losshigh.PullLosstId)

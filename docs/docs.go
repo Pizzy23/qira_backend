@@ -326,6 +326,36 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Update an existing Asset",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "1 - Inventory"
+                ],
+                "summary": "Delete Asset",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Asset ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Asset Updated",
+                        "schema": {
+                            "$ref": "#/definitions/db.AssetInventory"
+                        }
+                    }
+                }
             }
         },
         "/api/assets": {
@@ -401,6 +431,36 @@ const docTemplate = `{
                     "2 - Catalogue"
                 ],
                 "summary": "Retrieve Catalogue by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Event Details",
+                        "schema": {
+                            "$ref": "#/definitions/db.ThreatEventCatalog"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete an Event by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "2 - Catalogue"
+                ],
+                "summary": "Delete Catalogue by ID",
                 "parameters": [
                     {
                         "type": "integer",
@@ -518,6 +578,36 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "List of All Assets",
+                        "schema": {
+                            "$ref": "#/definitions/db.ControlLibrary"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete an Event by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "7 - Control"
+                ],
+                "summary": "Delete Control by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Event Details",
                         "schema": {
                             "$ref": "#/definitions/db.ControlLibrary"
                         }

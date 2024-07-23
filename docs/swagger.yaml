@@ -443,6 +443,26 @@ paths:
       tags:
       - 10 - Control Strength
   /api/asset/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Update an existing Asset
+      parameters:
+      - description: Asset ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Asset Updated
+          schema:
+            $ref: '#/definitions/db.AssetInventory'
+      summary: Delete Asset
+      tags:
+      - 1 - Inventory
     get:
       consumes:
       - application/json
@@ -529,6 +549,26 @@ paths:
       tags:
       - 2 - Catalogue
   /api/catalogue/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an Event by its ID
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Event Details
+          schema:
+            $ref: '#/definitions/db.ThreatEventCatalog'
+      summary: Delete Catalogue by ID
+      tags:
+      - 2 - Catalogue
     get:
       consumes:
       - application/json
@@ -572,6 +612,26 @@ paths:
       tags:
       - 7 - Control
   /api/control/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an Event by its ID
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Event Details
+          schema:
+            $ref: '#/definitions/db.ControlLibrary'
+      summary: Delete Control by ID
+      tags:
+      - 7 - Control
     get:
       consumes:
       - application/json
