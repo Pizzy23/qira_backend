@@ -3,7 +3,6 @@ package simulation
 import (
 	"net/http"
 	"qira/db"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"xorm.io/xorm"
@@ -28,9 +27,7 @@ type FrontEndResponseT struct {
 }
 
 func truncateToOneDecimal(value float64) float64 {
-	strValue := strconv.FormatFloat(value, 'f', 1, 64)
-	truncatedValue, _ := strconv.ParseFloat(strValue, 64)
-	return truncatedValue
+	return value / 10
 }
 
 func MonteCarloSimulation(c *gin.Context, threatEvent string) {
