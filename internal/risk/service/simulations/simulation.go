@@ -8,7 +8,7 @@ import (
 	"xorm.io/xorm"
 )
 
-type ThreatEventRequestT struct {
+type ThreatEventRequest struct {
 	MinFreq  float64 `json:"minfreq,omitempty"`
 	PertFreq float64 `json:"pertfreq,omitempty"`
 	MaxFreq  float64 `json:"maxfreq,omitempty"`
@@ -17,17 +17,13 @@ type ThreatEventRequestT struct {
 	MaxLoss  float64 `json:"maxloss,omitempty"`
 }
 
-type FrontEndResponseT struct {
+type FrontEndResponse struct {
 	FrequencyMax      float64 `json:"FrequencyMax"`
 	FrequencyMin      float64 `json:"FrequencyMin"`
 	FrequencyEstimate float64 `json:"FrequencyEstimate"`
 	LossMax           float64 `json:"LossMax"`
 	LossMin           float64 `json:"LossMin"`
 	LossEstimate      float64 `json:"LossEstimate"`
-}
-
-func truncateToOneDecimal(value float64) float64 {
-	return value / 10
 }
 
 func MonteCarloSimulation(c *gin.Context, threatEvent string) {
@@ -62,13 +58,13 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string) {
 		}
 	}
 
-	finalResponse := FrontEndResponseT{
+	finalResponse := FrontEndResponse{
 		FrequencyMax:      totalMaxFreq,
 		FrequencyMin:      totalMinFreq,
 		FrequencyEstimate: totalPertFreq,
-		LossMax:           truncateToOneDecimal(totalMaxLoss),
-		LossMin:           truncateToOneDecimal(totalMinLoss),
-		LossEstimate:      truncateToOneDecimal(totalPertLoss),
+		LossMax:           totalMaxLoss,
+		LossMin:           totalMinLoss,
+		LossEstimate:      totalPertLoss,
 	}
 
 	c.JSON(http.StatusOK, finalResponse)

@@ -11,9 +11,9 @@ import (
 )
 
 type FrontEndResponseAppReport struct {
-	ProposedMin    string              `json:"ProposedMin"`
-	ProposedMax    string              `json:"ProposedMax"`
-	ProposedPert   string              `json:"ProposedPert"`
+	ProposedMin    float64             `json:"ProposedMin"`
+	ProposedMax    float64             `json:"ProposedMax"`
+	ProposedPert   float64             `json:"ProposedPert"`
 	LossExceedance []db.LossExceedance `json:"LossExceedance"`
 }
 
@@ -103,10 +103,11 @@ func MonteCarloSimulationRisk(c *gin.Context, threatEvent string) {
 		return
 	}
 
+	// Format float values to strings, removing last digit for losses
 	finalResponse := FrontEndResponseAppReport{
-		ProposedMin:    strconv.FormatFloat(proposedMin, 'f', -1, 64),
-		ProposedMax:    strconv.FormatFloat(proposedMax, 'f', -1, 64),
-		ProposedPert:   strconv.FormatFloat(proposedEstimate, 'f', -1, 64),
+		ProposedMin:    proposedMin,
+		ProposedMax:    proposedMax,
+		ProposedPert:   proposedEstimate,
 		LossExceedance: lossEc,
 	}
 

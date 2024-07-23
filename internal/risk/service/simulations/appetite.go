@@ -5,42 +5,23 @@ import (
 	"net/http"
 	"qira/db"
 	"qira/internal/interfaces"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"xorm.io/xorm"
 )
-
-type ThreatEventRequest struct {
-	MinFreq  string `json:"minfreq,omitempty"`
-	PertFreq string `json:"pertfreq,omitempty"`
-	MaxFreq  string `json:"maxfreq,omitempty"`
-	MinLoss  string `json:"minloss,omitempty"`
-	PertLoss string `json:"pertloss,omitempty"`
-	MaxLoss  string `json:"maxloss,omitempty"`
-}
-
-type FrontEndResponse struct {
-	FrequencyMax      string `json:"FrequencyMax"`
-	FrequencyMin      string `json:"FrequencyMin"`
-	FrequencyEstimate string `json:"FrequencyEstimate"`
-	LossMax           string `json:"LossMax"`
-	LossMin           string `json:"LossMin"`
-	LossEstimate      string `json:"LossEstimate"`
-}
 
 type AcceptableLoss struct {
 	Risk string  `json:"risk"`
 	Loss float64 `json:"loss"`
 }
 
-type FrontEndResponseApp struct {
-	FrequencyMax      string              `json:"FrequencyMax"`
-	FrequencyMin      string              `json:"FrequencyMin"`
-	FrequencyEstimate string              `json:"FrequencyEstimate"`
-	LossMax           string              `json:"LossMax"`
-	LossMin           string              `json:"LossMin"`
-	LossEstimate      string              `json:"LossEstimate"`
+type FrontEndResponseAppLoss struct {
+	FrequencyMax      float64             `json:"FrequencyMax"`
+	FrequencyMin      float64             `json:"FrequencyMin"`
+	FrequencyEstimate float64             `json:"FrequencyEstimate"`
+	LossMax           float64             `json:"LossMax"`
+	LossMin           float64             `json:"LossMin"`
+	LossEstimate      float64             `json:"LossEstimate"`
 	LossExceedance    []db.LossExceedance `json:"LossExceedance"`
 }
 
@@ -73,18 +54,18 @@ func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string) {
 			totalPertFreq += risk.Estimate
 			totalMaxFreq += risk.Max
 			frequencyRequests[i] = ThreatEventRequest{
-				MinFreq:  strconv.FormatFloat(risk.Min, 'f', -1, 64),
-				PertFreq: strconv.FormatFloat(risk.Estimate, 'f', -1, 64),
-				MaxFreq:  strconv.FormatFloat(risk.Max, 'f', -1, 64),
+				MinFreq:  risk.Min,
+				PertFreq: risk.Estimate,
+				MaxFreq:  risk.Max,
 			}
 		} else if risk.RiskType == "Loss" {
 			totalMinLoss += risk.Min
 			totalPertLoss += risk.Estimate
 			totalMaxLoss += risk.Max
 			lossRequests[i] = ThreatEventRequest{
-				MinLoss:  strconv.FormatFloat(risk.Min, 'f', -1, 64),
-				PertLoss: strconv.FormatFloat(risk.Estimate, 'f', -1, 64),
-				MaxLoss:  strconv.FormatFloat(risk.Max, 'f', -1, 64),
+				MinLoss:  risk.Min,
+				PertLoss: risk.Estimate,
+				MaxLoss:  risk.Max,
 			}
 		}
 	}
@@ -107,13 +88,13 @@ func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string) {
 		return
 	}
 
-	finalResponse := FrontEndResponseApp{
-		FrequencyMax:      strconv.FormatFloat(totalMaxFreq, 'f', -1, 64),
-		FrequencyMin:      strconv.FormatFloat(totalMinFreq, 'f', -1, 64),
-		FrequencyEstimate: strconv.FormatFloat(totalPertFreq, 'f', -1, 64),
-		LossMax:           strconv.FormatFloat(totalMaxLoss, 'f', -1, 64),
-		LossMin:           strconv.FormatFloat(totalMinLoss, 'f', -1, 64),
-		LossEstimate:      strconv.FormatFloat(totalPertLoss, 'f', -1, 64),
+	finalResponse := FrontEndResponseAppLoss{
+		FrequencyMax:      totalMaxFreq,
+		FrequencyMin:      totalMinFreq,
+		FrequencyEstimate: totalPertFreq,
+		LossMax:           totalMaxLoss,
+		LossMin:           totalMinLoss,
+		LossEstimate:      totalPertLoss,
 		LossExceedance:    lossEc,
 	}
 

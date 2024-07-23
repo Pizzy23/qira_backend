@@ -3,11 +3,20 @@ package simulation
 import (
 	"net/http"
 	"qira/db"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"xorm.io/xorm"
 )
+
+type FrontEndResponseApp struct {
+	FrequencyMax      float64             `json:"FrequencyMax"`
+	FrequencyMin      float64             `json:"FrequencyMin"`
+	FrequencyEstimate float64             `json:"FrequencyEstimate"`
+	LossMax           float64             `json:"LossMax"`
+	LossMin           float64             `json:"LossMin"`
+	LossEstimate      float64             `json:"LossEstimate"`
+	LossExceedance    []db.LossExceedance `json:"LossExceedance"`
+}
 
 func MonteCarloSimulationAggregated(c *gin.Context, threatEvent string) {
 	var riskCalculations []db.RiskCalculation
@@ -48,13 +57,13 @@ func MonteCarloSimulationAggregated(c *gin.Context, threatEvent string) {
 		return
 	}
 
-	finalResponse := FrontEndResponseApp{
-		FrequencyMax:      strconv.FormatFloat(totalMaxFreq, 'f', -1, 64),
-		FrequencyMin:      strconv.FormatFloat(totalMinFreq, 'f', -1, 64),
-		FrequencyEstimate: strconv.FormatFloat(totalPertFreq, 'f', -1, 64),
-		LossMax:           strconv.FormatFloat(totalMaxLoss, 'f', -1, 64),
-		LossMin:           strconv.FormatFloat(totalMinLoss, 'f', -1, 64),
-		LossEstimate:      strconv.FormatFloat(totalPertLoss, 'f', -1, 64),
+	finalResponse := FrontEndResponseAppLoss{
+		FrequencyMax:      totalMaxFreq,
+		FrequencyMin:      totalMinFreq,
+		FrequencyEstimate: totalPertFreq,
+		LossMax:           totalMaxLoss,
+		LossMin:           totalMinLoss,
+		LossEstimate:      totalPertLoss,
 		LossExceedance:    lossEc,
 	}
 
