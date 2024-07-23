@@ -34,15 +34,12 @@ type Bin struct {
 }
 
 type FrontEndResponse struct {
-	FrequencyMax  float64   `json:"FrequencyMax"`
-	FrequencyMin  float64   `json:"FrequencyMin"`
-	FrequencyMode float64   `json:"FrequencyMode"`
-	LossMax       float64   `json:"LossMax"`
-	LossMin       float64   `json:"LossMin"`
-	LossMode      float64   `json:"LossMode"`
-	Bins          []Bin     `json:"bins"`
-	Lecs          []float64 `json:"lecs"`
-	CumLecs       []float64 `json:"cum_lecs"`
+	FrequencyMax  float64 `json:"FrequencyMax"`
+	FrequencyMin  float64 `json:"FrequencyMin"`
+	FrequencyMode float64 `json:"FrequencyMode"`
+	LossMax       float64 `json:"LossMax"`
+	LossMin       float64 `json:"LossMin"`
+	LossMode      float64 `json:"LossMode"`
 }
 
 func MonteCarloSimulation(c *gin.Context, threatEvent string) {

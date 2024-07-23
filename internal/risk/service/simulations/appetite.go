@@ -22,7 +22,7 @@ type FrontEndResponseApp struct {
 	LossMax        float64             `json:"LossMax"`
 	LossMin        float64             `json:"LossMin"`
 	LossMode       float64             `json:"LossMode"`
-	lossExceedance []db.LossExceedance `json:"LossExceedance"`
+	LossExceedance []db.LossExceedance `json:"LossExceedance"`
 }
 
 func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string) {
@@ -95,7 +95,7 @@ func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string) {
 		LossMax:        totalMaxLoss,
 		LossMin:        totalMinLoss,
 		LossMode:       totalPertLoss,
-		lossExceedance: lossEc,
+		LossExceedance: lossEc,
 	}
 
 	c.JSON(http.StatusOK, finalResponse)
