@@ -130,3 +130,28 @@ func PullEventIdService(c *gin.Context, id int) {
 	c.Set("Response", event)
 	c.Status(http.StatusOK)
 }
+
+func DeleteEventService(c *gin.Context, eventID int64) error {
+	engine, exists := c.Get("db")
+	if !exists {
+		return errors.New("database connection not found")
+	}
+
+	if _, err := engine.(*xorm.Engine).Where("threat_event_i_d = ?", eventID).Delete(&db.Frequency{}); err != nil {
+		return err
+	}
+
+	if _, err := engine.(*xorm.Engine).Where("threat_event_i_d = ?", eventID).Delete(&db.LossHigh{}); err != nil {
+		return err
+	}
+
+	if _, err := engine.(*xorm.Engine).Where("threat_i_d = ?", eventID).Delete(&db.ThreatEventAssets{}); err != nil {
+		return err
+	}
+
+	if _, err := engine.(*xorm.Engine).ID(eventID).Delete(&db.ThreatEventCatalog{}); err != nil {
+		return err
+	}
+
+	return nil
+}

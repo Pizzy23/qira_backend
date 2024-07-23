@@ -134,7 +134,7 @@ func CreateOrUpdateImplementService(c *gin.Context, data interfaces.ImplementsIn
 	}
 
 	var existingImplement db.Implements
-	has, err := engine.(*xorm.Engine).Where("control_id = ?", id).Get(&existingImplement)
+	has, err := engine.(*xorm.Engine).Where("control_i_d = ?", id).Get(&existingImplement)
 	if err != nil {
 		return err
 	}
@@ -279,4 +279,27 @@ func Prupu(c *gin.Context) {
 	}
 	c.Set("Response", controls)
 	c.Status(http.StatusOK)
+}
+
+func DeleteControl(c *gin.Context, id int) error {
+	var asset db.ControlLibrary
+	engine, exists := c.Get("db")
+	if !exists {
+		return errors.New("database connection not found")
+	}
+
+	has, err := engine.(*xorm.Engine).ID(id).Get(&asset)
+	if err != nil {
+		return err
+	}
+	if !has {
+		return errors.New("Control not found")
+	}
+
+	_, err = engine.(*xorm.Engine).ID(id).Delete(&asset)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

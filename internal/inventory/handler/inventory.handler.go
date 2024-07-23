@@ -67,6 +67,32 @@ func PullAssetId(c *gin.Context) {
 
 }
 
+// @Summary Delete Asset
+// @Description Update an existing Asset
+// @Tags 1 - Inventory
+// @Accept json
+// @Produce json
+// @Param id path int true "Asset ID"
+// @Success 200 {object} db.AssetInventory "Asset Updated"
+// @Router /api/asset/{id} [delete]
+func DeleteAsset(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := strconv.ParseInt(idParam, 10, 64)
+	if err != nil {
+		c.Set("Response", "Invalid ID")
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	if err := inventory.DeleteAsset(c, id); err != nil {
+		c.Set("Response", err)
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+	c.Set("Response", "Asset delete successfully")
+	c.Status(http.StatusOK)
+}
+
 // @Summary Update Asset
 // @Description Update an existing Asset
 // @Tags 1 - Inventory

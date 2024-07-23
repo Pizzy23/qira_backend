@@ -51,6 +51,7 @@ func SetupRouter() *gin.Engine {
 	auth.POST("/create-asset", inventory.CreateAsset)
 	auth.PUT("/asset/:id", inventory.UpdateAsset)
 	auth.GET("/assets", inventory.PullAllAsset)
+	auth.DELETE("/asset/:id", inventory.DeleteAsset)
 
 	//frequency
 	auth.GET("/frequency/:id", frequency.PullFrequencyById)
@@ -75,6 +76,7 @@ func SetupRouter() *gin.Engine {
 	auth.PUT("/control/:id", control.UpdateControl)
 	auth.GET("/all-control", control.PullAllControl)
 	auth.GET("/control/:id", control.PullControlId)
+	auth.DELETE("/control/:id", control.DeleteControlId)
 	auth.POST("/control", control.CreateControl)
 
 	auth.GET("/all-implementation", control.PullAllControlImplementation)

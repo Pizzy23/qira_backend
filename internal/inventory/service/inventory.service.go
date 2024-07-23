@@ -99,3 +99,26 @@ func UpdateAssetService(c *gin.Context, id int64, asset interfaces.InputAssetsIn
 	}
 	return nil
 }
+
+func DeleteAsset(c *gin.Context, id int64) error {
+	var asset db.AssetInventory
+	engine, exists := c.Get("db")
+	if !exists {
+		return errors.New("database connection not found")
+	}
+
+	has, err := engine.(*xorm.Engine).ID(id).Get(&asset)
+	if err != nil {
+		return err
+	}
+	if !has {
+		return errors.New("asset not found")
+	}
+
+	_, err = engine.(*xorm.Engine).ID(id).Delete(&asset)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

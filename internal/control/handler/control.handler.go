@@ -88,6 +88,31 @@ func PullControlId(c *gin.Context) {
 	control.PullControlId(c, id)
 }
 
+// @Summary Delete Control by ID
+// @Description Delete an Event by its ID
+// @Tags 7 - Control
+// @Accept json
+// @Produce json
+// @Param id path int true "Event ID"
+// @Success 200 {object} db.ControlLibrary "Event Details"
+// @Router /api/control/{id} [delete]
+func DeleteControlId(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.Set("Response", "Invalid asset ID")
+		c.Status(http.StatusBadRequest)
+		return
+	}
+	if err := control.DeleteControl(c, id); err != nil {
+		c.Set("Response", err)
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+	c.Set("Response", "Control delete successfully")
+	c.Status(http.StatusOK)
+}
+
 // @Summary Create New Implementation
 // @Description Create New Event Implementation
 // @Tags 8 - Implementation

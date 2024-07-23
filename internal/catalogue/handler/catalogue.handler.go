@@ -65,3 +65,22 @@ func PullEventId(c *gin.Context) {
 	}
 	catalogue.PullEventIdService(c, id)
 }
+
+// @Summary Delete Catalogue by ID
+// @Description Delete an Event by its ID
+// @Tags 2 - Catalogue
+// @Accept json
+// @Produce json
+// @Param id path int true "Event ID"
+// @Success 200 {object} db.ThreatEventCatalog "Event Details"
+// @Router /api/catalogue/{id} [delete]
+func DeleteEventId(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := strconv.ParseInt(idParam, 10, 64)
+	if err != nil {
+		c.Set("Response", "Invalid asset ID")
+		c.Status(http.StatusBadRequest)
+		return
+	}
+	catalogue.DeleteEventService(c, id)
+}
