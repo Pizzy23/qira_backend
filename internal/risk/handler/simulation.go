@@ -93,5 +93,5 @@ func UploadAppetite(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Parameters are invalid, need a JSON array of LossExceedance"})
 		return
 	}
-	simulation.UploadLossData(c, lossData)
+	//	simulation.UploadLossData(c, lossData)
 }

@@ -1,27 +1,35 @@
 package simulation
 
 import (
-	"fmt"
-	"image/color"
+	"bytes"
+	"encoding/json"
 	"net/http"
-	"os"
 	"qira/db"
-	"qira/internal/interfaces"
-	"sort"
 
 	"github.com/gin-gonic/gin"
-	"golang.org/x/exp/rand"
-	"gonum.org/v1/gonum/stat/distuv"
-	"gonum.org/v1/plot"
-	"gonum.org/v1/plot/plotter"
-	"gonum.org/v1/plot/vg"
-	"gonum.org/v1/plot/vg/draw"
 	"xorm.io/xorm"
 )
 
+type AcceptableLoss struct {
+	Risk string  `json:"risk"`
+	Loss float64 `json:"loss"`
+}
+
+type FrontEndResponseApp struct {
+	FrequencyMax     float64          `json:"FrequencyMax"`
+	FrequencyMin     float64          `json:"FrequencyMin"`
+	FrequencyMode    float64          `json:"FrequencyMode"`
+	LossMax          float64          `json:"LossMax"`
+	LossMin          float64          `json:"LossMin"`
+	LossMode         float64          `json:"LossMode"`
+	Bins             []Bin            `json:"bins"`
+	Lecs             []float64        `json:"lecs"`
+	CumLecs          []float64        `json:"cum_lecs"`
+	AcceptableLosses []AcceptableLoss `json:"acceptable_losses"`
+}
+
 func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string, reciverEmail string) {
-	var losses []db.LossHighTotal
-	var lossData []db.LossExceedance
+	var riskCalculations []db.RiskCalculation
 
 	engine, exists := c.Get("db")
 	if !exists {
@@ -30,200 +38,108 @@ func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string, reciverEma
 		return
 	}
 
-	err := engine.(*xorm.Engine).Where("threat_event = ?", threatEvent).Find(&losses)
+	err := engine.(*xorm.Engine).Where("threat_event = ?", threatEvent).Find(&riskCalculations)
 	if err != nil {
-		c.Set("Response", "LossHigh not found")
+		c.Set("Response", "Error retrieving risk calculations")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
-	err = db.GetAll(engine.(*xorm.Engine), &lossData)
+	var totalMinFreq, totalPertFreq, totalMaxFreq float64
+	var totalMinLoss, totalPertLoss, totalMaxLoss float64
+
+	frequencyRequests := make([]ThreatEventRequest, len(riskCalculations))
+	lossRequests := make([]ThreatEventRequest, len(riskCalculations))
+
+	for i, risk := range riskCalculations {
+		if risk.RiskType == "Frequency" {
+			totalMinFreq += risk.Min
+			totalPertFreq += risk.Mode
+			totalMaxFreq += risk.Max
+			frequencyRequests[i] = ThreatEventRequest{
+				MinFreq:  risk.Min,
+				PertFreq: risk.Mode,
+				MaxFreq:  risk.Max,
+			}
+		} else if risk.RiskType == "Loss" {
+			totalMinLoss += risk.Min
+			totalPertLoss += risk.Mode
+			totalMaxLoss += risk.Max
+			lossRequests[i] = ThreatEventRequest{
+				MinLoss:  risk.Min,
+				PertLoss: risk.Mode,
+				MaxLoss:  risk.Max,
+			}
+		}
+	}
+
+	threatEventRequests := make([]ThreatEventRequest, len(frequencyRequests))
+	for i := range frequencyRequests {
+		threatEventRequests[i] = ThreatEventRequest{
+			MinFreq:  frequencyRequests[i].MinFreq,
+			PertFreq: frequencyRequests[i].PertFreq,
+			MaxFreq:  frequencyRequests[i].MaxFreq,
+			MinLoss:  lossRequests[i].MinLoss,
+			PertLoss: lossRequests[i].PertLoss,
+			MaxLoss:  lossRequests[i].MaxLoss,
+		}
+	}
+
+	analyzeRequest := AnalyzeRequest{
+		ThreatEvents: threatEventRequests,
+	}
+
+	requestBody, err := json.Marshal(analyzeRequest)
 	if err != nil {
-		c.Set("Response", "LossExceedance not found")
+		c.Set("Response", "Error marshaling request body")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
-	if len(losses) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": fmt.Sprintf("No loss data found for threatEvent '%s'", threatEvent),
-		})
+	response, err := http.Post("https://qira-bellujrb-test.replit.app/analyze", "application/json", bytes.NewBuffer(requestBody))
+	if err != nil {
+		c.Set("Response", "Error sending request")
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+	defer response.Body.Close()
+
+	var analyzeResponse AnalyzeResponse
+	if err := json.NewDecoder(response.Body).Decode(&analyzeResponse); err != nil {
+		c.Set("Response", "Error decoding response")
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
-	var totalMinimo, totalMaximo, totalMaisProvavel float64
-	for _, loss := range losses {
-		totalMinimo += loss.MinimumLoss
-		totalMaximo += loss.MaximumLoss
-		totalMaisProvavel += loss.MostLikelyLoss
-	}
-
-	if totalMinimo == 0 && totalMaximo == 0 && totalMaisProvavel == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": fmt.Sprintf("Sua perda é igual a 0 no threatEvent '%s', por favor coloque valores válidos.", threatEvent),
-		})
-		return
-	}
-
-	const (
-		amostras = 10000
-		numBins  = 70
-	)
-
-	binWidth := (totalMaximo - totalMinimo) / float64(numBins)
-
-	a := (4*totalMaisProvavel + totalMaximo - 5*totalMinimo) / (totalMaximo - totalMinimo)
-	b := (5*totalMaximo - totalMinimo - 4*totalMaisProvavel) / (totalMaximo - totalMinimo)
-
-	source := rand.NewSource(uint64(99))
-	distribuicao := distuv.Beta{
-		Alpha: a,
-		Beta:  b,
-		Src:   rand.New(source),
-	}
-	valores := make([]float64, amostras)
-	for i := range valores {
-		valores[i] = distribuicao.Rand()*(totalMaximo-totalMinimo) + totalMinimo
-	}
-
-	frequencias := make([]int, numBins)
-	for _, valor := range valores {
-		index := int((valor - totalMinimo) / binWidth)
-		if index >= numBins {
-			index = numBins - 1
-		}
-		frequencias[index]++
-	}
-
-	fmt.Println("Frequências dos bins:")
-	binData := make([]map[string]interface{}, numBins)
-	for i, freq := range frequencias {
-		lowerBound := totalMinimo + float64(i)*binWidth
-		upperBound := lowerBound + binWidth
-		fmt.Printf("Bin %d: [%.2f - %.2f], Frequência: %d\n", i, lowerBound, upperBound, freq)
-		midPoint := (lowerBound + upperBound) / 2
-		binData[i] = map[string]interface{}{
-			"midPoint":  midPoint,
-			"frequency": freq,
+	bins := make([]Bin, len(analyzeResponse.Bins)-1)
+	for i := 0; i < len(analyzeResponse.Bins)-1; i++ {
+		midPoint := (analyzeResponse.Bins[i] + analyzeResponse.Bins[i+1]) / 2
+		bins[i] = Bin{
+			Frequency: analyzeResponse.Freqs[i],
+			MidPoint:  midPoint,
 		}
 	}
 
-	p := plot.New()
-	p.Title.Text = "Distribuição PERT de Perdas Financeiras"
-	p.X.Label.Text = "Perdas (R$)"
-	p.Y.Label.Text = "Frequência de Aparição"
-
-	hist, err := plotter.NewHist(plotter.Values(valores), numBins)
-	if err != nil {
-		panic(err)
-	}
-	hist.Normalize(1)
-	p.Add(hist)
-
-	histPath := "hist.png"
-	if err := p.Save(12*vg.Inch, 6*vg.Inch, histPath); err != nil {
-		panic(err)
+	acceptableLosses := []AcceptableLoss{
+		{"100%", totalMaxLoss},
+		{"75%", totalMaxLoss * 0.75},
+		{"50%", totalMaxLoss * 0.5},
+		{"25%", totalMaxLoss * 0.25},
+		{"0%", totalMaxLoss * 0},
 	}
 
-	sort.Float64s(valores)
-	pLEC := plot.New()
-	pLEC.Title.Text = "Curva de Excedência de Perdas (LEC)"
-	pLEC.X.Label.Text = "Perdas (R$)"
-	pLEC.Y.Label.Text = "Probabilidade de Excedência"
-
-	lec := make(plotter.XYs, amostras)
-	for i := range lec {
-		lec[i].X = valores[i]
-		lec[i].Y = 1 - float64(i)/float64(amostras)
+	finalResponse := FrontEndResponseApp{
+		FrequencyMax:     totalMaxFreq,
+		FrequencyMin:     totalMinFreq,
+		FrequencyMode:    totalPertFreq,
+		LossMax:          totalMaxLoss,
+		LossMin:          totalMinLoss,
+		LossMode:         totalPertLoss,
+		Bins:             bins,
+		Lecs:             analyzeResponse.Lecs,
+		CumLecs:          analyzeResponse.CumFreqs,
+		AcceptableLosses: acceptableLosses,
 	}
 
-	line, err := plotter.NewLine(lec)
-	if err != nil {
-		panic(err)
-	}
-	line.LineStyle.Color = color.RGBA{R: 255, A: 255} // Vermelho
-	pLEC.Add(line)
-
-	userLEC := make(plotter.XYs, len(lossData))
-	for i, ld := range lossData {
-		userLEC[i].X = float64(ld.Loss)
-		userLEC[i].Y = parseRiskToFloat(ld.Risk)
-	}
-
-	scatter, err := plotter.NewScatter(userLEC)
-	if err != nil {
-		panic(err)
-	}
-	scatter.GlyphStyle.Shape = draw.CircleGlyph{}
-	scatter.GlyphStyle.Radius = vg.Points(2)
-	scatter.GlyphStyle.Color = color.RGBA{B: 255, A: 255} // Azul
-
-	pLEC.Add(scatter)
-	pLEC.Add(plotter.NewGrid())
-
-	lecPath := "lec.png"
-	if err := pLEC.Save(12*vg.Inch, 6*vg.Inch, lecPath); err != nil {
-		panic(err)
-	}
-
-	fmt.Println("Plots saved as hist.png and lec.png")
-
-	if reciverEmail != "" {
-		//sendEmailWithAttachments(reciverEmail, histPath, lecPath)
-	}
-
-	// Excluir os arquivos
-	os.Remove(histPath)
-	os.Remove(lecPath)
-
-	c.JSON(200, gin.H{
-		"bins": binData,
-	})
-}
-
-func parseRiskToFloat(risk string) float64 {
-	switch risk {
-	case "100%":
-		return 1.0
-	case "75%":
-		return 0.75
-	case "50%":
-		return 0.5
-	case "25%":
-		return 0.25
-	case "0%":
-		return 0.0
-	default:
-		return 0.0
-	}
-}
-
-func UploadLossData(c *gin.Context, lossData []interfaces.LossExceedance) {
-
-	engine, exists := c.Get("db")
-	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Database connection not found",
-		})
-		return
-	}
-
-	for _, ld := range lossData {
-		existing := &db.LossExceedance{}
-		has, err := engine.(*xorm.Engine).Where("risk = ? AND loss = ?", ld.Risk, ld.Loss).Get(existing)
-		if err == nil && !has {
-			newLoss := db.LossExceedance{
-				Risk: ld.Risk,
-				Loss: ld.Loss,
-			}
-			_, err := engine.(*xorm.Engine).Insert(newLoss)
-			if err != nil {
-				fmt.Printf("Error inserting loss data: %v\n", err)
-			}
-		}
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Loss data uploaded successfully",
-	})
+	c.JSON(http.StatusOK, finalResponse)
 }
