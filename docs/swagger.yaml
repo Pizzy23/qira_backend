@@ -395,6 +395,36 @@ paths:
       summary: '{WIP} Retrieve All Control Proposed'
       tags:
       - 11 - Control Proposed
+  /api/all-prupu:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all Event
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All Event
+          schema:
+            $ref: '#/definitions/db.ControlLibrary'
+      summary: Retrieve All Control
+      tags:
+      - 11 - Control Proposed
+  /api/all-stren:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all Event
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All Event
+          schema:
+            $ref: '#/definitions/db.ControlLibrary'
+      summary: Retrieve All Control
+      tags:
+      - 10 - Control Strength
   /api/all-strength:
     get:
       consumes:

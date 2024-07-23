@@ -2,6 +2,7 @@ package control
 
 import (
 	"fmt"
+	"math"
 	"net/http"
 	"qira/db"
 	"qira/internal/mock"
@@ -18,6 +19,13 @@ type ControlProposed struct {
 	Aggregate       float64
 	ControlGapTable string
 	ControlGap      float64
+}
+
+type ControlStrength struct {
+	ControlID    int64
+	TypeOfAttack string
+	Strength     float64
+	Porcent      float64
 }
 
 func PullAllControlStrength(c *gin.Context) {
@@ -52,7 +60,9 @@ func PullAllControlStrength(c *gin.Context) {
 
 	relevanceMap := make(map[int64][]db.Relevance)
 	for _, relevance := range relevances {
-		relevanceMap[relevance.ControlID] = append(relevanceMap[relevance.ControlID], relevance)
+		if relevance.Porcent >= 1 {
+			relevanceMap[relevance.ControlID] = append(relevanceMap[relevance.ControlID], relevance)
+		}
 	}
 
 	implMap := make(map[int64]db.Implements)
@@ -82,10 +92,6 @@ func PullAllControlStrength(c *gin.Context) {
 		}
 
 		for _, relevance := range relevances {
-			if relevance.Porcent < 0 {
-				continue
-			}
-
 			typeOfAttack := relevance.TypeOfAttack
 
 			relevanceAvgStr, err := mock.FindAverageByScore(int(relevance.Porcent))
@@ -118,7 +124,7 @@ func PullAllControlStrength(c *gin.Context) {
 	controlStrengthMap := make(map[string]float64)
 	porcentMap := make(map[int64]float64)
 	for _, result := range controlStrengths {
-		controlStrengthMap[result.TypeOfAttack] += result.Strength
+		controlStrengthMap[result.TypeOfAttack] += math.Floor(result.Strength * 100)
 		porcentMap[result.ControlID] = result.Porcent
 	}
 
@@ -134,14 +140,14 @@ func PullAllControlStrength(c *gin.Context) {
 				ID:           relevance.ID,
 				ControlID:    control.ID,
 				TypeOfAttack: relevance.TypeOfAttack,
-				Porcent:      fmt.Sprintf("%.0f%%", porcentMap[control.ID]*100), // Arredondando para o valor inteiro
+				Porcent:      fmt.Sprintf("%.0f%%", math.Floor(porcentMap[control.ID]*100)), // Arredondando para o valor inteiro
 			})
 		}
 	}
 
 	for typeOfAttack, totalStrength := range controlStrengthMap {
 		totalRelevance := totalRelevanceMap[typeOfAttack]
-		aggregated := (totalStrength / totalRelevance) * 100.0
+		aggregated := math.Floor((totalStrength / totalRelevance) * 100.0)
 		controlGap := 100.0 - aggregated
 
 		finalResults = append(finalResults, db.Control{
@@ -204,13 +210,6 @@ func PullAllControlProposed(c *gin.Context) {
 		implMap[impl.ControlID] = impl
 	}
 
-	type ControlStrength struct {
-		ControlID    int64
-		TypeOfAttack string
-		Strength     float64
-		Porcent      float64
-	}
-
 	controlStrengths := []ControlStrength{}
 	totalRelevanceMap := make(map[string]float64)
 
@@ -221,6 +220,10 @@ func PullAllControlProposed(c *gin.Context) {
 		}
 
 		for _, relevance := range relevances {
+			if relevance.Porcent < 0 {
+				continue
+			}
+
 			typeOfAttack := relevance.TypeOfAttack
 
 			relevanceAvgStr, err := mock.FindAverageByScore(int(relevance.Porcent))
@@ -253,7 +256,7 @@ func PullAllControlProposed(c *gin.Context) {
 	controlStrengthMap := make(map[string]float64)
 	porcentMap := make(map[int64]float64)
 	for _, result := range controlStrengths {
-		controlStrengthMap[result.TypeOfAttack] += result.Strength
+		controlStrengthMap[result.TypeOfAttack] += math.Floor(result.Strength * 100)
 		porcentMap[result.ControlID] = result.Porcent
 	}
 
@@ -262,25 +265,25 @@ func PullAllControlProposed(c *gin.Context) {
 		finalResults = append(finalResults, db.Propused{
 			ControlID:    control.ControlID,
 			TypeOfAttack: control.TypeOfAttack,
-			Porcent:      fmt.Sprintf("%.0f%%", porcentMap[control.ControlID]), // Arredondando para o valor inteiro
+			Porcent:      fmt.Sprintf("%.0f%%", math.Floor(porcentMap[control.ControlID]*100)), // Arredondando para o valor inteiro
 		})
 	}
 
 	for typeOfAttack, totalStrength := range controlStrengthMap {
 		totalRelevance := totalRelevanceMap[typeOfAttack]
-		aggregated := (totalStrength / totalRelevance) * 100.0
+		aggregated := math.Floor((totalStrength / totalRelevance) * 100.0)
 		controlGap := 100.0 - aggregated
 
 		finalResults = append(finalResults, db.Propused{
 			ControlID:    -1,
 			TypeOfAttack: typeOfAttack,
-			Aggregate:    fmt.Sprintf("%.0f%%", aggregated), // Arredondando para o valor inteiro
+			Aggregate:    fmt.Sprintf("%.0f%%", aggregated),
 		})
 
 		finalResults = append(finalResults, db.Propused{
 			ControlID:    -2,
 			TypeOfAttack: typeOfAttack,
-			ControlGap:   fmt.Sprintf("%.0f%%", controlGap), // Arredondando para o valor inteiro
+			ControlGap:   fmt.Sprintf("%.0f%%", controlGap),
 		})
 	}
 

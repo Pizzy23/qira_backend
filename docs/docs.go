@@ -185,6 +185,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/all-prupu": {
+            "get": {
+                "description": "Retrieve all Event",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "11 - Control Proposed"
+                ],
+                "summary": "Retrieve All Control",
+                "responses": {
+                    "200": {
+                        "description": "List of All Event",
+                        "schema": {
+                            "$ref": "#/definitions/db.ControlLibrary"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/all-stren": {
+            "get": {
+                "description": "Retrieve all Event",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "10 - Control Strength"
+                ],
+                "summary": "Retrieve All Control",
+                "responses": {
+                    "200": {
+                        "description": "List of All Event",
+                        "schema": {
+                            "$ref": "#/definitions/db.ControlLibrary"
+                        }
+                    }
+                }
+            }
+        },
         "/api/all-strength": {
             "get": {
                 "description": "Retrieve all Control Strength",

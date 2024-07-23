@@ -244,3 +244,39 @@ func PullControlId(c *gin.Context, id int) {
 	c.Set("Response", control)
 	c.Status(http.StatusOK)
 }
+
+func Stren(c *gin.Context) {
+	var controls []db.Control
+	engine, exists := c.Get("db")
+	if !exists {
+		c.Set("Response", "Database connection not found")
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	if err := db.GetAll(engine.(*xorm.Engine), &controls); err != nil {
+		c.Set("Response", err)
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+	c.Set("Response", controls)
+	c.Status(http.StatusOK)
+}
+
+func Prupu(c *gin.Context) {
+	var controls []db.Propused
+	engine, exists := c.Get("db")
+	if !exists {
+		c.Set("Response", "Database connection not found")
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	if err := db.GetAll(engine.(*xorm.Engine), &controls); err != nil {
+		c.Set("Response", err)
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+	c.Set("Response", controls)
+	c.Status(http.StatusOK)
+}
