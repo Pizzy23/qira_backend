@@ -1,10 +1,10 @@
 package simulation
 
 import (
-	"bytes"
-	"encoding/json"
+	"fmt"
 	"net/http"
 	"qira/db"
+	"qira/internal/interfaces"
 
 	"github.com/gin-gonic/gin"
 	"xorm.io/xorm"
@@ -16,19 +16,16 @@ type AcceptableLoss struct {
 }
 
 type FrontEndResponseApp struct {
-	FrequencyMax     float64          `json:"FrequencyMax"`
-	FrequencyMin     float64          `json:"FrequencyMin"`
-	FrequencyMode    float64          `json:"FrequencyMode"`
-	LossMax          float64          `json:"LossMax"`
-	LossMin          float64          `json:"LossMin"`
-	LossMode         float64          `json:"LossMode"`
-	Bins             []Bin            `json:"bins"`
-	Lecs             []float64        `json:"lecs"`
-	CumLecs          []float64        `json:"cum_lecs"`
-	AcceptableLosses []AcceptableLoss `json:"acceptable_losses"`
+	FrequencyMax   float64             `json:"FrequencyMax"`
+	FrequencyMin   float64             `json:"FrequencyMin"`
+	FrequencyMode  float64             `json:"FrequencyMode"`
+	LossMax        float64             `json:"LossMax"`
+	LossMin        float64             `json:"LossMin"`
+	LossMode       float64             `json:"LossMode"`
+	lossExceedance []db.LossExceedance `json:"LossExceedance"`
 }
 
-func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string, reciverEmail string) {
+func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string) {
 	var riskCalculations []db.RiskCalculation
 
 	engine, exists := c.Get("db")
@@ -84,62 +81,52 @@ func MonteCarloSimulationAppetite(c *gin.Context, threatEvent string, reciverEma
 			MaxLoss:  lossRequests[i].MaxLoss,
 		}
 	}
-
-	analyzeRequest := AnalyzeRequest{
-		ThreatEvents: threatEventRequests,
-	}
-
-	requestBody, err := json.Marshal(analyzeRequest)
-	if err != nil {
-		c.Set("Response", "Error marshaling request body")
+	var lossEc []db.LossExceedance
+	if err := db.GetAll(engine.(*xorm.Engine), &lossEc); err != nil {
+		c.Set("Response", err)
 		c.Status(http.StatusInternalServerError)
 		return
-	}
-
-	response, err := http.Post("https://qira-bellujrb-test.replit.app/analyze", "application/json", bytes.NewBuffer(requestBody))
-	if err != nil {
-		c.Set("Response", "Error sending request")
-		c.Status(http.StatusInternalServerError)
-		return
-	}
-	defer response.Body.Close()
-
-	var analyzeResponse AnalyzeResponse
-	if err := json.NewDecoder(response.Body).Decode(&analyzeResponse); err != nil {
-		c.Set("Response", "Error decoding response")
-		c.Status(http.StatusInternalServerError)
-		return
-	}
-
-	bins := make([]Bin, len(analyzeResponse.Bins)-1)
-	for i := 0; i < len(analyzeResponse.Bins)-1; i++ {
-		midPoint := (analyzeResponse.Bins[i] + analyzeResponse.Bins[i+1]) / 2
-		bins[i] = Bin{
-			Frequency: analyzeResponse.Freqs[i],
-			MidPoint:  midPoint,
-		}
-	}
-
-	acceptableLosses := []AcceptableLoss{
-		{"100%", totalMaxLoss},
-		{"75%", totalMaxLoss * 0.75},
-		{"50%", totalMaxLoss * 0.5},
-		{"25%", totalMaxLoss * 0.25},
-		{"0%", totalMaxLoss * 0},
 	}
 
 	finalResponse := FrontEndResponseApp{
-		FrequencyMax:     totalMaxFreq,
-		FrequencyMin:     totalMinFreq,
-		FrequencyMode:    totalPertFreq,
-		LossMax:          totalMaxLoss,
-		LossMin:          totalMinLoss,
-		LossMode:         totalPertLoss,
-		Bins:             bins,
-		Lecs:             analyzeResponse.Lecs,
-		CumLecs:          analyzeResponse.CumFreqs,
-		AcceptableLosses: acceptableLosses,
+		FrequencyMax:   totalMaxFreq,
+		FrequencyMin:   totalMinFreq,
+		FrequencyMode:  totalPertFreq,
+		LossMax:        totalMaxLoss,
+		LossMin:        totalMinLoss,
+		LossMode:       totalPertLoss,
+		lossExceedance: lossEc,
 	}
 
 	c.JSON(http.StatusOK, finalResponse)
+}
+
+func UploadLossData(c *gin.Context, lossData []interfaces.LossExceedance) {
+
+	engine, exists := c.Get("db")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Database connection not found",
+		})
+		return
+	}
+
+	for _, ld := range lossData {
+		existing := &db.LossExceedance{}
+		has, err := engine.(*xorm.Engine).Where("risk = ? AND loss = ?", ld.Risk, ld.Loss).Get(existing)
+		if err == nil && !has {
+			newLoss := db.LossExceedance{
+				Risk: ld.Risk,
+				Loss: ld.Loss,
+			}
+			_, err := engine.(*xorm.Engine).Insert(newLoss)
+			if err != nil {
+				fmt.Printf("Error inserting loss data: %v\n", err)
+			}
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Loss data uploaded successfully",
+	})
 }

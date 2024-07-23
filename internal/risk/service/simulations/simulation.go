@@ -1,10 +1,6 @@
 package simulation
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"net/http"
 	"qira/db"
 
@@ -49,7 +45,7 @@ type FrontEndResponse struct {
 	CumLecs       []float64 `json:"cum_lecs"`
 }
 
-func MonteCarloSimulation(c *gin.Context, threatEvent string, reciverEmail string) {
+func MonteCarloSimulation(c *gin.Context, threatEvent string) {
 	var riskCalculations []db.RiskCalculation
 
 	engine, exists := c.Get("db")
@@ -100,49 +96,6 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string, reciverEmail strin
 		threatEventRequests = append(threatEventRequests, te)
 	}
 
-	analyzeRequest := AnalyzeRequest{
-		ThreatEvents: threatEventRequests,
-	}
-
-	requestBody, err := json.Marshal(analyzeRequest)
-	if err != nil {
-		c.Set("Response", "Error marshaling request body")
-		c.Status(http.StatusInternalServerError)
-		return
-	}
-
-	response, err := http.Post("https://qira-bellujrb-test.replit.app/analyze", "application/json", bytes.NewBuffer(requestBody))
-	if err != nil {
-		c.Set("Response", "Error sending request")
-		c.Status(http.StatusInternalServerError)
-		return
-	}
-	defer response.Body.Close()
-
-	if response.StatusCode != http.StatusOK {
-		bodyBytes, _ := ioutil.ReadAll(response.Body)
-		c.Set("Response", fmt.Sprintf("Received non-OK response: %s", string(bodyBytes)))
-		c.Status(http.StatusInternalServerError)
-		return
-	}
-
-	var analyzeResponse AnalyzeResponse
-	if err := json.NewDecoder(response.Body).Decode(&analyzeResponse); err != nil {
-		bodyBytes, _ := ioutil.ReadAll(response.Body)
-		c.Set("Response", fmt.Sprintf("Error decoding response: %s", string(bodyBytes)))
-		c.Status(http.StatusInternalServerError)
-		return
-	}
-
-	bins := make([]Bin, len(analyzeResponse.Bins)-1)
-	for i := 0; i < len(analyzeResponse.Bins)-1; i++ {
-		midPoint := (analyzeResponse.Bins[i] + analyzeResponse.Bins[i+1]) / 2
-		bins[i] = Bin{
-			Frequency: analyzeResponse.Freqs[i],
-			MidPoint:  midPoint,
-		}
-	}
-
 	finalResponse := FrontEndResponse{
 		FrequencyMax:  threatEventRequests[0].MaxFreq,
 		FrequencyMin:  threatEventRequests[0].MinFreq,
@@ -150,9 +103,6 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string, reciverEmail strin
 		LossMax:       threatEventRequests[0].MaxLoss,
 		LossMin:       threatEventRequests[0].MinLoss,
 		LossMode:      threatEventRequests[0].PertLoss,
-		Bins:          bins,
-		Lecs:          analyzeResponse.Lecs,
-		CumLecs:       analyzeResponse.CumFreqs,
 	}
 
 	c.JSON(http.StatusOK, finalResponse)

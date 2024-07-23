@@ -14,7 +14,6 @@ import (
 // @Accept json
 // @Produce json
 // @Param threatEvent header string true "Threat Event "
-// @Param email header string false "Email for recive "
 // @Router /simulation [get]
 func RiskMount(c *gin.Context) {
 	threatEvent := c.GetHeader("ThreatEvent")
@@ -22,8 +21,7 @@ func RiskMount(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ThreatEvent header is required"})
 		return
 	}
-	email := c.GetHeader("Email")
-	simulation.MonteCarloSimulation(c, threatEvent, email)
+	simulation.MonteCarloSimulation(c, threatEvent)
 }
 
 // @Summary Test for simulation
@@ -32,7 +30,6 @@ func RiskMount(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param threatEvent header string true "Threat Event "
-// @Param email header string false "Email for recive"
 // @Router /simulation-report [get]
 func RiskMountReport(c *gin.Context) {
 	threatEvent := c.GetHeader("ThreatEvent")
@@ -50,7 +47,6 @@ func RiskMountReport(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param threatEvent header string true "Threat Event "
-// @Param email header string false "Email for recive "
 // @Router /simulation-aggregated [get]
 func RiskMountAggregated(c *gin.Context) {
 	threatEvent := c.GetHeader("ThreatEvent")
@@ -58,8 +54,7 @@ func RiskMountAggregated(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ThreatEvent header is required"})
 		return
 	}
-	email := c.GetHeader("Email")
-	simulation.MonteCarloSimulationAggregated(c, threatEvent, email)
+	simulation.MonteCarloSimulationAggregated(c, threatEvent)
 }
 
 // @Summary Test for simulation appetite
@@ -68,7 +63,6 @@ func RiskMountAggregated(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param threatEvent header string true "Threat Event "
-// @Param email header string false "Email for recive "
 // @Router /simulation-appetite [get]
 func RiskMountAppetite(c *gin.Context) {
 	threatEvent := c.GetHeader("ThreatEvent")
@@ -76,8 +70,7 @@ func RiskMountAppetite(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ThreatEvent header is required"})
 		return
 	}
-	email := c.GetHeader("Email")
-	simulation.MonteCarloSimulationAppetite(c, threatEvent, email)
+	simulation.MonteCarloSimulationAppetite(c, threatEvent)
 }
 
 // @Summary Test for simulation appetite
@@ -93,5 +86,5 @@ func UploadAppetite(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Parameters are invalid, need a JSON array of LossExceedance"})
 		return
 	}
-	//	simulation.UploadLossData(c, lossData)
+	simulation.UploadLossData(c, lossData)
 }

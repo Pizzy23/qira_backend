@@ -100,7 +100,7 @@ func MonteCarloSimulationReport(c *gin.Context, threatEvent string, receiverEmai
 	}
 
 	// Generate the Monte Carlo Simulation and get bin data
-	binData := generateMonteCarloSimulation(c, inherentRiskMin, inherentRiskMax, inherentRiskMode)
+	binData := generateMonteCarloSimulation(inherentRiskMin, inherentRiskMax, inherentRiskMode)
 
 	// Combine all information into a report
 	reportPath := "report.txt"
@@ -127,7 +127,7 @@ func MonteCarloSimulationReport(c *gin.Context, threatEvent string, receiverEmai
 	})
 }
 
-func generateMonteCarloSimulation(c *gin.Context, inherentRiskMin, inherentRiskMax, inherentRiskMode float64) []map[string]interface{} {
+func generateMonteCarloSimulation(inherentRiskMin, inherentRiskMax, inherentRiskMode float64) []map[string]interface{} {
 	const (
 		amostras = 10000
 		numBins  = 70
