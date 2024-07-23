@@ -2,7 +2,6 @@ package control
 
 import (
 	"fmt"
-	"math"
 	"net/http"
 	"qira/db"
 	"qira/internal/mock"
@@ -124,7 +123,7 @@ func PullAllControlStrength(c *gin.Context) {
 	controlStrengthMap := make(map[string]float64)
 	porcentMap := make(map[int64]float64)
 	for _, result := range controlStrengths {
-		controlStrengthMap[result.TypeOfAttack] += math.Floor(result.Strength * 100)
+		controlStrengthMap[result.TypeOfAttack] += result.Strength
 		porcentMap[result.ControlID] = result.Porcent
 	}
 
@@ -140,14 +139,14 @@ func PullAllControlStrength(c *gin.Context) {
 				ID:           relevance.ID,
 				ControlID:    control.ID,
 				TypeOfAttack: relevance.TypeOfAttack,
-				Porcent:      fmt.Sprintf("%.0f%%", math.Floor(porcentMap[control.ID]*100)), // Arredondando para o valor inteiro
+				Porcent:      fmt.Sprintf("%.0f%%", porcentMap[control.ID]*100), // Truncando para o valor inteiro
 			})
 		}
 	}
 
 	for typeOfAttack, totalStrength := range controlStrengthMap {
 		totalRelevance := totalRelevanceMap[typeOfAttack]
-		aggregated := math.Floor((totalStrength / totalRelevance) * 100.0)
+		aggregated := ((totalStrength * 100.0) / totalRelevance) * 100.0
 		controlGap := 100.0 - aggregated
 
 		finalResults = append(finalResults, db.Control{
@@ -174,7 +173,7 @@ func PullAllControlStrength(c *gin.Context) {
 }
 
 func CalculateValue(relevance float64, current float64) float64 {
-	return relevance * relevance * current
+	return (relevance * relevance) * current
 }
 
 func PullAllControlProposed(c *gin.Context) {
@@ -210,6 +209,13 @@ func PullAllControlProposed(c *gin.Context) {
 		implMap[impl.ControlID] = impl
 	}
 
+	type ControlStrength struct {
+		ControlID    int64
+		TypeOfAttack string
+		Strength     float64
+		Porcent      float64
+	}
+
 	controlStrengths := []ControlStrength{}
 	totalRelevanceMap := make(map[string]float64)
 
@@ -237,18 +243,18 @@ func PullAllControlProposed(c *gin.Context) {
 
 			totalRelevanceMap[typeOfAttack] += relevanceValue
 
-			currentValue, err := strconv.ParseFloat(strings.TrimSuffix(impl.PercentCurrent, "%"), 64)
+			proposedValue, err := strconv.ParseFloat(strings.TrimSuffix(impl.PercentProposed, "%"), 64)
 			if err != nil {
 				continue
 			}
 
-			porcent := CalculateValue(relevanceValue/100.0, currentValue/100.0)
+			porcent := CalculateValue(relevanceValue/100.0, proposedValue/100.0)
 
 			controlStrengths = append(controlStrengths, ControlStrength{
 				ControlID:    controlID,
 				TypeOfAttack: typeOfAttack,
 				Strength:     porcent,
-				Porcent:      float64(impl.Proposed),
+				Porcent:      porcent,
 			})
 		}
 	}
@@ -256,22 +262,30 @@ func PullAllControlProposed(c *gin.Context) {
 	controlStrengthMap := make(map[string]float64)
 	porcentMap := make(map[int64]float64)
 	for _, result := range controlStrengths {
-		controlStrengthMap[result.TypeOfAttack] += math.Floor(result.Strength * 100)
+		controlStrengthMap[result.TypeOfAttack] += result.Strength
 		porcentMap[result.ControlID] = result.Porcent
 	}
 
 	var finalResults []db.Propused
 	for _, control := range relevances {
-		finalResults = append(finalResults, db.Propused{
-			ControlID:    control.ControlID,
-			TypeOfAttack: control.TypeOfAttack,
-			Porcent:      fmt.Sprintf("%.0f%%", math.Floor(porcentMap[control.ControlID]*100)), // Arredondando para o valor inteiro
-		})
+		relevances, relevanceExists := relevanceMap[control.ID]
+		if !relevanceExists {
+			continue
+		}
+
+		for _, relevance := range relevances {
+			finalResults = append(finalResults, db.Propused{
+				ID:           relevance.ID,
+				ControlID:    control.ID,
+				TypeOfAttack: relevance.TypeOfAttack,
+				Porcent:      fmt.Sprintf("%.0f%%", porcentMap[control.ID]*100), // Truncando para o valor inteiro
+			})
+		}
 	}
 
 	for typeOfAttack, totalStrength := range controlStrengthMap {
 		totalRelevance := totalRelevanceMap[typeOfAttack]
-		aggregated := math.Floor((totalStrength / totalRelevance) * 100.0)
+		aggregated := ((totalStrength * 100.0) / totalRelevance) * 100.0
 		controlGap := 100.0 - aggregated
 
 		finalResults = append(finalResults, db.Propused{
