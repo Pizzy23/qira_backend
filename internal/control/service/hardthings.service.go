@@ -46,7 +46,6 @@ func PullAllControlStrength(c *gin.Context) {
 		return
 	}
 
-	// Mapping control IDs to their relevances and implementations
 	relevanceMap := make(map[int64][]db.Relevance)
 	for _, relevance := range relevances {
 		relevanceMap[relevance.ControlID] = append(relevanceMap[relevance.ControlID], relevance)
@@ -126,7 +125,7 @@ func PullAllControlStrength(c *gin.Context) {
 			finalResults = append(finalResults, db.Control{
 				ControlID:    control.ID,
 				TypeOfAttack: relevance.TypeOfAttack,
-				Porcent:      fmt.Sprintf("%.2f%%", porcentMap[control.ID]*100), // Convertendo de decimal para percentual
+				Porcent:      fmt.Sprintf("%.0f%%", porcentMap[control.ID]*100), // Arredondando para o valor inteiro
 			})
 		}
 	}
@@ -139,13 +138,13 @@ func PullAllControlStrength(c *gin.Context) {
 		finalResults = append(finalResults, db.Control{
 			ControlID:    -1,
 			TypeOfAttack: typeOfAttack,
-			Aggregate:    fmt.Sprintf("%.2f%%", aggregated),
+			Aggregate:    fmt.Sprintf("%.0f%%", aggregated),
 		})
 
 		finalResults = append(finalResults, db.Control{
 			ControlID:    -2,
 			TypeOfAttack: typeOfAttack,
-			ControlGap:   fmt.Sprintf("%.2f%%", controlGap),
+			ControlGap:   fmt.Sprintf("%.0f%%", controlGap),
 		})
 	}
 
@@ -254,7 +253,7 @@ func PullAllControlProposed(c *gin.Context) {
 		finalResults = append(finalResults, db.Propused{
 			ControlID:    control.ControlID,
 			TypeOfAttack: control.TypeOfAttack,
-			Porcent:      fmt.Sprintf("%.2f%%", porcentMap[control.ControlID]),
+			Porcent:      fmt.Sprintf("%.0f%%", porcentMap[control.ControlID]), // Arredondando para o valor inteiro
 		})
 	}
 
@@ -266,13 +265,13 @@ func PullAllControlProposed(c *gin.Context) {
 		finalResults = append(finalResults, db.Propused{
 			ControlID:    -1,
 			TypeOfAttack: typeOfAttack,
-			Aggregate:    fmt.Sprintf("%.2f%%", aggregated),
+			Aggregate:    fmt.Sprintf("%.0f%%", aggregated), // Arredondando para o valor inteiro
 		})
 
 		finalResults = append(finalResults, db.Propused{
 			ControlID:    -2,
 			TypeOfAttack: typeOfAttack,
-			ControlGap:   fmt.Sprintf("%.2f%%", controlGap),
+			ControlGap:   fmt.Sprintf("%.0f%%", controlGap), // Arredondando para o valor inteiro
 		})
 	}
 
@@ -362,19 +361,17 @@ func CalculateAggregatedControlStrength(engine *xorm.Engine) ([]db.AggregatedStr
 
 	aggregatedMap := make(map[string]db.AggregatedStrength)
 
-	// Aggregate current control strengths
 	for _, cs := range controlStrengths {
 		if cs.ControlID == -1 {
 			aggregatedMap[cs.TypeOfAttack] = db.AggregatedStrength{
 				ThreatID:    0,
 				ThreatEvent: cs.TypeOfAttack,
 				Current:     cs.Aggregate,
-				Proposed:    "", // Deixe proposto vazio por enquanto
+				Proposed:    "",
 			}
 		}
 	}
 
-	// Aggregate proposed control strengths
 	for _, ps := range proposedStrengths {
 		if ps.ControlID == -1 {
 			acs, exists := aggregatedMap[ps.TypeOfAttack]
@@ -385,7 +382,6 @@ func CalculateAggregatedControlStrength(engine *xorm.Engine) ([]db.AggregatedStr
 		}
 	}
 
-	// Assign threat event names
 	for _, te := range threatEvents {
 		acs, exists := aggregatedMap[te.ThreatEvent]
 		if exists {
@@ -394,7 +390,6 @@ func CalculateAggregatedControlStrength(engine *xorm.Engine) ([]db.AggregatedStr
 		}
 	}
 
-	// Collect results
 	var finalResults []db.AggregatedStrength
 	for _, acs := range aggregatedMap {
 		finalResults = append(finalResults, acs)

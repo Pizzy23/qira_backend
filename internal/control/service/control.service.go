@@ -118,7 +118,7 @@ func createTables(engine *xorm.Engine, control *db.ControlLibrary) error {
 	return nil
 }
 
-func CreateImplementService(c *gin.Context, data interfaces.ImplementsInputNoID, id int64) error {
+func CreateOrUpdateImplementService(c *gin.Context, data interfaces.ImplementsInputNoID, id int64) error {
 	averageC, err := mock.FindAverageByScoreImp(data.Current)
 	if err != nil {
 		return errors.New("score not found for Percent Current")
@@ -127,7 +127,51 @@ func CreateImplementService(c *gin.Context, data interfaces.ImplementsInputNoID,
 	if err != nil {
 		return errors.New("score not found for Percent Proposed")
 	}
-	implement := db.Implements{
+
+	engine, exists := c.Get("db")
+	if !exists {
+		return errors.New("database connection not found")
+	}
+
+	var existingImplement db.Implements
+	has, err := engine.(*xorm.Engine).Where("control_id = ?", id).Get(&existingImplement)
+	if err != nil {
+		return err
+	}
+
+	if !has {
+		var control db.Control
+		hasControl, err := engine.(*xorm.Engine).Where("id = ?", id).Get(&control)
+		if err != nil {
+			return err
+		}
+		if !hasControl {
+			return errors.New("ControlID not found")
+		}
+
+		newImplement := db.Implements{
+			ControlID:       id,
+			Current:         data.Current,
+			Proposed:        data.Proposed,
+			Cost:            data.Cost,
+			PercentCurrent:  averageC,
+			PercentProposed: averageP,
+		}
+		if err := db.Create(engine.(*xorm.Engine), &newImplement); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	if existingImplement.Current == data.Current &&
+		existingImplement.Proposed == data.Proposed &&
+		existingImplement.Cost == data.Cost &&
+		existingImplement.PercentCurrent == averageC &&
+		existingImplement.PercentProposed == averageP {
+		return errors.New("no update made, all fields are the same")
+	}
+
+	updatedImplement := db.Implements{
 		ControlID:       id,
 		Current:         data.Current,
 		Proposed:        data.Proposed,
@@ -135,16 +179,11 @@ func CreateImplementService(c *gin.Context, data interfaces.ImplementsInputNoID,
 		PercentCurrent:  averageC,
 		PercentProposed: averageP,
 	}
-	engine, exists := c.Get("db")
-	if !exists {
-		return errors.New("database connection not found")
-	}
-
-	if err := db.Create(engine.(*xorm.Engine), &implement); err != nil {
+	if err := db.UpdateByControlId(engine.(*xorm.Engine), &updatedImplement, id); err != nil {
 		return err
 	}
-	return nil
 
+	return nil
 }
 
 func PullAllControl(c *gin.Context) {

@@ -91,7 +91,7 @@ func EditControlImplementation(c *gin.Context) {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	if err := control.CreateImplementService(c, implement, id); err != nil {
+	if err := control.CreateOrUpdateImplementService(c, implement, id); err != nil {
 		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
