@@ -1020,15 +1020,6 @@ const docTemplate = `{
                     "13 - Simulation"
                 ],
                 "summary": "Test for simulation appetite",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Threat Event ",
-                        "name": "threatEvent",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {}
             }
         },

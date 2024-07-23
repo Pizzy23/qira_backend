@@ -941,12 +941,6 @@ paths:
       consumes:
       - application/json
       description: Test for simulation appetite
-      parameters:
-      - description: 'Threat Event '
-        in: header
-        name: threatEvent
-        required: true
-        type: string
       produces:
       - application/json
       responses: {}
