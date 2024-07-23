@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"qira/db"
 
@@ -12,12 +13,12 @@ import (
 )
 
 type ThreatEventRequest struct {
-	MinFreq  float64 `json:"minfreq"`
-	PertFreq float64 `json:"pertfreq"`
-	MaxFreq  float64 `json:"maxfreq"`
-	MinLoss  float64 `json:"minloss"`
-	PertLoss float64 `json:"pertloss"`
-	MaxLoss  float64 `json:"maxloss"`
+	MinFreq  float64 `json:"minfreq,omitempty"`
+	PertFreq float64 `json:"pertfreq,omitempty"`
+	MaxFreq  float64 `json:"maxfreq,omitempty"`
+	MinLoss  float64 `json:"minloss,omitempty"`
+	PertLoss float64 `json:"pertloss,omitempty"`
+	MaxLoss  float64 `json:"maxloss,omitempty"`
 }
 
 type AnalyzeRequest struct {
@@ -65,14 +66,18 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string, reciverEmail strin
 		return
 	}
 
-	// Montar o corpo da requisição
-	threatEventRequests := []ThreatEventRequest{}
+	frequencyRequests := []ThreatEventRequest{}
+	lossRequests := []ThreatEventRequest{}
+
 	for _, risk := range riskCalculations {
-		if risk.RiskType == "Frequency" || risk.RiskType == "Loss" {
-			threatEventRequests = append(threatEventRequests, ThreatEventRequest{
+		if risk.RiskType == "Frequency" {
+			frequencyRequests = append(frequencyRequests, ThreatEventRequest{
 				MinFreq:  risk.Min,
 				PertFreq: risk.Mode,
 				MaxFreq:  risk.Max,
+			})
+		} else if risk.RiskType == "Loss" {
+			lossRequests = append(lossRequests, ThreatEventRequest{
 				MinLoss:  risk.Min,
 				PertLoss: risk.Mode,
 				MaxLoss:  risk.Max,
@@ -80,11 +85,25 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string, reciverEmail strin
 		}
 	}
 
+	threatEventRequests := []ThreatEventRequest{}
+	for i := range frequencyRequests {
+		te := ThreatEventRequest{
+			MinFreq:  frequencyRequests[i].MinFreq,
+			PertFreq: frequencyRequests[i].PertFreq,
+			MaxFreq:  frequencyRequests[i].MaxFreq,
+		}
+		if i < len(lossRequests) {
+			te.MinLoss = lossRequests[i].MinLoss
+			te.PertLoss = lossRequests[i].PertLoss
+			te.MaxLoss = lossRequests[i].MaxLoss
+		}
+		threatEventRequests = append(threatEventRequests, te)
+	}
+
 	analyzeRequest := AnalyzeRequest{
 		ThreatEvents: threatEventRequests,
 	}
 
-	// Enviar a requisição POST
 	requestBody, err := json.Marshal(analyzeRequest)
 	if err != nil {
 		c.Set("Response", "Error marshaling request body")
@@ -94,21 +113,27 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string, reciverEmail strin
 
 	response, err := http.Post("https://qira-bellujrb-test.replit.app/analyze", "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
-		c.Set("Response", fmt.Sprintf("Error sending request: %v", err))
+		c.Set("Response", "Error sending request")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 	defer response.Body.Close()
 
-	// Processar a resposta
-	var analyzeResponse AnalyzeResponse
-	if err := json.NewDecoder(response.Body).Decode(&analyzeResponse); err != nil {
-		c.Set("Response", "Error decoding response")
+	if response.StatusCode != http.StatusOK {
+		bodyBytes, _ := ioutil.ReadAll(response.Body)
+		c.Set("Response", fmt.Sprintf("Received non-OK response: %s", string(bodyBytes)))
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
-	// Transformar os dados da resposta
+	var analyzeResponse AnalyzeResponse
+	if err := json.NewDecoder(response.Body).Decode(&analyzeResponse); err != nil {
+		bodyBytes, _ := ioutil.ReadAll(response.Body)
+		c.Set("Response", fmt.Sprintf("Error decoding response: %s", string(bodyBytes)))
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
 	bins := make([]Bin, len(analyzeResponse.Bins)-1)
 	for i := 0; i < len(analyzeResponse.Bins)-1; i++ {
 		midPoint := (analyzeResponse.Bins[i] + analyzeResponse.Bins[i+1]) / 2
@@ -118,7 +143,6 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string, reciverEmail strin
 		}
 	}
 
-	// Preparar a resposta final
 	finalResponse := FrontEndResponse{
 		FrequencyMax:  threatEventRequests[0].MaxFreq,
 		FrequencyMin:  threatEventRequests[0].MinFreq,
@@ -131,6 +155,5 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string, reciverEmail strin
 		CumLecs:       analyzeResponse.CumFreqs,
 	}
 
-	// Enviar a resposta para o cliente
 	c.JSON(http.StatusOK, finalResponse)
 }
