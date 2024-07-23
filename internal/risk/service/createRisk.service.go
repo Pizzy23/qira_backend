@@ -7,7 +7,6 @@ import (
 	"qira/internal/interfaces"
 	losshigh "qira/internal/loss-high/service"
 	calculations "qira/internal/math"
-	"sync"
 
 	"github.com/gin-gonic/gin"
 	"xorm.io/xorm"
@@ -26,25 +25,12 @@ func CreateRiskService(c *gin.Context) ([]db.RiskCalculation, error) {
 		return nil, errors.New("type assertion to *xorm.Engine failed")
 	}
 
-	risk, threat, err := getThreatAndRisks(xormEngine)
+	_, threat, err := getThreatAndRisks(xormEngine)
 	if err != nil {
 		return nil, err
 	}
 	if len(threat) <= 0 {
 		return nil, errors.New("not have Event catalogue")
-	}
-
-	// Verificar se todos os campos dos riscos estão atualizados
-	risksUpdated := true
-	for _, t := range threat {
-		if !riskExistsAndUpdated(risk, t.ID) {
-			risksUpdated = false
-			break
-		}
-	}
-
-	if risksUpdated {
-		return risk, nil
 	}
 
 	_, freq, err := getAll(xormEngine)
@@ -57,96 +43,70 @@ func CreateRiskService(c *gin.Context) ([]db.RiskCalculation, error) {
 		return nil, errors.New("error getting aggregated losses")
 	}
 
-	var wg sync.WaitGroup
-	errChan := make(chan error, 3)
+	var finalResults []db.RiskCalculation
 
 	// Process frequencies
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		for _, frequency := range freq {
-			if hasLoss(frequency.ThreatEventID, aggregatedLossControles) {
-				calc := calculations.CalcRisks(frequency.MinFrequency, frequency.MostLikelyFrequency, frequency.MaxFrequency)
-				freqCalc := db.RiskCalculation{
-					ThreatEventID: frequency.ThreatEventID,
-					ThreatEvent:   frequency.ThreatEvent,
-					RiskType:      "Frequency",
-					Min:           frequency.MinFrequency,
-					Max:           frequency.MaxFrequency,
-					Mode:          frequency.MostLikelyFrequency,
-					Estimate:      calc,
-				}
-				if err := handleRiskCalculation(xormEngine, &freqCalc); err != nil {
-					errChan <- err
-					return
-				}
-			}
+	for _, frequency := range freq {
+		calc := calculations.CalcRisks(frequency.MinFrequency, frequency.MostLikelyFrequency, frequency.MaxFrequency)
+		freqCalc := db.RiskCalculation{
+			ThreatEventID: frequency.ThreatEventID,
+			ThreatEvent:   frequency.ThreatEvent,
+			RiskType:      "Frequency",
+			Min:           frequency.MinFrequency,
+			Max:           frequency.MaxFrequency,
+			Mode:          frequency.MostLikelyFrequency,
+			Estimate:      calc,
 		}
-	}()
+		if err := handleRiskCalculation(xormEngine, &freqCalc); err != nil {
+			return nil, err
+		}
+		finalResults = append(finalResults, freqCalc)
+	}
 
 	// Process aggregated losses
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		for _, aggregatedLossControl := range aggregatedLossControles {
-			if hasFrequency(aggregatedLossControl.ThreatEventId, freq) {
-				calc := calculations.CalcRisks(aggregatedLossControl.MinimumLoss, aggregatedLossControl.MostLikelyLoss, aggregatedLossControl.MaximumLoss)
-				lossCalc := db.RiskCalculation{
-					ThreatEventID: aggregatedLossControl.ThreatEventId,
-					ThreatEvent:   aggregatedLossControl.ThreatEvent,
-					RiskType:      "Loss",
-					Min:           aggregatedLossControl.MinimumLoss,
-					Max:           aggregatedLossControl.MaximumLoss,
-					Mode:          aggregatedLossControl.MostLikelyLoss,
-					Estimate:      calc,
-				}
-				if err := handleRiskCalculation(xormEngine, &lossCalc); err != nil {
-					errChan <- err
-					return
-				}
-			}
+	for _, aggregatedLossControl := range aggregatedLossControles {
+		calc := calculations.CalcRisks(aggregatedLossControl.MinimumLoss, aggregatedLossControl.MostLikelyLoss, aggregatedLossControl.MaximumLoss)
+		lossCalc := db.RiskCalculation{
+			ThreatEventID: aggregatedLossControl.ThreatEventId,
+			ThreatEvent:   aggregatedLossControl.ThreatEvent,
+			RiskType:      "Loss",
+			Min:           aggregatedLossControl.MinimumLoss,
+			Max:           aggregatedLossControl.MaximumLoss,
+			Mode:          aggregatedLossControl.MostLikelyLoss,
+			Estimate:      calc,
 		}
-	}()
+		if err := handleRiskCalculation(xormEngine, &lossCalc); err != nil {
+			return nil, err
+		}
+		finalResults = append(finalResults, lossCalc)
+	}
 
 	// Combine frequency and loss data
 	combinedRisks := combineFrequencyAndLoss(freq, aggregatedLossControles)
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		for _, risk := range combinedRisks {
-			if hasLoss(risk.ThreatEventID, aggregatedLossControles) && hasFrequency(risk.ThreatEventID, freq) {
-				minRisk := risk.MinFrequency * risk.MinimumLoss
-				maxRisk := risk.MaxFrequency * risk.MaximumLoss
-				modeRisk := risk.MostLikelyFrequency * risk.MostLikelyLoss
-				estimateRisk := calculations.CalcRisks(minRisk, modeRisk, maxRisk)
+	for _, risk := range combinedRisks {
+		minRisk := risk.MinFrequency * risk.MinimumLoss
+		maxRisk := risk.MaxFrequency * risk.MaximumLoss
+		modeRisk := risk.MostLikelyFrequency * risk.MostLikelyLoss
+		estimateRisk := calculations.CalcRisks(minRisk, modeRisk, maxRisk)
 
-				riskCalc := db.RiskCalculation{
-					ThreatEventID: risk.ThreatEventID,
-					ThreatEvent:   risk.ThreatEvent,
-					RiskType:      "Risk",
-					Min:           minRisk,
-					Max:           maxRisk,
-					Mode:          modeRisk,
-					Estimate:      estimateRisk,
-				}
-				if err := handleRiskCalculation(xormEngine, &riskCalc); err != nil {
-					errChan <- err
-					return
-				}
-			}
+		riskCalc := db.RiskCalculation{
+			ThreatEventID: risk.ThreatEventID,
+			ThreatEvent:   risk.ThreatEvent,
+			RiskType:      "Risk",
+			Min:           minRisk,
+			Max:           maxRisk,
+			Mode:          modeRisk,
+			Estimate:      estimateRisk,
 		}
-	}()
-
-	wg.Wait()
-	close(errChan)
-
-	for err := range errChan {
-		if err != nil {
+		if err := handleRiskCalculation(xormEngine, &riskCalc); err != nil {
 			return nil, err
 		}
+		finalResults = append(finalResults, riskCalc)
 	}
 
-	return nil, nil
+	c.Set("Response", finalResults)
+	c.Status(http.StatusOK)
+	return finalResults, nil
 }
 
 func handleRiskCalculation(engine *xorm.Engine, riskCalc *db.RiskCalculation) error {
@@ -232,7 +192,6 @@ func getThreatAndRisks(engine *xorm.Engine) ([]db.RiskCalculation, []db.ThreatEv
 		return nil, nil, err
 	}
 	return risk, threat, nil
-
 }
 
 func aggregateLosses(engine *xorm.Engine) ([]losshigh.AggregatedLossControl, error) {
@@ -277,18 +236,6 @@ func hasLoss(threatEventID int64, losses []losshigh.AggregatedLossControl) bool 
 func hasFrequency(threatEventID int64, freqs []db.Frequency) bool {
 	for _, freq := range freqs {
 		if freq.ThreatEventID == threatEventID {
-			return true
-		}
-	}
-	return false
-}
-
-func riskExistsAndUpdated(risks []db.RiskCalculation, threatEventID int64) bool {
-	for _, risk := range risks {
-		if risk.ThreatEventID == threatEventID {
-			if risk.Min == 0 && risk.Max == 0 && risk.Mode == 0 {
-				return false
-			}
 			return true
 		}
 	}

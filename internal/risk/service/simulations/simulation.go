@@ -27,7 +27,8 @@ type FrontEndResponse struct {
 }
 
 func MonteCarloSimulation(c *gin.Context, threatEvent string) {
-	var riskCalculations []db.RiskCalculation
+	var frequencyEntries []db.Frequency
+	var lossEntries []db.LossHighTotal
 
 	engine, exists := c.Get("db")
 	if !exists {
@@ -36,9 +37,18 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string) {
 		return
 	}
 
-	err := engine.(*xorm.Engine).Where("threat_event = ?", threatEvent).Find(&riskCalculations)
+	// Retrieve Frequency entries
+	err := engine.(*xorm.Engine).Where("threat_event = ?", threatEvent).Find(&frequencyEntries)
 	if err != nil {
-		c.Set("Response", "Error retrieving risk calculations")
+		c.Set("Response", "Error retrieving frequency entries")
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	// Retrieve Loss entries
+	err = engine.(*xorm.Engine).Where("threat_event = ?", threatEvent).Find(&lossEntries)
+	if err != nil {
+		c.Set("Response", "Error retrieving loss entries")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -46,16 +56,18 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string) {
 	var totalMinFreq, totalPertFreq, totalMaxFreq float64
 	var totalMinLoss, totalPertLoss, totalMaxLoss float64
 
-	for _, risk := range riskCalculations {
-		if risk.RiskType == "Frequency" {
-			totalMinFreq += risk.Min
-			totalPertFreq += risk.Estimate
-			totalMaxFreq += risk.Max
-		} else if risk.RiskType == "Loss" {
-			totalMinLoss += risk.Min
-			totalPertLoss += risk.Estimate
-			totalMaxLoss += risk.Max
-		}
+	// Sum Frequency values
+	for _, freq := range frequencyEntries {
+		totalMinFreq += freq.MinFrequency
+		totalPertFreq += freq.MostLikelyFrequency
+		totalMaxFreq += freq.MaxFrequency
+	}
+
+	// Sum Loss values
+	for _, loss := range lossEntries {
+		totalMinLoss += loss.MinimumLoss
+		totalPertLoss += loss.MostLikelyLoss
+		totalMaxLoss += loss.MaximumLoss
 	}
 
 	finalResponse := FrontEndResponse{

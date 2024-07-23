@@ -8,6 +8,15 @@ import (
 	"xorm.io/xorm"
 )
 
+type FrontEndResponseAgg struct {
+	FrequencyMax      float64 `json:"FrequencyMax"`
+	FrequencyMin      float64 `json:"FrequencyMin"`
+	FrequencyEstimate float64 `json:"FrequencyEstimate"`
+	LossMax           float64 `json:"LossMax"`
+	LossMin           float64 `json:"LossMin"`
+	LossEstimate      float64 `json:"LossEstimate"`
+}
+
 func MonteCarloSimulationAggregated(c *gin.Context) {
 	var riskCalculations []db.RiskCalculation
 
@@ -41,7 +50,7 @@ func MonteCarloSimulationAggregated(c *gin.Context) {
 		}
 	}
 
-	finalResponse := FrontEndResponse{
+	finalResponse := FrontEndResponseAgg{
 		FrequencyMax:      totalMaxFreq,
 		FrequencyMin:      totalMinFreq,
 		FrequencyEstimate: totalPertFreq,

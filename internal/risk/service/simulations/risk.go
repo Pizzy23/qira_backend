@@ -18,7 +18,8 @@ type FrontEndResponseAppReport struct {
 }
 
 func MonteCarloSimulationRisk(c *gin.Context, threatEvent string) {
-	var riskCalculations []db.RiskCalculation
+	var frequencyEntries []db.Frequency
+	var lossEntries []db.LossHighTotal
 	var controlGaps []db.Control
 
 	engine, exists := c.Get("db")
@@ -28,10 +29,18 @@ func MonteCarloSimulationRisk(c *gin.Context, threatEvent string) {
 		return
 	}
 
-	// Fetching risk calculations
-	err := engine.(*xorm.Engine).Where("threat_event = ?", threatEvent).Find(&riskCalculations)
+	// Fetching frequency entries
+	err := engine.(*xorm.Engine).Where("threat_event = ?", threatEvent).Find(&frequencyEntries)
 	if err != nil {
-		c.Set("Response", "Error retrieving risk calculations")
+		c.Set("Response", "Error retrieving frequency entries")
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	// Fetching loss entries
+	err = engine.(*xorm.Engine).Where("threat_event = ?", threatEvent).Find(&lossEntries)
+	if err != nil {
+		c.Set("Response", "Error retrieving loss entries")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -46,17 +55,18 @@ func MonteCarloSimulationRisk(c *gin.Context, threatEvent string) {
 	var totalMinFreq, totalPertFreq, totalMaxFreq float64
 	var totalMinLoss, totalPertLoss, totalMaxLoss float64
 
-	// Aggregating risk values
-	for _, risk := range riskCalculations {
-		if risk.RiskType == "Frequency" {
-			totalMinFreq += risk.Min
-			totalPertFreq += risk.Estimate
-			totalMaxFreq += risk.Max
-		} else if risk.RiskType == "Loss" {
-			totalMinLoss += risk.Min
-			totalPertLoss += risk.Estimate
-			totalMaxLoss += risk.Max
-		}
+	// Aggregating frequency values
+	for _, freq := range frequencyEntries {
+		totalMinFreq += freq.MinFrequency
+		totalPertFreq += freq.MostLikelyFrequency
+		totalMaxFreq += freq.MaxFrequency
+	}
+
+	// Aggregating loss values
+	for _, loss := range lossEntries {
+		totalMinLoss += loss.MinimumLoss
+		totalPertLoss += loss.MostLikelyLoss
+		totalMaxLoss += loss.MaximumLoss
 	}
 
 	// Calculating inherent risks using control gaps

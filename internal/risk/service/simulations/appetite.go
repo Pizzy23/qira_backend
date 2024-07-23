@@ -79,11 +79,10 @@ func MonteCarloSimulationAppetite(c *gin.Context) {
 }
 
 func UploadLossData(c *gin.Context, lossData []interfaces.LossExceedance) {
-
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Response", "Database dont find")
-		c.Status(500)
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
@@ -103,5 +102,5 @@ func UploadLossData(c *gin.Context, lossData []interfaces.LossExceedance) {
 	}
 
 	c.Set("Response", "LossExceedance Update")
-	c.Status(201)
+	c.Status(http.StatusCreated)
 }
