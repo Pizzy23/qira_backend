@@ -11,6 +11,24 @@ import (
 	"xorm.io/xorm"
 )
 
+type ThreatEventRequest struct {
+	MinFreq  string `json:"minfreq,omitempty"`
+	PertFreq string `json:"pertfreq,omitempty"`
+	MaxFreq  string `json:"maxfreq,omitempty"`
+	MinLoss  string `json:"minloss,omitempty"`
+	PertLoss string `json:"pertloss,omitempty"`
+	MaxLoss  string `json:"maxloss,omitempty"`
+}
+
+type FrontEndResponse struct {
+	FrequencyMax      string `json:"FrequencyMax"`
+	FrequencyMin      string `json:"FrequencyMin"`
+	FrequencyEstimate string `json:"FrequencyEstimate"`
+	LossMax           string `json:"LossMax"`
+	LossMin           string `json:"LossMin"`
+	LossEstimate      string `json:"LossEstimate"`
+}
+
 type AcceptableLoss struct {
 	Risk string  `json:"risk"`
 	Loss float64 `json:"loss"`
