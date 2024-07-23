@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"math"
 	"net/http"
 	"qira/db"
 
@@ -140,7 +139,7 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string, reciverEmail strin
 		midPoint := (analyzeResponse.Bins[i] + analyzeResponse.Bins[i+1]) / 2
 		bins[i] = Bin{
 			Frequency: analyzeResponse.Freqs[i],
-			MidPoint:  math.Round(midPoint),
+			MidPoint:  midPoint,
 		}
 	}
 
