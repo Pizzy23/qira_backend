@@ -105,9 +105,8 @@ func UploadLossData(c *gin.Context, lossData []interfaces.LossExceedance) {
 
 	engine, exists := c.Get("db")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Database connection not found",
-		})
+		c.Set("Response", "Database dont find")
+		c.Status(500)
 		return
 	}
 
