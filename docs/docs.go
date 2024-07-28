@@ -849,6 +849,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/losshigh-granuled": {
+            "get": {
+                "description": "Retrieve and aggregate all LossHigh records",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "5 - Loss-High"
+                ],
+                "summary": "Retrieve All LossHigh Granuled",
+                "responses": {
+                    "200": {
+                        "description": "List of All LossHigh with Aggregated Data",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.LossHighGranular"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/losshigh-singular": {
+            "get": {
+                "description": "Retrieve and aggregate all LossHigh records",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "5 - Loss-High"
+                ],
+                "summary": "Retrieve All LossHigh Singular",
+                "responses": {
+                    "200": {
+                        "description": "List of All LossHigh with Aggregated Data",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.LossHigh"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/losshigh/{id}": {
             "get": {
                 "description": "Retrieve an LossHigh by its ID",
@@ -992,6 +1044,88 @@ const docTemplate = `{
                         "description": "Risk Details",
                         "schema": {
                             "$ref": "#/definitions/db.RiskCalculation"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/update-losshigh-granuled/{id}": {
+            "put": {
+                "description": "Create new LossHigh",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "5 - Loss-High"
+                ],
+                "summary": "Create LossHigh Granuled",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Threat Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Data for create new LossHigh",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/interfaces.InputLossHighGranulade"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "LossHigh Create",
+                        "schema": {
+                            "$ref": "#/definitions/db.LossHigh"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/update-losshigh-singular/{id}": {
+            "put": {
+                "description": "Create new LossHigh",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "5 - Loss-High"
+                ],
+                "summary": "Create LossHigh Singular",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Threat Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Data for create new LossHigh",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/interfaces.InputLossHigh"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "LossHigh Create",
+                        "schema": {
+                            "$ref": "#/definitions/db.LossHigh"
                         }
                     }
                 }
@@ -1339,6 +1473,38 @@ const docTemplate = `{
                 }
             }
         },
+        "db.LossHighGranular": {
+            "type": "object",
+            "properties": {
+                "assets": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "impact": {
+                    "type": "string"
+                },
+                "lossType": {
+                    "type": "string"
+                },
+                "maximumLoss": {
+                    "type": "number"
+                },
+                "minimumLoss": {
+                    "type": "number"
+                },
+                "mostLikelyLoss": {
+                    "type": "number"
+                },
+                "threatEvent": {
+                    "type": "string"
+                },
+                "threatEventID": {
+                    "type": "integer"
+                }
+            }
+        },
         "db.Propused": {
             "type": "object",
             "properties": {
@@ -1412,6 +1578,7 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "risk_type": {
+                    "description": "RiskType pode ser \"risk\", \"loss\" ou \"Frequencia\"",
                     "type": "string"
                 },
                 "threat_event": {
@@ -1550,6 +1717,35 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                },
+                "loss_type": {
+                    "type": "string"
+                },
+                "maximum_loss": {
+                    "type": "number"
+                },
+                "minimum_loss": {
+                    "type": "number"
+                },
+                "most_likely_loss": {
+                    "type": "number"
+                },
+                "threat_event": {
+                    "type": "string"
+                }
+            }
+        },
+        "interfaces.InputLossHighGranulade": {
+            "type": "object",
+            "properties": {
+                "assets": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "impact": {
+                    "type": "string"
                 },
                 "loss_type": {
                     "type": "string"

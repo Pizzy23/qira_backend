@@ -99,6 +99,27 @@ definitions:
       threatEventID:
         type: integer
     type: object
+  db.LossHighGranular:
+    properties:
+      assets:
+        type: string
+      id:
+        type: integer
+      impact:
+        type: string
+      lossType:
+        type: string
+      maximumLoss:
+        type: number
+      minimumLoss:
+        type: number
+      mostLikelyLoss:
+        type: number
+      threatEvent:
+        type: string
+      threatEventID:
+        type: integer
+    type: object
   db.Propused:
     properties:
       aggregate:
@@ -147,6 +168,7 @@ definitions:
       mode:
         type: number
       risk_type:
+        description: RiskType pode ser "risk", "loss" ou "Frequencia"
         type: string
       threat_event:
         type: string
@@ -237,6 +259,25 @@ definitions:
         items:
           type: string
         type: array
+      loss_type:
+        type: string
+      maximum_loss:
+        type: number
+      minimum_loss:
+        type: number
+      most_likely_loss:
+        type: number
+      threat_event:
+        type: string
+    type: object
+  interfaces.InputLossHighGranulade:
+    properties:
+      assets:
+        items:
+          type: string
+        type: array
+      impact:
+        type: string
       loss_type:
         type: string
       maximum_loss:
@@ -832,6 +873,40 @@ paths:
       summary: Retrieve All LossHigh
       tags:
       - 5 - Loss-High
+  /api/losshigh-granuled:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve and aggregate all LossHigh records
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All LossHigh with Aggregated Data
+          schema:
+            items:
+              $ref: '#/definitions/db.LossHighGranular'
+            type: array
+      summary: Retrieve All LossHigh Granuled
+      tags:
+      - 5 - Loss-High
+  /api/losshigh-singular:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve and aggregate all LossHigh records
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All LossHigh with Aggregated Data
+          schema:
+            items:
+              $ref: '#/definitions/db.LossHigh'
+            type: array
+      summary: Retrieve All LossHigh Singular
+      tags:
+      - 5 - Loss-High
   /api/losshigh/{id}:
     get:
       consumes:
@@ -929,6 +1004,60 @@ paths:
       summary: Retrieve Risk by ID
       tags:
       - 6 - Risk
+  /api/update-losshigh-granuled/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Create new LossHigh
+      parameters:
+      - description: Threat Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data for create new LossHigh
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.InputLossHighGranulade'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: LossHigh Create
+          schema:
+            $ref: '#/definitions/db.LossHigh'
+      summary: Create LossHigh Granuled
+      tags:
+      - 5 - Loss-High
+  /api/update-losshigh-singular/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Create new LossHigh
+      parameters:
+      - description: Threat Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data for create new LossHigh
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.InputLossHigh'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: LossHigh Create
+          schema:
+            $ref: '#/definitions/db.LossHigh'
+      summary: Create LossHigh Singular
+      tags:
+      - 5 - Loss-High
   /api/update-losshigh/{id}:
     put:
       consumes:
