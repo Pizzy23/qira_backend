@@ -48,7 +48,18 @@ type LossHigh struct {
 	MaximumLoss    float64 `xorm:"FLOAT"`
 	MostLikelyLoss float64 `xorm:"FLOAT"`
 }
-type LossHighTotal struct {
+type LossHighGranular struct {
+	ID             int64   `xorm:"pk autoincr"`
+	ThreatEventID  int64   `xorm:"INT"`
+	ThreatEvent    string  `xorm:"VARCHAR(255)"`
+	Assets         string  `xorm:"TEXT"`
+	LossType       string  `xorm:"VARCHAR(255)"`
+	Impact         string  `xorm:"VARCHAR(255)"`
+	MinimumLoss    float64 `xorm:"FLOAT"`
+	MaximumLoss    float64 `xorm:"FLOAT"`
+	MostLikelyLoss float64 `xorm:"FLOAT"`
+}
+type LossHighTotal struct { //Isso seria o total da Alto-Custo que é a soma de minimo, maximo e mode.
 	ID             int64   `xorm:"pk autoincr"`
 	ThreatEventID  int64   `xorm:"INT"`
 	ThreatEvent    string  `xorm:"VARCHAR(255)"`
@@ -61,7 +72,7 @@ type RiskCalculation struct {
 	ID            int64   `json:"id" xorm:"pk autoincr"`
 	ThreatEventID int64   `json:"threat_event_id" xorm:"INT"`
 	ThreatEvent   string  `json:"threat_event" xorm:"VARCHAR(255)"`
-	RiskType      string  `json:"risk_type" xorm:"VARCHAR(255)"`
+	RiskType      string  `json:"risk_type" xorm:"VARCHAR(255)"` //RiskType pode ser "risk", "loss" ou "Frequencia"
 	Min           float64 `json:"min" xorm:"INT"`
 	Max           float64 `json:"max" xorm:"INT"`
 	Mode          float64 `json:"mode" xorm:"INT"`

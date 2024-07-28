@@ -139,6 +139,15 @@ type InputLossHigh struct {
 	MaximumLoss    float64  `json:"maximum_loss"`
 	MostLikelyLoss float64  `json:"most_likely_loss"`
 }
+type InputLossHighGranulade struct {
+	ThreatEvent    string   `json:"threat_event"`
+	Assets         []string `json:"assets"`
+	LossType       string   `json:"loss_type"`
+	Impact         string   `json:"impact"`
+	MinimumLoss    float64  `json:"minimum_loss"`
+	MaximumLoss    float64  `json:"maximum_loss"`
+	MostLikelyLoss float64  `json:"most_likely_loss"`
+}
 
 type InputRiskCalculator struct {
 	ThreatEventID int     `json:"threat_event_id"`

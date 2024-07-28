@@ -34,6 +34,7 @@ func PullAllRisk(c *gin.Context) {
 		c.Set("Response", risk)
 		c.Status(http.StatusOK)
 	}
+
 	c.Set("Response", calcRisk)
 	c.Status(http.StatusOK)
 }

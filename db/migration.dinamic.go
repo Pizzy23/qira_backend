@@ -7,7 +7,7 @@ type Relevance struct {
 	Porcent      int64  `json:"porcent" xorm:"INT notnull"`
 }
 
-type Control struct {
+type Control struct { //Control Strength
 	ID           int64  `json:"id" xorm:"pk autoincr 'id' INT"`
 	ControlID    int64  `json:"controlId" xorm:"INT notnull"`
 	TypeOfAttack string `json:"type_of_attack" xorm:"VARCHAR(255)"`
@@ -16,7 +16,7 @@ type Control struct {
 	ControlGap   string `json:"controlGap" xorm:"VARCHAR(255) notnull"`
 }
 
-type Propused struct {
+type Propused struct { //Propused Strength
 	ID           int64  `json:"id" xorm:"pk autoincr 'id' INT"`
 	ControlID    int64  `json:"controlId" xorm:"INT notnull"`
 	TypeOfAttack string `json:"type_of_attack" xorm:"VARCHAR(255)"`

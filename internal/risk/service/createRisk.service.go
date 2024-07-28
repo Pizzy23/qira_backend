@@ -223,21 +223,3 @@ func aggregateLosses(engine *xorm.Engine) ([]losshigh.AggregatedLossControl, err
 
 	return result, nil
 }
-
-func hasLoss(threatEventID int64, losses []losshigh.AggregatedLossControl) bool {
-	for _, loss := range losses {
-		if loss.ThreatEventId == threatEventID {
-			return true
-		}
-	}
-	return false
-}
-
-func hasFrequency(threatEventID int64, freqs []db.Frequency) bool {
-	for _, freq := range freqs {
-		if freq.ThreatEventID == threatEventID {
-			return true
-		}
-	}
-	return false
-}

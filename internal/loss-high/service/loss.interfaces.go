@@ -33,3 +33,28 @@ type AggregatedLossDetail struct {
 	MaximumLoss    float64 `json:"maximum_loss"`
 	MostLikelyLoss float64 `json:"most_likely_loss"`
 }
+
+type InputLossHigh struct {
+	ThreatEvent    string
+	Assets         []string
+	LossType       string
+	Impact         string
+	MinimumLoss    float64
+	MaximumLoss    float64
+	MostLikelyLoss float64
+}
+
+type AggregatedLossDetailGranulade struct {
+	LossType       string
+	Impact         string
+	MinimumLoss    float64
+	MaximumLoss    float64
+	MostLikelyLoss float64
+}
+
+type AggregatedLossResponseGranulade struct {
+	ThreatEventID int64
+	ThreatEvent   string
+	Assets        string
+	Losses        []AggregatedLossDetailGranulade
+}

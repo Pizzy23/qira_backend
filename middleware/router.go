@@ -80,6 +80,7 @@ func SetupRouter() *gin.Engine {
 	auth.DELETE("/control/:id", control.DeleteControlId)
 	auth.POST("/control", control.CreateControl)
 
+	//Implementation.
 	auth.GET("/all-implementation", control.PullAllControlImplementation)
 	auth.GET("/implementation/:id", control.PullControlImplementationId)
 	auth.PUT("/implementation/:id", control.EditControlImplementation)
