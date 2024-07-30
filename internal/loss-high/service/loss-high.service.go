@@ -99,7 +99,7 @@ func GetAggregatedLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 		agg.Losses = append(agg.Losses, total)
 
 		existingTotal := db.LossHighTotal{}
-		found, err := engine.(*xorm.Engine).Where("threat_event_i_d = ?", agg.ThreatEventID).Get(&existingTotal)
+		found, err := engine.(*xorm.Engine).Where("threat_event_id = ? AND type_of_loss = 'LossHigh'", agg.ThreatEventID).Get(&existingTotal)
 		if err != nil {
 			return nil, err
 		}
@@ -117,6 +117,7 @@ func GetAggregatedLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 			totalGet = append(totalGet, db.LossHighTotal{
 				ThreatEventID:  agg.ThreatEventID,
 				ThreatEvent:    agg.ThreatEvent,
+				TypeOfLoss:     "LossHigh",
 				MinimumLoss:    total.MinimumLoss,
 				MaximumLoss:    total.MaximumLoss,
 				MostLikelyLoss: total.MostLikelyLoss,
@@ -205,6 +206,7 @@ func CreateSingularLossService(c *gin.Context, LossHigh interfaces.InputLossHigh
 
 func GetSingularLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 	var lossHighs []db.LossHigh
+	var totalGet []db.LossHighTotal
 	engine, exists := c.Get("db")
 	if !exists {
 		return nil, errors.New("database connection not found")
@@ -232,6 +234,53 @@ func GetSingularLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 			MostLikelyLoss: loss.MostLikelyLoss,
 		}
 		aggregatedData[loss.ThreatEventID].Losses = append(aggregatedData[loss.ThreatEventID].Losses, detail)
+	}
+
+	for _, agg := range aggregatedData {
+		total := AggregatedLossDetail{
+			LossType:       "Total",
+			MinimumLoss:    0,
+			MaximumLoss:    0,
+			MostLikelyLoss: 0,
+		}
+		for _, detail := range agg.Losses {
+			total.MinimumLoss += detail.MinimumLoss
+			total.MaximumLoss += detail.MaximumLoss
+			total.MostLikelyLoss += detail.MostLikelyLoss
+		}
+		agg.Losses = append(agg.Losses, total)
+
+		existingTotal := db.LossHighTotal{}
+		found, err := engine.(*xorm.Engine).Where("threat_event_id = ? AND type_of_loss = 'Singular'", agg.ThreatEventID).Get(&existingTotal)
+		if err != nil {
+			return nil, err
+		}
+
+		if found {
+			if existingTotal.MinimumLoss != total.MinimumLoss || existingTotal.MaximumLoss != total.MaximumLoss || existingTotal.MostLikelyLoss != total.MostLikelyLoss {
+				existingTotal.MinimumLoss = total.MinimumLoss
+				existingTotal.MaximumLoss = total.MaximumLoss
+				existingTotal.MostLikelyLoss = total.MostLikelyLoss
+				if _, err := engine.(*xorm.Engine).ID(existingTotal.ID).Update(&existingTotal); err != nil {
+					return nil, err
+				}
+			}
+		} else {
+			totalGet = append(totalGet, db.LossHighTotal{
+				ThreatEventID:  agg.ThreatEventID,
+				ThreatEvent:    agg.ThreatEvent,
+				TypeOfLoss:     "Singular",
+				MinimumLoss:    total.MinimumLoss,
+				MaximumLoss:    total.MaximumLoss,
+				MostLikelyLoss: total.MostLikelyLoss,
+			})
+		}
+	}
+
+	for _, total := range totalGet {
+		if _, err := engine.(*xorm.Engine).Insert(&total); err != nil {
+			return nil, err
+		}
 	}
 
 	var result []AggregatedLossResponse
@@ -286,6 +335,7 @@ func CreateLossHighGranularService(c *gin.Context, LossHigh interfaces.InputLoss
 
 func GetGranularLosses(c *gin.Context) ([]AggregatedLossResponseGranulade, error) {
 	var lossHighs []db.LossHighGranular
+	var totalGet []db.LossHighTotal
 	engine, exists := c.Get("db")
 	if !exists {
 		return nil, errors.New("database connection not found")
@@ -316,8 +366,7 @@ func GetGranularLosses(c *gin.Context) ([]AggregatedLossResponseGranulade, error
 		aggregatedData[loss.ThreatEventID].Losses = append(aggregatedData[loss.ThreatEventID].Losses, detail)
 	}
 
-	var result []AggregatedLossResponseGranulade
-	for _, v := range aggregatedData {
+	for _, agg := range aggregatedData {
 		total := AggregatedLossDetailGranulade{
 			LossType:       "Total",
 			Impact:         "Total",
@@ -325,12 +374,48 @@ func GetGranularLosses(c *gin.Context) ([]AggregatedLossResponseGranulade, error
 			MaximumLoss:    0,
 			MostLikelyLoss: 0,
 		}
-		for _, detail := range v.Losses {
+		for _, detail := range agg.Losses {
 			total.MinimumLoss += detail.MinimumLoss
 			total.MaximumLoss += detail.MaximumLoss
 			total.MostLikelyLoss += detail.MostLikelyLoss
 		}
-		v.Losses = append(v.Losses, total)
+		agg.Losses = append(agg.Losses, total)
+
+		existingTotal := db.LossHighTotal{}
+		found, err := engine.(*xorm.Engine).Where("threat_event_id = ? AND type_of_loss = 'Granular'", agg.ThreatEventID).Get(&existingTotal)
+		if err != nil {
+			return nil, err
+		}
+
+		if found {
+			if existingTotal.MinimumLoss != total.MinimumLoss || existingTotal.MaximumLoss != total.MaximumLoss || existingTotal.MostLikelyLoss != total.MostLikelyLoss {
+				existingTotal.MinimumLoss = total.MinimumLoss
+				existingTotal.MaximumLoss = total.MaximumLoss
+				existingTotal.MostLikelyLoss = total.MostLikelyLoss
+				if _, err := engine.(*xorm.Engine).ID(existingTotal.ID).Update(&existingTotal); err != nil {
+					return nil, err
+				}
+			}
+		} else {
+			totalGet = append(totalGet, db.LossHighTotal{
+				ThreatEventID:  agg.ThreatEventID,
+				ThreatEvent:    agg.ThreatEvent,
+				TypeOfLoss:     "Granular",
+				MinimumLoss:    total.MinimumLoss,
+				MaximumLoss:    total.MaximumLoss,
+				MostLikelyLoss: total.MostLikelyLoss,
+			})
+		}
+	}
+
+	for _, total := range totalGet {
+		if _, err := engine.(*xorm.Engine).Insert(&total); err != nil {
+			return nil, err
+		}
+	}
+
+	var result []AggregatedLossResponseGranulade
+	for _, v := range aggregatedData {
 		result = append(result, *v)
 	}
 

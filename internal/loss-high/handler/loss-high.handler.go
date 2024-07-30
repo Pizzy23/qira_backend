@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"qira/internal/interfaces"
 	losshigh "qira/internal/loss-high/service"
+	"qira/util"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -183,8 +184,27 @@ func PullLosstId(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"Response": "Invalid LossHigh ID"})
+		c.Set("Response", err)
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 	losshigh.PullLossHighId(c, id)
+}
+
+// @Summary Create LossHigh Specific
+// @Description Create new LossHigh Specific
+// @Tags 5 - Loss-High
+// @Accept json
+// @Produce json
+// @Param Loss header string true "Tipo de loss" Enums("Singular","LossHigh","Granular")
+// @Success 200 {object} db.LossHigh "LossHigh Create"
+// @Router /api/losshigh-specific [put]
+func CreateLossHighSpecific(c *gin.Context) {
+	typeLoss := c.GetHeader("Loss")
+	vali := util.EnumLoss(typeLoss)
+	if !vali {
+		c.Set("Response", "TypeLoss its not valid use: `Singular,LossHigh,Granular`")
+		c.Status(http.StatusInternalServerError)
+	}
+	losshigh.CreateLossSpecific(c, typeLoss)
 }

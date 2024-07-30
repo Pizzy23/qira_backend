@@ -29,6 +29,7 @@ type AggregatedLossResponse struct {
 
 type AggregatedLossDetail struct {
 	LossType       string  `json:"loss_type"`
+	TypeOfLoss     string  `json:"type_of_loss"`
 	MinimumLoss    float64 `json:"minimum_loss"`
 	MaximumLoss    float64 `json:"maximum_loss"`
 	MostLikelyLoss float64 `json:"most_likely_loss"`

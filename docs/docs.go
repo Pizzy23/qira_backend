@@ -649,6 +649,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/create-loss": {
+            "put": {
+                "description": "Create new LossHigh Specific",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "5 - Loss-High"
+                ],
+                "summary": "Create LossHigh Specific",
+                "parameters": [
+                    {
+                        "enum": [
+                            "\"Singular\"",
+                            "\"LossHigh\"",
+                            "\"Granular\""
+                        ],
+                        "type": "string",
+                        "description": "Tipo de loss",
+                        "name": "Loss",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "LossHigh Create",
+                        "schema": {
+                            "$ref": "#/definitions/db.LossHigh"
+                        }
+                    }
+                }
+            }
+        },
         "/api/event/{id}": {
             "put": {
                 "description": "Create Event",
@@ -1004,6 +1041,20 @@ const docTemplate = `{
                     "6 - Risk"
                 ],
                 "summary": "Retrieve All Risks",
+                "parameters": [
+                    {
+                        "enum": [
+                            "\"Singular\"",
+                            "\"LossHigh\"",
+                            "\"Granular\""
+                        ],
+                        "type": "string",
+                        "description": "Tipo de loss",
+                        "name": "Loss",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "List of All Risks",

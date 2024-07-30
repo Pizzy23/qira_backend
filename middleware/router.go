@@ -76,6 +76,7 @@ func SetupRouter() *gin.Engine {
 	auth.GET("/losshigh-granuled/:id", losshigh.PullAllLossHighGranuled)
 	auth.PUT("/update-losshigh-granuled/:id", losshigh.CreateLossHighGranuled)
 	auth.GET("/losshigh", losshigh.PullAllLossHigh)
+	auth.GET("/losshigh-specific", losshigh.CreateLossHighSpecific)
 
 	//Control
 	auth.PUT("/control/:id", control.UpdateControl)

@@ -3,6 +3,7 @@ package risk
 import (
 	"net/http"
 	risk "qira/internal/risk/service"
+	"qira/util"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -13,10 +14,17 @@ import (
 // @Tags 6 - Risk
 // @Accept json
 // @Produce json
+// @Param Loss header string true "Tipo de loss" Enums("Singular","LossHigh","Granular")
 // @Success 200 {object} []db.RiskCalculation "List of All Risks"
 // @Router /api/risk [get]
 func PullAllRisk(c *gin.Context) {
-	risk.PullAllRisk(c)
+	typeLoss := c.GetHeader("Loss")
+	vali := util.EnumLoss(typeLoss)
+	if !vali {
+		c.Set("Response", "TypeLoss its not valid use: `Singular, LossHigh, Granular`")
+		c.Status(http.StatusInternalServerError)
+	}
+	risk.PullAllRisk(c, typeLoss)
 }
 
 // @Summary Retrieve Risk by ID

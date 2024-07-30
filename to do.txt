@@ -1,24 +1,16 @@
-Inventory - Testado 
-Catalogue - Testado
-Frequency - Testado (Calculos certos)
-Event - Testado 
-Loss-High - Testado (Calculos certos)
-Risk - Testado (Calculos certos)
-Control_Library - Testado
-Implementation - Testado
-Revelance - Testado
+Primeiro no risco, ele pegaria o loss, mai como faria os calculos? pq muda algumas coisas tipo no singular ele so botaria o singular direto?
+RESPOSTA: Sim, exatamente isso, ele pega o valor que foi selecionado e calcula
 
+Segundo no granulado sao 2 valores pra indirect e direct, no caso teria q fzr o total somando os 4?
+RESPOSTA: Sim, ele soma +1 indireto/direct
 
---Frequency
--> Rota do PUT da Succesfull, mas nao atualiza.
+Terceiro a parte te enviar os dados do mortecarlo seria feito tb atraves do loss, ai pegaria o q tem dados certo?
+RESPOSTA: Sim
 
---LinkThreat
--> Bugado o link-threat para vincular assets:
--> Event PUT (Assets acho que ta bugado, n funciona essa rota).
+Quarto seria mai tipo se o user selecionou o Loss-high por exemp, e ele quiser ver o singular, o loss-high precisa continuar salvo?
+RESPOSTA: Sim, continua salvo, pra quando ele selecionar o outro
 
---Loss-High
--> Nao mostra nada, precisa linkar algum asset pra aparecer?
--> Retorna null, mesmo tendo asset a threat criado
+Ai gnt entra em outra questao mais complicada pq como na parte de risk e mortecarlo eu saberia qual o user quer ou uso? '-'
+RESPOSTA: O que o user escolher no caso
 
-Control Library
--> Post simplesmente nao existe HAHAHAHAHAH
+Arrumar parte do risco, e fazer mudanças novas do loss-high aplicar a todos :)

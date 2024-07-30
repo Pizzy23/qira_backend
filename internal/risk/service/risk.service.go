@@ -8,7 +8,7 @@ import (
 	"xorm.io/xorm"
 )
 
-func PullAllRisk(c *gin.Context) {
+func PullAllRisk(c *gin.Context, typeLoss string) {
 	var calcRisk []db.RiskCalculation
 	engine, exists := c.Get("db")
 	if !exists {
@@ -17,7 +17,7 @@ func PullAllRisk(c *gin.Context) {
 		return
 	}
 
-	risk, err := CreateRiskService(c)
+	risk, err := CreateRiskService(c, typeLoss)
 	if err != nil {
 		c.Set("Response", err)
 		c.Status(http.StatusInternalServerError)

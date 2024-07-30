@@ -63,6 +63,7 @@ type LossHighTotal struct { //Isso seria o total da Alto-Custo que é a soma de 
 	ID             int64   `xorm:"pk autoincr"`
 	ThreatEventID  int64   `xorm:"INT"`
 	ThreatEvent    string  `xorm:"VARCHAR(255)"`
+	TypeOfLoss     string  `xorm:"VARCHAR(255)"`
 	MinimumLoss    float64 `xorm:"FLOAT"`
 	MaximumLoss    float64 `xorm:"FLOAT"`
 	MostLikelyLoss float64 `xorm:"FLOAT"`

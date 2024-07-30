@@ -12,7 +12,7 @@ import (
 	"xorm.io/xorm"
 )
 
-func CreateRiskService(c *gin.Context) ([]db.RiskCalculation, error) {
+func CreateRiskService(c *gin.Context, typeLoss string) ([]db.RiskCalculation, error) {
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Response", "Database connection not found")
@@ -33,7 +33,7 @@ func CreateRiskService(c *gin.Context) ([]db.RiskCalculation, error) {
 		return nil, errors.New("not have Event catalogue")
 	}
 
-	_, freq, err := getAll(xormEngine)
+	_, freq, err := getAll(xormEngine, typeLoss)
 	if err != nil {
 		return nil, err
 	}
@@ -131,11 +131,11 @@ func handleRiskCalculation(engine *xorm.Engine, riskCalc *db.RiskCalculation) er
 	return nil
 }
 
-func getAll(engine *xorm.Engine) ([]db.LossHighTotal, []db.Frequency, error) {
+func getAll(engine *xorm.Engine, lossType string) ([]db.LossHighTotal, []db.Frequency, error) {
 	var loss []db.LossHighTotal
 	var frequency []db.Frequency
 
-	if err := engine.Find(&loss); err != nil {
+	if err := engine.Where("type_of_loss = ?", lossType).Find(&loss); err != nil {
 		return nil, nil, err
 	}
 	if err := engine.Find(&frequency); err != nil {
