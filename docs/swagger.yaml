@@ -741,31 +741,6 @@ paths:
       summary: Create Asset
       tags:
       - 1 - Inventory
-  /api/create-loss:
-    put:
-      consumes:
-      - application/json
-      description: Create new LossHigh Specific
-      parameters:
-      - description: Tipo de loss
-        enum:
-        - '"Singular"'
-        - '"LossHigh"'
-        - '"Granular"'
-        in: header
-        name: Loss
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: LossHigh Create
-          schema:
-            $ref: '#/definitions/db.LossHigh'
-      summary: Create LossHigh Specific
-      tags:
-      - 5 - Loss-High
   /api/event/{id}:
     put:
       consumes:
@@ -930,6 +905,31 @@ paths:
               $ref: '#/definitions/db.LossHigh'
             type: array
       summary: Retrieve All LossHigh Singular
+      tags:
+      - 5 - Loss-High
+  /api/losshigh-specific:
+    post:
+      consumes:
+      - application/json
+      description: Create new LossHigh Specific
+      parameters:
+      - description: Tipo de loss
+        enum:
+        - '"Singular"'
+        - '"LossHigh"'
+        - '"Granular"'
+        in: header
+        name: Loss
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: LossHigh Create
+          schema:
+            $ref: '#/definitions/db.LossHigh'
+      summary: Create LossHigh Specific
       tags:
       - 5 - Loss-High
   /api/losshigh/{id}:

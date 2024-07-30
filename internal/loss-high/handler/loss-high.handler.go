@@ -198,7 +198,7 @@ func PullLosstId(c *gin.Context) {
 // @Produce json
 // @Param Loss header string true "Tipo de loss" Enums("Singular","LossHigh","Granular")
 // @Success 200 {object} db.LossHigh "LossHigh Create"
-// @Router /api/losshigh-specific [put]
+// @Router /api/losshigh-specific [post]
 func CreateLossHighSpecific(c *gin.Context) {
 	typeLoss := c.GetHeader("Loss")
 	vali := util.EnumLoss(typeLoss)
