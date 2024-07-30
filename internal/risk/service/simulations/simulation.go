@@ -1,9 +1,7 @@
 package simulation
 
 import (
-	"errors"
 	"net/http"
-	"qira/db"
 
 	"github.com/gin-gonic/gin"
 	"xorm.io/xorm"
@@ -56,21 +54,4 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string, lossType string) {
 	}
 
 	c.JSON(http.StatusOK, finalResponse)
-}
-
-func retrieveFrequencyAndLossEntries(engine *xorm.Engine, threatEvent, lossType string) ([]db.Frequency, []db.LossHighTotal, error) {
-	var frequencyEntries []db.Frequency
-	var lossEntries []db.LossHighTotal
-
-	err := engine.Where("threat_event = ?", threatEvent).Find(&frequencyEntries)
-	if err != nil {
-		return nil, nil, errors.New("error retrieving frequency entries")
-	}
-
-	err = engine.Where("threat_event = ? AND type_of_loss = ?", threatEvent, lossType).Find(&lossEntries)
-	if err != nil {
-		return nil, nil, errors.New("error retrieving loss entries")
-	}
-
-	return frequencyEntries, lossEntries, nil
 }

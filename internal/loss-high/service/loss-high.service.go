@@ -54,7 +54,7 @@ func CreateLossHighService(c *gin.Context, LossHigh interfaces.InputLossHigh, id
 
 func GetAggregatedLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 	var lossHighs []db.LossHigh
-	var totalGet []db.LossHighTotal
+	var lossHighTotals []db.LossHighTotal
 	engine, exists := c.Get("db")
 	if !exists {
 		return nil, errors.New("database connection not found")
@@ -64,70 +64,56 @@ func GetAggregatedLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 		return nil, err
 	}
 
+	if err := db.GetAllWithCondition(engine.(*xorm.Engine), &lossHighTotals, "name = 'Total' AND type_of_loss = 'LossHigh'"); err != nil {
+		return nil, err
+	}
+
 	aggregatedData := make(map[int64]*AggregatedLossResponse)
 
 	for _, loss := range lossHighs {
-		if _, exists := aggregatedData[loss.ThreatEventID]; !exists {
-			aggregatedData[loss.ThreatEventID] = &AggregatedLossResponse{
-				ThreatEventID: loss.ThreatEventID,
-				ThreatEvent:   loss.ThreatEvent,
-				Assets:        loss.Assets,
-				Losses:        []AggregatedLossDetail{},
-			}
-		}
-		detail := AggregatedLossDetail{
-			LossType:       loss.LossType,
-			MinimumLoss:    loss.MinimumLoss,
-			MaximumLoss:    loss.MaximumLoss,
-			MostLikelyLoss: loss.MostLikelyLoss,
-		}
-		aggregatedData[loss.ThreatEventID].Losses = append(aggregatedData[loss.ThreatEventID].Losses, detail)
-	}
-
-	for _, agg := range aggregatedData {
-		total := AggregatedLossDetail{
-			LossType:       "LossHigh",
-			MinimumLoss:    0,
-			MaximumLoss:    0,
-			MostLikelyLoss: 0,
-		}
-		for _, detail := range agg.Losses {
-			total.MinimumLoss += detail.MinimumLoss
-			total.MaximumLoss += detail.MaximumLoss
-			total.MostLikelyLoss += detail.MostLikelyLoss
-		}
-		agg.Losses = append(agg.Losses, total)
-
-		existingTotal := db.LossHighTotal{}
-		found, err := engine.(*xorm.Engine).Where("threat_event_i_d = ? AND type_of_loss = 'LossHigh'", agg.ThreatEventID).Get(&existingTotal)
-		if err != nil {
-			return nil, err
-		}
-
-		if found {
-			if existingTotal.MinimumLoss != total.MinimumLoss || existingTotal.MaximumLoss != total.MaximumLoss || existingTotal.MostLikelyLoss != total.MostLikelyLoss {
-				existingTotal.MinimumLoss = total.MinimumLoss
-				existingTotal.MaximumLoss = total.MaximumLoss
-				existingTotal.MostLikelyLoss = total.MostLikelyLoss
-				if _, err := engine.(*xorm.Engine).ID(existingTotal.ID).Update(&existingTotal); err != nil {
-					return nil, err
+		if loss.LossType == "Indirect" || loss.LossType == "Direct" {
+			if _, exists := aggregatedData[loss.ThreatEventID]; !exists {
+				aggregatedData[loss.ThreatEventID] = &AggregatedLossResponse{
+					ThreatEventID: loss.ThreatEventID,
+					ThreatEvent:   loss.ThreatEvent,
+					Assets:        loss.Assets,
+					Losses:        []AggregatedLossDetail{},
 				}
 			}
-		} else {
-			totalGet = append(totalGet, db.LossHighTotal{
-				ThreatEventID:  agg.ThreatEventID,
-				ThreatEvent:    agg.ThreatEvent,
-				TypeOfLoss:     "LossHigh",
+			detail := AggregatedLossDetail{
+				LossType:       loss.LossType,
+				MinimumLoss:    loss.MinimumLoss,
+				MaximumLoss:    loss.MaximumLoss,
+				MostLikelyLoss: loss.MostLikelyLoss,
+			}
+			aggregatedData[loss.ThreatEventID].Losses = append(aggregatedData[loss.ThreatEventID].Losses, detail)
+		}
+	}
+
+	// Agregar os dados de LossHighTotal
+	for _, total := range lossHighTotals {
+		if agg, exists := aggregatedData[total.ThreatEventID]; exists {
+			detail := AggregatedLossDetail{
+				LossType:       "Total",
 				MinimumLoss:    total.MinimumLoss,
 				MaximumLoss:    total.MaximumLoss,
 				MostLikelyLoss: total.MostLikelyLoss,
-			})
-		}
-	}
-
-	for _, total := range totalGet {
-		if _, err := engine.(*xorm.Engine).Insert(&total); err != nil {
-			return nil, err
+			}
+			agg.Losses = append(agg.Losses, detail)
+		} else {
+			aggregatedData[total.ThreatEventID] = &AggregatedLossResponse{
+				ThreatEventID: total.ThreatEventID,
+				ThreatEvent:   total.ThreatEvent,
+				Assets:        "",
+				Losses: []AggregatedLossDetail{
+					{
+						LossType:       "Total",
+						MinimumLoss:    total.MinimumLoss,
+						MaximumLoss:    total.MaximumLoss,
+						MostLikelyLoss: total.MostLikelyLoss,
+					},
+				},
+			}
 		}
 	}
 
@@ -170,7 +156,7 @@ func CreateSingularLossService(c *gin.Context, LossHigh interfaces.InputLossHigh
 	}
 
 	var existingLoss db.LossHigh
-	found, err := engine.(*xorm.Engine).Where("threat_event_i_d = ? AND loss_type = ?", id, "Singular").Get(&existingLoss)
+	found, err := engine.(*xorm.Engine).Where("threat_event_id = ? AND loss_type = ?", id, "Singular").Get(&existingLoss)
 	if err != nil {
 		return err
 	}
@@ -201,18 +187,52 @@ func CreateSingularLossService(c *gin.Context, LossHigh interfaces.InputLossHigh
 		}
 	}
 
+	var existingTotal db.LossHighTotal
+	totalFound, err := engine.(*xorm.Engine).Where("threat_event_id = ? AND name = 'Total' AND type_of_loss = 'Singular'", id).Get(&existingTotal)
+	if err != nil {
+		return err
+	}
+
+	if totalFound {
+		existingTotal.MinimumLoss = LossHigh.MinimumLoss
+		existingTotal.MaximumLoss = LossHigh.MaximumLoss
+		existingTotal.MostLikelyLoss = LossHigh.MostLikelyLoss
+
+		if _, err := engine.(*xorm.Engine).ID(existingTotal.ID).Update(&existingTotal); err != nil {
+			return err
+		}
+	} else {
+		newTotal := db.LossHighTotal{
+			ThreatEventID:  id,
+			ThreatEvent:    LossHigh.ThreatEvent,
+			Name:           "Total",
+			TypeOfLoss:     "Singular",
+			MinimumLoss:    LossHigh.MinimumLoss,
+			MaximumLoss:    LossHigh.MaximumLoss,
+			MostLikelyLoss: LossHigh.MostLikelyLoss,
+		}
+
+		if err := db.Create(engine.(*xorm.Engine), &newTotal); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
 func GetSingularLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 	var lossHighs []db.LossHigh
-	var totalGet []db.LossHighTotal
+	var lossHighTotals []db.LossHighTotal
 	engine, exists := c.Get("db")
 	if !exists {
 		return nil, errors.New("database connection not found")
 	}
 
 	if err := db.GetAllWithCondition(engine.(*xorm.Engine), &lossHighs, "loss_type = ?", "Singular"); err != nil {
+		return nil, err
+	}
+
+	if err := db.GetAllWithCondition(engine.(*xorm.Engine), &lossHighTotals, "name = 'Total' AND type_of_loss = 'Singular'"); err != nil {
 		return nil, err
 	}
 
@@ -236,50 +256,29 @@ func GetSingularLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 		aggregatedData[loss.ThreatEventID].Losses = append(aggregatedData[loss.ThreatEventID].Losses, detail)
 	}
 
-	for _, agg := range aggregatedData {
-		total := AggregatedLossDetail{
-			LossType:       "Singular",
-			MinimumLoss:    0,
-			MaximumLoss:    0,
-			MostLikelyLoss: 0,
-		}
-		for _, detail := range agg.Losses {
-			total.MinimumLoss += detail.MinimumLoss
-			total.MaximumLoss += detail.MaximumLoss
-			total.MostLikelyLoss += detail.MostLikelyLoss
-		}
-		agg.Losses = append(agg.Losses, total)
-
-		existingTotal := db.LossHighTotal{}
-		found, err := engine.(*xorm.Engine).Where("threat_event_i_d = ? AND type_of_loss = 'Singular'", agg.ThreatEventID).Get(&existingTotal)
-		if err != nil {
-			return nil, err
-		}
-
-		if found {
-			if existingTotal.MinimumLoss != total.MinimumLoss || existingTotal.MaximumLoss != total.MaximumLoss || existingTotal.MostLikelyLoss != total.MostLikelyLoss {
-				existingTotal.MinimumLoss = total.MinimumLoss
-				existingTotal.MaximumLoss = total.MaximumLoss
-				existingTotal.MostLikelyLoss = total.MostLikelyLoss
-				if _, err := engine.(*xorm.Engine).ID(existingTotal.ID).Update(&existingTotal); err != nil {
-					return nil, err
-				}
-			}
-		} else {
-			totalGet = append(totalGet, db.LossHighTotal{
-				ThreatEventID:  agg.ThreatEventID,
-				ThreatEvent:    agg.ThreatEvent,
-				TypeOfLoss:     "Singular",
+	for _, total := range lossHighTotals {
+		if agg, exists := aggregatedData[total.ThreatEventID]; exists {
+			detail := AggregatedLossDetail{
+				LossType:       "Total",
 				MinimumLoss:    total.MinimumLoss,
 				MaximumLoss:    total.MaximumLoss,
 				MostLikelyLoss: total.MostLikelyLoss,
-			})
-		}
-	}
-
-	for _, total := range totalGet {
-		if _, err := engine.(*xorm.Engine).Insert(&total); err != nil {
-			return nil, err
+			}
+			agg.Losses = append(agg.Losses, detail)
+		} else {
+			aggregatedData[total.ThreatEventID] = &AggregatedLossResponse{
+				ThreatEventID: total.ThreatEventID,
+				ThreatEvent:   total.ThreatEvent,
+				Assets:        "",
+				Losses: []AggregatedLossDetail{
+					{
+						LossType:       "Total",
+						MinimumLoss:    total.MinimumLoss,
+						MaximumLoss:    total.MaximumLoss,
+						MostLikelyLoss: total.MostLikelyLoss,
+					},
+				},
+			}
 		}
 	}
 
@@ -400,6 +399,7 @@ func GetGranularLosses(c *gin.Context) ([]AggregatedLossResponseGranulade, error
 			totalGet = append(totalGet, db.LossHighTotal{
 				ThreatEventID:  agg.ThreatEventID,
 				ThreatEvent:    agg.ThreatEvent,
+				Name:           "Total", // Novo campo 'Name' com valor "Total"
 				TypeOfLoss:     "Granular",
 				MinimumLoss:    total.MinimumLoss,
 				MaximumLoss:    total.MaximumLoss,
@@ -428,7 +428,6 @@ func CreateLossSpecific(c *gin.Context, typeOfLoss string) {
 	var catalogue []db.ThreatEventCatalog
 
 	engine, exists := c.Get("db")
-
 	if !exists {
 		c.Set("Response", "Database connection not found")
 		c.Status(http.StatusInternalServerError)
@@ -442,22 +441,44 @@ func CreateLossSpecific(c *gin.Context, typeOfLoss string) {
 	}
 
 	if len(catalogue) <= 0 {
-		c.Set("Response", "Not contein events")
+		c.Set("Response", "No events found")
 		c.Status(http.StatusInternalServerError)
+		return
 	}
 
 	for _, event := range catalogue {
 		switch typeOfLoss {
 		case "Singular":
-			lossesInput = append(lossesInput, lossesNotGranu(event, "Singular"))
+			loss := lossesNotGranu(event, "Singular")
+			exists, err := checkLossExists(engine.(*xorm.Engine), loss.ThreatEventID, loss.LossType)
+			if err == nil && !exists {
+				lossesInput = append(lossesInput, loss)
+			}
 		case "LossHigh":
-			lossesInput = append(lossesInput, lossesNotGranu(event, "Indirect"))
-			lossesInput = append(lossesInput, lossesNotGranu(event, "Direct"))
+			lossIndirect := lossesNotGranu(event, "Indirect")
+			existsIndirect, errIndirect := checkLossExists(engine.(*xorm.Engine), lossIndirect.ThreatEventID, lossIndirect.LossType)
+			if errIndirect == nil && !existsIndirect {
+				lossesInput = append(lossesInput, lossIndirect)
+			}
+
+			lossDirect := lossesNotGranu(event, "Direct")
+			existsDirect, errDirect := checkLossExists(engine.(*xorm.Engine), lossDirect.ThreatEventID, lossDirect.LossType)
+			if errDirect == nil && !existsDirect {
+				lossesInput = append(lossesInput, lossDirect)
+			}
 		case "Granular":
-			lossesInputGranular = append(lossesInputGranular, lossesWithGranu(event, "Indirect", "Short Term"))
-			lossesInputGranular = append(lossesInputGranular, lossesWithGranu(event, "Direct", "Short Term"))
-			lossesInputGranular = append(lossesInputGranular, lossesWithGranu(event, "Indirect", "Long Term"))
-			lossesInputGranular = append(lossesInputGranular, lossesWithGranu(event, "Direct", "Long Term"))
+			losses := []db.LossHighGranular{
+				lossesWithGranu(event, "Indirect", "Short Term"),
+				lossesWithGranu(event, "Direct", "Short Term"),
+				lossesWithGranu(event, "Indirect", "Long Term"),
+				lossesWithGranu(event, "Direct", "Long Term"),
+			}
+			for _, loss := range losses {
+				exists, err := checkLossGranularExists(engine.(*xorm.Engine), loss.ThreatEventID, loss.LossType, loss.Impact)
+				if err == nil && !exists {
+					lossesInputGranular = append(lossesInputGranular, loss)
+				}
+			}
 		}
 	}
 
@@ -468,7 +489,7 @@ func CreateLossSpecific(c *gin.Context, typeOfLoss string) {
 			}
 		}
 		c.Set("Response", lossesInputGranular)
-		c.Status(http.StatusInternalServerError)
+		c.Status(http.StatusOK)
 		return
 	}
 
@@ -482,6 +503,21 @@ func CreateLossSpecific(c *gin.Context, typeOfLoss string) {
 		c.Status(http.StatusOK)
 		return
 	}
+
+	c.Set("Response", "No new losses to add")
+	c.Status(http.StatusOK)
+}
+
+func checkLossExists(engine *xorm.Engine, threatEventID int64, typeOfLoss string) (bool, error) {
+	var loss db.LossHigh
+	exists, err := engine.Where("threat_event_i_d = ? AND loss_type = ?", threatEventID, typeOfLoss).Get(&loss)
+	return exists, err
+}
+
+func checkLossGranularExists(engine *xorm.Engine, threatEventID int64, typeOfLoss, impact string) (bool, error) {
+	var loss db.LossHighGranular
+	exists, err := engine.Where("threat_event_i_d = ? AND loss_type = ? AND impact = ?", threatEventID, typeOfLoss, impact).Get(&loss)
+	return exists, err
 }
 
 func lossesNotGranu(input db.ThreatEventCatalog, lossType string) db.LossHigh {
