@@ -99,7 +99,7 @@ func GetAggregatedLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 		agg.Losses = append(agg.Losses, total)
 
 		existingTotal := db.LossHighTotal{}
-		found, err := engine.(*xorm.Engine).Where("threat_event_id = ? AND type_of_loss = 'LossHigh'", agg.ThreatEventID).Get(&existingTotal)
+		found, err := engine.(*xorm.Engine).Where("threat_event_i_d = ? AND type_of_loss = 'LossHigh'", agg.ThreatEventID).Get(&existingTotal)
 		if err != nil {
 			return nil, err
 		}
@@ -251,7 +251,7 @@ func GetSingularLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 		agg.Losses = append(agg.Losses, total)
 
 		existingTotal := db.LossHighTotal{}
-		found, err := engine.(*xorm.Engine).Where("threat_event_id = ? AND type_of_loss = 'Singular'", agg.ThreatEventID).Get(&existingTotal)
+		found, err := engine.(*xorm.Engine).Where("threat_event_i_d = ? AND type_of_loss = 'Singular'", agg.ThreatEventID).Get(&existingTotal)
 		if err != nil {
 			return nil, err
 		}
@@ -382,7 +382,7 @@ func GetGranularLosses(c *gin.Context) ([]AggregatedLossResponseGranulade, error
 		agg.Losses = append(agg.Losses, total)
 
 		existingTotal := db.LossHighTotal{}
-		found, err := engine.(*xorm.Engine).Where("threat_event_id = ? AND type_of_loss = 'Granular'", agg.ThreatEventID).Get(&existingTotal)
+		found, err := engine.(*xorm.Engine).Where("threat_event_i_d = ? AND type_of_loss = 'Granular'", agg.ThreatEventID).Get(&existingTotal)
 		if err != nil {
 			return nil, err
 		}
