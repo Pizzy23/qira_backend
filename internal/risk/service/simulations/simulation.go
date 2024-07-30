@@ -1,6 +1,7 @@
 package simulation
 
 import (
+	"errors"
 	"net/http"
 	"qira/db"
 
@@ -8,28 +9,7 @@ import (
 	"xorm.io/xorm"
 )
 
-type ThreatEventRequest struct {
-	MinFreq  float64 `json:"minfreq,omitempty"`
-	PertFreq float64 `json:"pertfreq,omitempty"`
-	MaxFreq  float64 `json:"maxfreq,omitempty"`
-	MinLoss  float64 `json:"minloss,omitempty"`
-	PertLoss float64 `json:"pertloss,omitempty"`
-	MaxLoss  float64 `json:"maxloss,omitempty"`
-}
-
-type FrontEndResponse struct {
-	FrequencyMax      float64 `json:"FrequencyMax"`
-	FrequencyMin      float64 `json:"FrequencyMin"`
-	FrequencyEstimate float64 `json:"FrequencyEstimate"`
-	LossMax           float64 `json:"LossMax"`
-	LossMin           float64 `json:"LossMin"`
-	LossEstimate      float64 `json:"LossEstimate"`
-}
-
-func MonteCarloSimulation(c *gin.Context, threatEvent string) {
-	var frequencyEntries []db.Frequency
-	var lossEntries []db.LossHighTotal
-
+func MonteCarloSimulation(c *gin.Context, threatEvent string, lossType string) {
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Response", "Database connection not found")
@@ -37,18 +17,16 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string) {
 		return
 	}
 
-	// Retrieve Frequency entries
-	err := engine.(*xorm.Engine).Where("threat_event = ?", threatEvent).Find(&frequencyEntries)
-	if err != nil {
-		c.Set("Response", "Error retrieving frequency entries")
+	dbEngine, ok := engine.(*xorm.Engine)
+	if !ok {
+		c.Set("Response", "Failed to cast database connection to *xorm.Engine")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
-	// Retrieve Loss entries
-	err = engine.(*xorm.Engine).Where("threat_event = ?", threatEvent).Find(&lossEntries)
+	freq, loss, err := retrieveFrequencyAndLossEntries(dbEngine, threatEvent, lossType)
 	if err != nil {
-		c.Set("Response", "Error retrieving loss entries")
+		c.Set("Response", err)
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -56,15 +34,13 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string) {
 	var totalMinFreq, totalPertFreq, totalMaxFreq float64
 	var totalMinLoss, totalPertLoss, totalMaxLoss float64
 
-	// Sum Frequency values
-	for _, freq := range frequencyEntries {
+	for _, freq := range freq {
 		totalMinFreq += freq.MinFrequency
 		totalPertFreq += freq.MostLikelyFrequency
 		totalMaxFreq += freq.MaxFrequency
 	}
 
-	// Sum Loss values
-	for _, loss := range lossEntries {
+	for _, loss := range loss {
 		totalMinLoss += loss.MinimumLoss
 		totalPertLoss += loss.MostLikelyLoss
 		totalMaxLoss += loss.MaximumLoss
@@ -80,4 +56,21 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string) {
 	}
 
 	c.JSON(http.StatusOK, finalResponse)
+}
+
+func retrieveFrequencyAndLossEntries(engine *xorm.Engine, threatEvent, lossType string) ([]db.Frequency, []db.LossHighTotal, error) {
+	var frequencyEntries []db.Frequency
+	var lossEntries []db.LossHighTotal
+
+	err := engine.Where("threat_event = ?", threatEvent).Find(&frequencyEntries)
+	if err != nil {
+		return nil, nil, errors.New("error retrieving frequency entries")
+	}
+
+	err = engine.Where("threat_event = ? AND type_of_loss = ?", threatEvent, lossType).Find(&lossEntries)
+	if err != nil {
+		return nil, nil, errors.New("error retrieving loss entries")
+	}
+
+	return frequencyEntries, lossEntries, nil
 }

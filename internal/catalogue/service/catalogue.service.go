@@ -51,37 +51,10 @@ func CreateEventService(c *gin.Context, event interfaces.InputThreatEventCatalog
 		ThreatEvent: event.ThreatEvent,
 	}
 
-	LossInput1 := db.LossHigh{
-		ThreatEventID:  eventID,
-		ThreatEvent:    event.ThreatEvent,
-		Assets:         "",
-		LossType:       "Indirect",
-		MinimumLoss:    0,
-		MaximumLoss:    0,
-		MostLikelyLoss: 0,
-	}
-
-	LossInput2 := db.LossHigh{
-		ThreatEventID:  eventID,
-		ThreatEvent:    event.ThreatEvent,
-		Assets:         "",
-		LossType:       "Direct",
-		MinimumLoss:    0,
-		MaximumLoss:    0,
-		MostLikelyLoss: 0,
-	}
-
 	if err := frequency.CreateFrequencyService(c, frequencyInput); err != nil {
 		return err
 	}
 
-	if err := db.Create(engine.(*xorm.Engine), &LossInput1); err != nil {
-		return err
-	}
-
-	if err := db.Create(engine.(*xorm.Engine), &LossInput2); err != nil {
-		return err
-	}
 	if err := db.Create(engine.(*xorm.Engine), &EventAssets); err != nil {
 		return err
 	}

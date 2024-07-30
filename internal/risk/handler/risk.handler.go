@@ -14,7 +14,7 @@ import (
 // @Tags 6 - Risk
 // @Accept json
 // @Produce json
-// @Param Loss header string true "Tipo de loss" Enums("Singular","LossHigh","Granular")
+// @Param Loss header string true "Tipo de loss" Enums(Singular,LossHigh,Granular)
 // @Success 200 {object} []db.RiskCalculation "List of All Risks"
 // @Router /api/risk [get]
 func PullAllRisk(c *gin.Context) {

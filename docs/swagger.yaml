@@ -915,9 +915,9 @@ paths:
       parameters:
       - description: Tipo de loss
         enum:
-        - '"Singular"'
-        - '"LossHigh"'
-        - '"Granular"'
+        - Singular
+        - LossHigh
+        - Granular
         in: header
         name: Loss
         required: true
@@ -999,9 +999,9 @@ paths:
       parameters:
       - description: Tipo de loss
         enum:
-        - '"Singular"'
-        - '"LossHigh"'
-        - '"Granular"'
+        - Singular
+        - LossHigh
+        - Granular
         in: header
         name: Loss
         required: true
@@ -1173,6 +1173,15 @@ paths:
         name: threatEvent
         required: true
         type: string
+      - description: Tipo de loss
+        enum:
+        - Singular
+        - LossHigh
+        - Granular
+        in: header
+        name: Loss
+        required: true
+        type: string
       produces:
       - application/json
       responses: {}
@@ -1184,6 +1193,16 @@ paths:
       consumes:
       - application/json
       description: Test for simulation aggregated
+      parameters:
+      - description: Tipo de loss
+        enum:
+        - Singular
+        - LossHigh
+        - Granular
+        in: header
+        name: Loss
+        required: true
+        type: string
       produces:
       - application/json
       responses: {}
@@ -1195,6 +1214,16 @@ paths:
       consumes:
       - application/json
       description: Test for simulation appetite
+      parameters:
+      - description: Tipo de loss
+        enum:
+        - Singular
+        - LossHigh
+        - Granular
+        in: header
+        name: Loss
+        required: true
+        type: string
       produces:
       - application/json
       responses: {}
@@ -1210,6 +1239,15 @@ paths:
       - description: 'Threat Event '
         in: header
         name: threatEvent
+        required: true
+        type: string
+      - description: Tipo de loss
+        enum:
+        - Singular
+        - LossHigh
+        - Granular
+        in: header
+        name: Loss
         required: true
         type: string
       produces:

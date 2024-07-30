@@ -86,7 +86,7 @@ func GetAggregatedLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 
 	for _, agg := range aggregatedData {
 		total := AggregatedLossDetail{
-			LossType:       "Total",
+			LossType:       "LossHigh",
 			MinimumLoss:    0,
 			MaximumLoss:    0,
 			MostLikelyLoss: 0,
@@ -238,7 +238,7 @@ func GetSingularLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 
 	for _, agg := range aggregatedData {
 		total := AggregatedLossDetail{
-			LossType:       "Total",
+			LossType:       "Singular",
 			MinimumLoss:    0,
 			MaximumLoss:    0,
 			MostLikelyLoss: 0,
@@ -368,7 +368,7 @@ func GetGranularLosses(c *gin.Context) ([]AggregatedLossResponseGranulade, error
 
 	for _, agg := range aggregatedData {
 		total := AggregatedLossDetailGranulade{
-			LossType:       "Total",
+			LossType:       "Granular",
 			Impact:         "Total",
 			MinimumLoss:    0,
 			MaximumLoss:    0,
@@ -479,7 +479,7 @@ func CreateLossSpecific(c *gin.Context, typeOfLoss string) {
 			}
 		}
 		c.Set("Response", lossesInput)
-		c.Status(http.StatusInternalServerError)
+		c.Status(http.StatusOK)
 		return
 	}
 }

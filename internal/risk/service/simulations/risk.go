@@ -10,16 +10,7 @@ import (
 	"xorm.io/xorm"
 )
 
-type FrontEndResponseAppReport struct {
-	ProposedMin    float64             `json:"ProposedMin"`
-	ProposedMax    float64             `json:"ProposedMax"`
-	ProposedPert   float64             `json:"ProposedPert"`
-	LossExceedance []db.LossExceedance `json:"LossExceedance"`
-}
-
-func MonteCarloSimulationRisk(c *gin.Context, threatEvent string) {
-	var frequencyEntries []db.Frequency
-	var lossEntries []db.LossHighTotal
+func MonteCarloSimulationRisk(c *gin.Context, threatEvent string, lossType string) {
 	var controlGaps []db.Control
 
 	engine, exists := c.Get("db")
@@ -29,24 +20,23 @@ func MonteCarloSimulationRisk(c *gin.Context, threatEvent string) {
 		return
 	}
 
-	// Fetching frequency entries
-	err := engine.(*xorm.Engine).Where("threat_event = ?", threatEvent).Find(&frequencyEntries)
-	if err != nil {
-		c.Set("Response", "Error retrieving frequency entries")
+	dbEngine, ok := engine.(*xorm.Engine)
+	if !ok {
+		c.Set("Response", "Failed to cast database connection to *xorm.Engine")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
-	// Fetching loss entries
-	err = engine.(*xorm.Engine).Where("threat_event = ?", threatEvent).Find(&lossEntries)
+	// Buscar entradas de frequência e perda
+	frequencies, losses, err := retrieveFrequencyAndLossEntries(dbEngine, threatEvent, lossType)
 	if err != nil {
-		c.Set("Response", "Error retrieving loss entries")
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
-	// Fetching control gaps
-	err = engine.(*xorm.Engine).Where("control_i_d = ?", -2).Find(&controlGaps)
+	// Buscar control gaps
+	err = dbEngine.Where("control_i_d = ?", -2).Find(&controlGaps)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving control gap data"})
 		return
@@ -55,21 +45,21 @@ func MonteCarloSimulationRisk(c *gin.Context, threatEvent string) {
 	var totalMinFreq, totalPertFreq, totalMaxFreq float64
 	var totalMinLoss, totalPertLoss, totalMaxLoss float64
 
-	// Aggregating frequency values
-	for _, freq := range frequencyEntries {
+	// Agregar valores de frequência
+	for _, freq := range frequencies {
 		totalMinFreq += freq.MinFrequency
 		totalPertFreq += freq.MostLikelyFrequency
 		totalMaxFreq += freq.MaxFrequency
 	}
 
-	// Aggregating loss values
-	for _, loss := range lossEntries {
+	// Agregar valores de perda
+	for _, loss := range losses {
 		totalMinLoss += loss.MinimumLoss
 		totalPertLoss += loss.MostLikelyLoss
 		totalMaxLoss += loss.MaximumLoss
 	}
 
-	// Calculating inherent risks using control gaps
+	// Calcular riscos inerentes usando control gaps
 	var ihRiskMin, ihRiskMax, ihRiskEstimate float64
 	for _, gap := range controlGaps {
 		gapStr := strings.TrimSuffix(gap.ControlGap, "%")
@@ -89,7 +79,7 @@ func MonteCarloSimulationRisk(c *gin.Context, threatEvent string) {
 		}
 	}
 
-	// Calculating proposed risks using control gaps
+	// Calcular riscos propostos usando control gaps
 	var proposedMin, proposedMax, proposedEstimate float64
 	for _, gap := range controlGaps {
 		gapStr := strings.TrimSuffix(gap.ControlGap, "%")
@@ -105,15 +95,15 @@ func MonteCarloSimulationRisk(c *gin.Context, threatEvent string) {
 		}
 	}
 
-	// Fetching loss exceedance data
+	// Buscar dados de loss exceedance
 	var lossEc []db.LossExceedance
-	if err := db.GetAll(engine.(*xorm.Engine), &lossEc); err != nil {
-		c.Set("Response", err)
+	if err := dbEngine.Find(&lossEc); err != nil {
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
-	// Format float values to strings, removing last digit for losses
+	// Preparar a resposta final
 	finalResponse := FrontEndResponseAppReport{
 		ProposedMin:    proposedMin,
 		ProposedMax:    proposedMax,

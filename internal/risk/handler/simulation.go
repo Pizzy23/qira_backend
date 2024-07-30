@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"qira/internal/interfaces"
 	simulation "qira/internal/risk/service/simulations"
+	"qira/util"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,6 +15,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param threatEvent header string true "Threat Event "
+// @Param Loss header string true "Tipo de loss" Enums(Singular,LossHigh,Granular)
 // @Router /simulation [get]
 func RiskMount(c *gin.Context) {
 	threatEvent := c.GetHeader("ThreatEvent")
@@ -21,7 +23,13 @@ func RiskMount(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ThreatEvent header is required"})
 		return
 	}
-	simulation.MonteCarloSimulation(c, threatEvent)
+	typeLoss := c.GetHeader("Loss")
+	vali := util.EnumLoss(typeLoss)
+	if !vali {
+		c.Set("Response", "TypeLoss its not valid use: `Singular, LossHigh, Granular`")
+		c.Status(http.StatusInternalServerError)
+	}
+	simulation.MonteCarloSimulation(c, threatEvent, typeLoss)
 }
 
 // @Summary Test for simulation
@@ -30,6 +38,7 @@ func RiskMount(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param threatEvent header string true "Threat Event "
+// @Param Loss header string true "Tipo de loss" Enums(Singular,LossHigh,Granular)
 // @Router /simulation-report [get]
 func RiskMountReport(c *gin.Context) {
 	threatEvent := c.GetHeader("ThreatEvent")
@@ -37,7 +46,13 @@ func RiskMountReport(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ThreatEvent header is required"})
 		return
 	}
-	simulation.MonteCarloSimulationRisk(c, threatEvent)
+	typeLoss := c.GetHeader("Loss")
+	vali := util.EnumLoss(typeLoss)
+	if !vali {
+		c.Set("Response", "TypeLoss its not valid use: `Singular, LossHigh, Granular`")
+		c.Status(http.StatusInternalServerError)
+	}
+	simulation.MonteCarloSimulationRisk(c, threatEvent, typeLoss)
 }
 
 // @Summary Test for simulation aggregated
@@ -45,9 +60,16 @@ func RiskMountReport(c *gin.Context) {
 // @Tags 13 - Simulation
 // @Accept json
 // @Produce json
+// @Param Loss header string true "Tipo de loss" Enums(Singular,LossHigh,Granular)
 // @Router /simulation-aggregated [get]
 func RiskMountAggregated(c *gin.Context) {
-	simulation.MonteCarloSimulationAggregated(c)
+	typeLoss := c.GetHeader("Loss")
+	vali := util.EnumLoss(typeLoss)
+	if !vali {
+		c.Set("Response", "TypeLoss its not valid use: `Singular, LossHigh, Granular`")
+		c.Status(http.StatusInternalServerError)
+	}
+	simulation.MonteCarloSimulationAggregated(c, typeLoss)
 }
 
 // @Summary Test for simulation appetite
@@ -55,10 +77,16 @@ func RiskMountAggregated(c *gin.Context) {
 // @Tags 13 - Simulation
 // @Accept json
 // @Produce json
+// @Param Loss header string true "Tipo de loss" Enums(Singular,LossHigh,Granular)
 // @Router /simulation-appetite [get]
 func RiskMountAppetite(c *gin.Context) {
-
-	simulation.MonteCarloSimulationAppetite(c)
+	typeLoss := c.GetHeader("Loss")
+	vali := util.EnumLoss(typeLoss)
+	if !vali {
+		c.Set("Response", "TypeLoss its not valid use: `Singular, LossHigh, Granular`")
+		c.Status(http.StatusInternalServerError)
+	}
+	simulation.MonteCarloSimulationAppetite(c, typeLoss)
 }
 
 // @Summary Test for simulation appetite

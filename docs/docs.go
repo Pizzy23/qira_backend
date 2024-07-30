@@ -917,9 +917,9 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "enum": [
-                            "\"Singular\"",
-                            "\"LossHigh\"",
-                            "\"Granular\""
+                            "Singular",
+                            "LossHigh",
+                            "Granular"
                         ],
                         "type": "string",
                         "description": "Tipo de loss",
@@ -1044,9 +1044,9 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "enum": [
-                            "\"Singular\"",
-                            "\"LossHigh\"",
-                            "\"Granular\""
+                            "Singular",
+                            "LossHigh",
+                            "Granular"
                         ],
                         "type": "string",
                         "description": "Tipo de loss",
@@ -1307,6 +1307,18 @@ const docTemplate = `{
                         "name": "threatEvent",
                         "in": "header",
                         "required": true
+                    },
+                    {
+                        "enum": [
+                            "Singular",
+                            "LossHigh",
+                            "Granular"
+                        ],
+                        "type": "string",
+                        "description": "Tipo de loss",
+                        "name": "Loss",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {}
@@ -1325,6 +1337,20 @@ const docTemplate = `{
                     "13 - Simulation"
                 ],
                 "summary": "Test for simulation aggregated",
+                "parameters": [
+                    {
+                        "enum": [
+                            "Singular",
+                            "LossHigh",
+                            "Granular"
+                        ],
+                        "type": "string",
+                        "description": "Tipo de loss",
+                        "name": "Loss",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {}
             }
         },
@@ -1341,6 +1367,20 @@ const docTemplate = `{
                     "13 - Simulation"
                 ],
                 "summary": "Test for simulation appetite",
+                "parameters": [
+                    {
+                        "enum": [
+                            "Singular",
+                            "LossHigh",
+                            "Granular"
+                        ],
+                        "type": "string",
+                        "description": "Tipo de loss",
+                        "name": "Loss",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {}
             }
         },
@@ -1362,6 +1402,18 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Threat Event ",
                         "name": "threatEvent",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "Singular",
+                            "LossHigh",
+                            "Granular"
+                        ],
+                        "type": "string",
+                        "description": "Tipo de loss",
+                        "name": "Loss",
                         "in": "header",
                         "required": true
                     }
