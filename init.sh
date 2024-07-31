@@ -19,10 +19,5 @@ swag init
 # Build the Go application
 go build -o main .
 
-# Run sudo systemctl daemon-reload
-sudo apk add openrc
-sudo rc-update add docker boot
-sudo service docker start
-
-# Start the application
-./main
+# Run sudo systemctl daemon-reload and restart the service
+sudo systemctl restart go.service
