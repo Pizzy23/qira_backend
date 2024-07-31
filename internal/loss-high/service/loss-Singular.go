@@ -17,7 +17,7 @@ func CreateSingularLossService(c *gin.Context, LossHigh interfaces.InputLossHigh
 	}
 
 	var existingLoss db.LossHigh
-	found, err := engine.(*xorm.Engine).Where("threat_event_id = ? AND loss_type = ?", id, "Singular").Get(&existingLoss)
+	found, err := engine.(*xorm.Engine).Where("threat_event_i_d = ? AND loss_type = ?", id, "Singular").Get(&existingLoss)
 	if err != nil {
 		return err
 	}
