@@ -9,9 +9,7 @@ export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
 cd /app
 
 # Git pull with credentials
-git init
-git remote add origin https://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@github.com/Pizzy23/qira_backend.git
-git pull origin main
+git pull https://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@github.com/Pizzy23/qira_backend.git
 
 # Run swag init
 swag init
@@ -19,5 +17,5 @@ swag init
 # Build the Go application
 go build -o main .
 
-# Run sudo systemctl daemon-reload and restart the service
+# Run sudo systemctl daemon-reload
 sudo systemctl restart go.service
