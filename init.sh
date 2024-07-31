@@ -1,22 +1,24 @@
 #!/bin/sh
 
-# Configurações do git para autenticação
-git config --global credential.helper store
+# Set environment variables
+export GOROOT=/usr/local/go
+export GOPATH=/go
+export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
 
-# Salva as credenciais do git
-echo "https://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:@github.com" > ~/.git-credentials
+# Change to the app directory
+cd /app
 
-# Executa o git pull
-git pull
+# Git pull with credentials
+git pull https://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@github.com/your-repo.git
 
-# Executa o swag init
+# Run swag init
 swag init
 
-# Executa o build da aplicação Go
+# Build the Go application
 go build -o main .
 
-# Executa o daemon-reload
+# Run sudo systemctl daemon-reload
 sudo systemctl daemon-reload
 
-# Executa a aplicação Go
+# Start the application
 ./main

@@ -2,7 +2,6 @@ package losshigh
 
 import (
 	"errors"
-	"net/http"
 	"qira/db"
 	"qira/internal/interfaces"
 	"strings"
@@ -11,14 +10,14 @@ import (
 	"xorm.io/xorm"
 )
 
-func CreateLossHighService(c *gin.Context, LossHigh interfaces.InputLossHigh, id int64) error {
+func CreateSingularLossService(c *gin.Context, LossHigh interfaces.InputLossHigh, id int64) error {
 	engine, exists := c.Get("db")
 	if !exists {
 		return errors.New("database connection not found")
 	}
 
 	var existingLoss db.LossHigh
-	found, err := engine.(*xorm.Engine).Where("threat_event_i_d = ? AND loss_type = ?", id, LossHigh.LossType).Get(&existingLoss)
+	found, err := engine.(*xorm.Engine).Where("threat_event_id = ? AND loss_type = ?", id, "Singular").Get(&existingLoss)
 	if err != nil {
 		return err
 	}
@@ -38,7 +37,7 @@ func CreateLossHighService(c *gin.Context, LossHigh interfaces.InputLossHigh, id
 			ThreatEventID:  id,
 			ThreatEvent:    LossHigh.ThreatEvent,
 			Assets:         strings.Join(LossHigh.Assets, ","),
-			LossType:       LossHigh.LossType,
+			LossType:       "Singular",
 			MinimumLoss:    LossHigh.MinimumLoss,
 			MaximumLoss:    LossHigh.MaximumLoss,
 			MostLikelyLoss: LossHigh.MostLikelyLoss,
@@ -49,10 +48,40 @@ func CreateLossHighService(c *gin.Context, LossHigh interfaces.InputLossHigh, id
 		}
 	}
 
+	var existingTotal db.LossHighTotal
+	totalFound, err := engine.(*xorm.Engine).Where("threat_event_id = ? AND name = 'Total' AND type_of_loss = 'Singular'", id).Get(&existingTotal)
+	if err != nil {
+		return err
+	}
+
+	if totalFound {
+		existingTotal.MinimumLoss = LossHigh.MinimumLoss
+		existingTotal.MaximumLoss = LossHigh.MaximumLoss
+		existingTotal.MostLikelyLoss = LossHigh.MostLikelyLoss
+
+		if _, err := engine.(*xorm.Engine).ID(existingTotal.ID).Update(&existingTotal); err != nil {
+			return err
+		}
+	} else {
+		newTotal := db.LossHighTotal{
+			ThreatEventID:  id,
+			ThreatEvent:    LossHigh.ThreatEvent,
+			Name:           "Total",
+			TypeOfLoss:     "Singular",
+			MinimumLoss:    LossHigh.MinimumLoss,
+			MaximumLoss:    LossHigh.MaximumLoss,
+			MostLikelyLoss: LossHigh.MostLikelyLoss,
+		}
+
+		if err := db.Create(engine.(*xorm.Engine), &newTotal); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
-func GetAggregatedLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
+func GetSingularLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 	var lossHighs []db.LossHigh
 	var lossHighTotals []db.LossHighTotal
 	engine, exists := c.Get("db")
@@ -65,11 +94,11 @@ func GetAggregatedLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 		return nil, errors.New("failed to cast database connection to *xorm.Engine")
 	}
 
-	if err := db.GetAllWithCondition(dbEngine, &lossHighs, "loss_type IN ('Direct', 'Indirect')"); err != nil {
+	if err := db.GetAllWithCondition(dbEngine, &lossHighs, "loss_type = ?", "Singular"); err != nil {
 		return nil, err
 	}
 
-	if err := db.GetAllWithCondition(dbEngine, &lossHighTotals, "name = 'Total' AND type_of_loss = 'LossHigh'"); err != nil {
+	if err := db.GetAllWithCondition(dbEngine, &lossHighTotals, "name = 'Total' AND type_of_loss = 'Singular'"); err != nil {
 		return nil, err
 	}
 
@@ -125,28 +154,4 @@ func GetAggregatedLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 	}
 
 	return result, nil
-}
-
-func PullLossHighId(c *gin.Context, id int) {
-	var lossHigh db.LossHigh
-	engine, exists := c.Get("db")
-	if !exists {
-		c.Set("Response", "Database connection not found")
-		c.Status(http.StatusInternalServerError)
-		return
-	}
-
-	found, err := db.GetByID(engine.(*xorm.Engine), &lossHigh, int64(id))
-	if err != nil {
-		c.Set("Response", "Error retrieving LossHigh")
-		c.Status(http.StatusInternalServerError)
-		return
-	}
-	if !found {
-		c.Set("Response", "LossHigh not found")
-		c.Status(http.StatusInternalServerError)
-		return
-	}
-	c.Set("Response", lossHigh)
-	c.Status(http.StatusOK)
 }
