@@ -9,7 +9,9 @@ export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
 cd /app
 
 # Git pull with credentials
-git pull https://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@github.com/your-repo.git
+git init
+git remote add origin https://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@github.com/Pizzy23/qira_backend.git
+git pull origin main
 
 # Run swag init
 swag init
@@ -18,7 +20,9 @@ swag init
 go build -o main .
 
 # Run sudo systemctl daemon-reload
-sudo systemctl daemon-reload
+sudo apk add openrc
+sudo rc-update add docker boot
+sudo service docker start
 
 # Start the application
 ./main
