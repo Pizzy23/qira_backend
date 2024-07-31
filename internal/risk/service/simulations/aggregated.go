@@ -9,39 +9,33 @@ import (
 )
 
 func MonteCarloSimulationAggregated(c *gin.Context, lossType string) {
+	var riskCalculations []db.RiskCalculation
 	engine, exists := c.Get("db")
 	if !exists {
-		c.Set("Response", "Database connection not found")
-		c.Status(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, "Database connection not found")
 		return
 	}
-
-	var riskCalculations []db.RiskCalculation
 
 	dbEngine, ok := engine.(*xorm.Engine)
 	if !ok {
-		c.Set("Response", "Failed to cast database connection to *xorm.Engine")
-		c.Status(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, "Failed to cast database connection to *xorm.Engine")
 		return
 	}
 
-	// Buscar todos os registros de RiskCalculation
 	if err := db.GetAll(dbEngine, &riskCalculations); err != nil {
-		c.Set("Response", err)
-		c.Status(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 
 	var totalMinFreq, totalPertFreq, totalMaxFreq float64
 	var totalMinLoss, totalPertLoss, totalMaxLoss float64
 
-	// Agregar valores de risco com base no tipo de perda (lossType)
 	for _, risk := range riskCalculations {
-		if risk.RiskType == "Frequency" {
+		if risk.RiskType == "Frequency" && risk.Categorie == lossType {
 			totalMinFreq += risk.Min
 			totalPertFreq += risk.Estimate
 			totalMaxFreq += risk.Max
-		} else if risk.RiskType == lossType {
+		} else if risk.Categorie == lossType {
 			totalMinLoss += risk.Min
 			totalPertLoss += risk.Estimate
 			totalMaxLoss += risk.Max

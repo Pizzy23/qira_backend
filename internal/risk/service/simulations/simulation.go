@@ -10,22 +10,19 @@ import (
 func MonteCarloSimulation(c *gin.Context, threatEvent string, lossType string) {
 	engine, exists := c.Get("db")
 	if !exists {
-		c.Set("Response", "Database connection not found")
-		c.Status(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, "Database connection not found")
 		return
 	}
 
 	dbEngine, ok := engine.(*xorm.Engine)
 	if !ok {
-		c.Set("Response", "Failed to cast database connection to *xorm.Engine")
-		c.Status(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, "Failed to cast database connection to *xorm.Engine")
 		return
 	}
 
 	freq, loss, err := retrieveFrequencyAndLossEntries(dbEngine, threatEvent, lossType)
 	if err != nil {
-		c.Set("Response", err)
-		c.Status(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 

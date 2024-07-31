@@ -17,7 +17,7 @@ func PullAllRisk(c *gin.Context, typeLoss string) {
 		return
 	}
 
-	risk, err := CreateRiskService(c, typeLoss)
+	_, err := CreateRiskService(c, typeLoss)
 	if err != nil {
 		c.Set("Response", err)
 		c.Status(http.StatusInternalServerError)
@@ -30,12 +30,14 @@ func PullAllRisk(c *gin.Context, typeLoss string) {
 		return
 	}
 
-	if len(risk) == len(calcRisk) {
-		c.Set("Response", risk)
-		c.Status(http.StatusOK)
+	var filteredRisk []db.RiskCalculation
+	for _, risk := range calcRisk {
+		if risk.Categorie == typeLoss {
+			filteredRisk = append(filteredRisk, risk)
+		}
 	}
 
-	c.Set("Response", calcRisk)
+	c.Set("Response", filteredRisk)
 	c.Status(http.StatusOK)
 }
 

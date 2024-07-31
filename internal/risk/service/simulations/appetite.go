@@ -12,17 +12,13 @@ import (
 
 func MonteCarloSimulationAppetite(c *gin.Context, lossType string) {
 	var riskCalculations []db.RiskCalculation
-
 	engine, exists := c.Get("db")
 	if !exists {
-		c.Set("Response", "Database connection not found")
-		c.Status(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, "Database connection not found")
 		return
 	}
-
 	if err := db.GetAll(engine.(*xorm.Engine), &riskCalculations); err != nil {
-		c.Set("Response", err)
-		c.Status(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 
@@ -30,11 +26,11 @@ func MonteCarloSimulationAppetite(c *gin.Context, lossType string) {
 	var totalMinLoss, totalPertLoss, totalMaxLoss float64
 
 	for _, risk := range riskCalculations {
-		if risk.RiskType == "Frequency" {
+		if risk.RiskType == "Frequency" && risk.Categorie == lossType {
 			totalMinFreq += risk.Min
 			totalPertFreq += risk.Estimate
 			totalMaxFreq += risk.Max
-		} else if risk.RiskType == lossType {
+		} else if risk.Categorie == lossType {
 			totalMinLoss += risk.Min
 			totalPertLoss += risk.Estimate
 			totalMaxLoss += risk.Max

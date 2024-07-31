@@ -18,7 +18,6 @@ func CreateRiskService(c *gin.Context, typeLoss string) ([]db.RiskCalculation, e
 		return nil, errors.New("database connection not found")
 	}
 
-	// Assegure que `engine` é do tipo `*xorm.Engine`
 	dbEngine, ok := engine.(*xorm.Engine)
 	if !ok {
 		return nil, errors.New("failed to cast database connection to *xorm.Engine")
@@ -36,7 +35,7 @@ func CreateRiskService(c *gin.Context, typeLoss string) ([]db.RiskCalculation, e
 		var freq db.Frequency
 
 		for _, l := range lossTotals {
-			if l.ThreatEventID == event.ID {
+			if l.ThreatEventID == event.ID && l.TypeOfLoss == typeLoss {
 				loss = l
 				break
 			}
@@ -53,50 +52,93 @@ func CreateRiskService(c *gin.Context, typeLoss string) ([]db.RiskCalculation, e
 			continue
 		}
 
+		// Verificar e criar/atualizar registros para Loss com base no typeLoss enviado
 		estimateLoss := calculations.CalcRisks(loss.MinimumLoss, loss.MostLikelyLoss, loss.MaximumLoss)
-		riskCalculations = append(riskCalculations, db.RiskCalculation{
+		risk := db.RiskCalculation{
 			ThreatEventID: event.ID,
 			ThreatEvent:   event.ThreatEvent,
+			Categorie:     typeLoss,
 			RiskType:      typeLoss,
 			Min:           loss.MinimumLoss,
 			Max:           loss.MaximumLoss,
 			Mode:          loss.MostLikelyLoss,
 			Estimate:      estimateLoss,
-		})
+		}
+		if err := checkAndUpdateRiskCalculation(dbEngine, risk); err != nil {
+			return nil, err
+		}
 
+		// Verificar e criar/atualizar registros para Frequency com a categoria enviada
 		estimateFrequency := calculations.CalcRisks(freq.MinFrequency, freq.MostLikelyFrequency, freq.MaxFrequency)
-		riskCalculations = append(riskCalculations, db.RiskCalculation{
+		risk = db.RiskCalculation{
 			ThreatEventID: event.ID,
 			ThreatEvent:   event.ThreatEvent,
+			Categorie:     typeLoss,
 			RiskType:      "Frequency",
 			Min:           freq.MinFrequency,
 			Max:           freq.MaxFrequency,
 			Mode:          freq.MostLikelyFrequency,
 			Estimate:      estimateFrequency,
-		})
+		}
+		if err := checkAndUpdateRiskCalculation(dbEngine, risk); err != nil {
+			return nil, err
+		}
 
+		// Verificar e criar/atualizar registros para Risk com a categoria enviada
 		minRisk := freq.MinFrequency * loss.MinimumLoss
 		maxRisk := freq.MaxFrequency * loss.MaximumLoss
 		modeRisk := freq.MostLikelyFrequency * loss.MostLikelyLoss
 		estimateRisk := calculations.CalcRisks(minRisk, modeRisk, maxRisk)
-		riskCalculations = append(riskCalculations, db.RiskCalculation{
+		risk = db.RiskCalculation{
 			ThreatEventID: event.ID,
 			ThreatEvent:   event.ThreatEvent,
+			Categorie:     typeLoss,
 			RiskType:      "Risk",
 			Min:           minRisk,
 			Max:           maxRisk,
 			Mode:          modeRisk,
 			Estimate:      estimateRisk,
-		})
-	}
-
-	for _, risk := range riskCalculations {
-		if _, err := dbEngine.Insert(&risk); err != nil {
+		}
+		if err := checkAndUpdateRiskCalculation(dbEngine, risk); err != nil {
 			return nil, err
 		}
 	}
 
-	return riskCalculations, nil
+	// Filtrar os resultados para retornar apenas a categoria solicitada
+	var filteredRiskCalculations []db.RiskCalculation
+	for _, risk := range riskCalculations {
+		if risk.Categorie == typeLoss {
+			filteredRiskCalculations = append(filteredRiskCalculations, risk)
+		}
+	}
+
+	return filteredRiskCalculations, nil
+}
+
+func checkAndUpdateRiskCalculation(engine *xorm.Engine, risk db.RiskCalculation) error {
+	var existingRisk db.RiskCalculation
+	exists, err := engine.Where("threat_event_i_d = ? AND risk_type = ? AND categorie = ?", risk.ThreatEventID, risk.RiskType, risk.Categorie).Get(&existingRisk)
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		if existingRisk.Min != risk.Min || existingRisk.Max != risk.Max || existingRisk.Mode != risk.Mode || existingRisk.Estimate != risk.Estimate {
+			existingRisk.Min = risk.Min
+			existingRisk.Max = risk.Max
+			existingRisk.Mode = risk.Mode
+			existingRisk.Estimate = risk.Estimate
+			if _, err := engine.ID(existingRisk.ID).Update(&existingRisk); err != nil {
+				return err
+			}
+		}
+	} else {
+		if _, err := engine.Insert(&risk); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func getAll(engine *xorm.Engine, lossType string) ([]db.ThreatEventCatalog, []db.LossHighTotal, []db.Frequency, error) {

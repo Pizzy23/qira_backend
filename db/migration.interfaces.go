@@ -74,6 +74,7 @@ type RiskCalculation struct {
 	ID            int64   `json:"id" xorm:"pk autoincr"`
 	ThreatEventID int64   `json:"threat_event_id" xorm:"INT"`
 	ThreatEvent   string  `json:"threat_event" xorm:"VARCHAR(255)"`
+	Categorie     string  `json:"categorie" xorm:"VARCHAR(255)"`
 	RiskType      string  `json:"risk_type" xorm:"VARCHAR(255)"` //RiskType pode ser "risk", "loss" ou "Frequencia"
 	Min           float64 `json:"min" xorm:"INT"`
 	Max           float64 `json:"max" xorm:"INT"`
