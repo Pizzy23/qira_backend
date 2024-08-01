@@ -384,10 +384,9 @@ func CalculateAggregatedControlStrength(engine *xorm.Engine) ([]db.AggregatedStr
 	if err := db.GetAll(engine, &proposedStrengths); err != nil {
 		return nil, err
 	}
-	if err := db.GetAll(engine, &threatEvents); err != nil {
+	if err := db.GetAllWithCondition(engine, &threatEvents, "inscope = ?", true); err != nil {
 		return nil, err
 	}
-
 	aggregatedMap := make(map[string]db.AggregatedStrength)
 
 	for _, cs := range controlStrengths {

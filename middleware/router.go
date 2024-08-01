@@ -61,6 +61,7 @@ func SetupRouter() *gin.Engine {
 	//events
 	auth.GET("/all-event", event.PullAllForEvent)
 	auth.PUT("/event/:id", event.CreateEvent)
+	auth.DELETE("/event/:id", event.DeleteControlId)
 
 	//Catalogue
 	auth.GET("/all-catalogue", catalogue.PullAllEvent)

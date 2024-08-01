@@ -20,7 +20,7 @@ func CreateLossSpecific(c *gin.Context, typeOfLoss string) {
 		return
 	}
 
-	if err := db.GetAll(engine.(*xorm.Engine), &catalogue); err != nil {
+	if err := db.GetAllWithCondition(engine.(*xorm.Engine), &catalogue, "in_scope = ?", true); err != nil {
 		c.Set("Response", "Database connection not found")
 		c.Status(http.StatusInternalServerError)
 		return
@@ -129,4 +129,40 @@ func lossesWithGranu(input db.ThreatEventCatalog, lossType string, impact string
 		MaximumLoss:    0,
 		MostLikelyLoss: 0,
 	}
+}
+
+func filterOutOfScopeAggregatedLosses(aggregatedLosses []AggregatedLossResponse, dbEngine *xorm.Engine) ([]AggregatedLossResponse, error) {
+	var filteredAggregatedLosses []AggregatedLossResponse
+	for _, lossResponse := range aggregatedLosses {
+		var event db.ThreatEventCatalog
+		found, err := dbEngine.Where("id = ? AND inscope = ?", lossResponse.ThreatEventID, true).Get(&event)
+		if err != nil {
+			return nil, err
+		}
+		if found {
+			filteredAggregatedLosses = append(filteredAggregatedLosses, lossResponse)
+		}
+	}
+	return filteredAggregatedLosses, nil
+}
+func filterOutOfScopeAggregatedLossesGranulade(aggregatedLosses []AggregatedLossResponseGranulade, dbEngine *xorm.Engine) ([]AggregatedLossResponseGranulade, error) {
+	var inScopeEvents []db.ThreatEventCatalog
+	err := dbEngine.Where("inscope = ?", true).Find(&inScopeEvents)
+	if err != nil {
+		return nil, err
+	}
+
+	inScopeEventMap := make(map[int64]bool)
+	for _, event := range inScopeEvents {
+		inScopeEventMap[event.ID] = true
+	}
+
+	var filteredAggregatedLosses []AggregatedLossResponseGranulade
+	for _, lossResponse := range aggregatedLosses {
+		if inScopeEventMap[lossResponse.ThreatEventID] {
+			filteredAggregatedLosses = append(filteredAggregatedLosses, lossResponse)
+		}
+	}
+
+	return filteredAggregatedLosses, nil
 }

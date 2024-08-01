@@ -124,7 +124,12 @@ func GetAggregatedLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 		result = append(result, *v)
 	}
 
-	return result, nil
+	filteredResult, err := filterOutOfScopeAggregatedLosses(result, dbEngine)
+	if err != nil {
+		return nil, err
+	}
+
+	return filteredResult, nil
 }
 
 func PullLossHighId(c *gin.Context, id int) {

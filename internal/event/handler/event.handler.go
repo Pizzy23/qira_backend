@@ -54,3 +54,28 @@ func CreateEvent(c *gin.Context) {
 	c.Set("Response", "Event created successfully")
 	c.Status(http.StatusOK)
 }
+
+// @Summary Delete Event
+// @Description Delete Event
+// @Tags 4 - Event
+// @Accept json
+// @Produce json
+// @Param id path int true "Event ID"
+// @Success 200 {object} db.ControlLibrary "Event Details"
+// @Router /api/event/{id} [delete]
+func DeleteControlId(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.Set("Response", "Invalid asset ID")
+		c.Status(http.StatusBadRequest)
+		return
+	}
+	if err := event.DeleteEvent(c, id); err != nil {
+		c.Set("Response", err)
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+	c.Set("Response", "Control delete successfully")
+	c.Status(http.StatusOK)
+}

@@ -145,5 +145,10 @@ func GetGranularLosses(c *gin.Context) ([]AggregatedLossResponseGranulade, error
 		result = append(result, *v)
 	}
 
-	return result, nil
+	filteredResult, err := filterOutOfScopeAggregatedLossesGranulade(result, dbEngine)
+	if err != nil {
+		return nil, err
+	}
+
+	return filteredResult, nil
 }

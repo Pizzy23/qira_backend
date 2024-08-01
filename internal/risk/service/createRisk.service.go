@@ -146,7 +146,7 @@ func getAll(engine *xorm.Engine, lossType string) ([]db.ThreatEventCatalog, []db
 	var loss []db.LossHighTotal
 	var frequency []db.Frequency
 
-	if err := engine.Find(&threatEvents); err != nil {
+	if err := engine.Where("in_scope = ?", true).Find(&threatEvents); err != nil {
 		return nil, nil, nil, err
 	}
 	if err := engine.Where("type_of_loss = ?", lossType).Find(&loss); err != nil {

@@ -78,3 +78,26 @@ func CreateEventService(c *gin.Context, input interfaces.InputThreatEventAssets,
 	}
 	return nil
 }
+
+func DeleteEvent(c *gin.Context, id int) error {
+	var asset db.ThreatEventAssets
+	engine, exists := c.Get("db")
+	if !exists {
+		return errors.New("database connection not found")
+	}
+
+	has, err := engine.(*xorm.Engine).ID(id).Get(&asset)
+	if err != nil {
+		return err
+	}
+	if !has {
+		return errors.New("Threat Event Assets not found")
+	}
+
+	_, err = engine.(*xorm.Engine).ID(id).Delete(&asset)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
