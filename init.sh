@@ -14,5 +14,4 @@ git pull https://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@github.com/Pizzy23/qir
 # Run swag init
 swag init
 
-# Build the Go application
 go build -o main .
