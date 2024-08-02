@@ -22,7 +22,7 @@ func main() {
 	r := middleware.SetupRouter()
 
 	db.ConnectDatabase()
-	//migrate()
+	migrate()
 
 	host := os.Getenv("API_HOST")
 	if host == "" {

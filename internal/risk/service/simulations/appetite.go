@@ -60,26 +60,36 @@ func MonteCarloSimulationAppetite(c *gin.Context, lossType string) {
 func UploadLossData(c *gin.Context, lossData []interfaces.LossExceedance) {
 	engine, exists := c.Get("db")
 	if !exists {
-		c.Set("Response", "Database dont find")
+		c.Set("Response", "Database not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	for _, ld := range lossData {
-		existing := &db.LossExceedance{}
-		has, err := engine.(*xorm.Engine).Where("risk = ? AND loss = ?", ld.Risk, ld.Loss).Get(existing)
-		if err == nil && !has {
+		var existing db.LossExceedance
+		has, err := engine.(*xorm.Engine).Where("risk = ?", ld.Risk).Get(&existing)
+		if err != nil {
+			fmt.Printf("Error fetching existing loss data: %v\n", err)
+			continue
+		}
+
+		if has && existing.Risk == 0 {
+			existing.Risk = ld.Risk
+			existing.Loss = ld.Loss
+			if _, err := engine.(*xorm.Engine).ID(existing.ID).Update(&existing); err != nil {
+				fmt.Printf("Error updating loss data: %v\n", err)
+			}
+		} else if !has {
 			newLoss := db.LossExceedance{
 				Risk: ld.Risk,
 				Loss: ld.Loss,
 			}
-			_, err := engine.(*xorm.Engine).Insert(newLoss)
-			if err != nil {
+			if _, err := engine.(*xorm.Engine).Insert(&newLoss); err != nil {
 				fmt.Printf("Error inserting loss data: %v\n", err)
 			}
 		}
 	}
 
-	c.Set("Response", "LossExceedance Update")
+	c.Set("Response", "LossExceedance Updated")
 	c.Status(http.StatusCreated)
 }
