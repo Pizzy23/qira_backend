@@ -123,6 +123,6 @@ type AggregatedStrength struct {
 }
 
 type LossExceedance struct {
-	Risk string `json:"risk" xorm:"VARCHAR(255) 'risk'"`
-	Loss int64  `json:"loss" xorm:"INT 'loss'"`
+	Risk float64 `json:"risk" xorm:"VARCHAR(255) 'risk'"`
+	Loss int64   `json:"loss" xorm:"INT 'loss'"`
 }
