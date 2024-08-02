@@ -56,7 +56,7 @@ func UpdateRelevance(c *gin.Context) {
 	}
 
 	if err := revelance.CreateRelevanceService(c, RelevanceInput); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}

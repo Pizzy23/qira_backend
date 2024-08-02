@@ -41,19 +41,19 @@ func PullAllControlStrength(c *gin.Context) {
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &controls); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &relevances); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &implementations); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -165,7 +165,7 @@ func PullAllControlStrength(c *gin.Context) {
 	}
 
 	if err := saveResultsControl(engine.(*xorm.Engine), finalResults); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -190,13 +190,13 @@ func PullAllControlProposed(c *gin.Context) {
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &relevances); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &implementations); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -305,7 +305,7 @@ func PullAllControlProposed(c *gin.Context) {
 	}
 
 	if err := saveResultsPropused(engine.(*xorm.Engine), finalResults); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -324,7 +324,7 @@ func saveResultsPropused(engine *xorm.Engine, results []db.Propused) error {
 
 	for _, result := range results {
 		existing := db.Propused{}
-		has, err := engine.Where("control_i_d = ? AND type_of_attack = ?", result.ControlID, result.TypeOfAttack).Get(&existing)
+		has, err := engine.Where("control_id = ? AND type_of_attack = ?", result.ControlID, result.TypeOfAttack).Get(&existing)
 		if err != nil {
 			session.Rollback()
 			return err
@@ -350,7 +350,7 @@ func saveResultsPropused(engine *xorm.Engine, results []db.Propused) error {
 func saveResultsControl(engine *xorm.Engine, results []db.Control) error {
 	for _, result := range results {
 		var existing db.Control
-		found, err := engine.Where("control_i_d = ? AND type_of_attack = ?", result.ControlID, result.TypeOfAttack).Get(&existing)
+		found, err := engine.Where("control_id = ? AND type_of_attack = ?", result.ControlID, result.TypeOfAttack).Get(&existing)
 		if err != nil {
 			return err
 		}

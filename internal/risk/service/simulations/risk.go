@@ -31,7 +31,7 @@ func MonteCarloSimulationRisk(c *gin.Context, threatEvent string, lossType strin
 		return
 	}
 
-	err = dbEngine.Where("control_i_d = ?", -2).Find(&controlGaps)
+	err = dbEngine.Where("control_id = ?", -2).Find(&controlGaps)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving control gap data"})
 		return

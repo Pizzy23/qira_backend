@@ -17,7 +17,7 @@ func CreateSingularLossService(c *gin.Context, LossHigh interfaces.InputLossHigh
 	}
 
 	var existingLoss db.LossHigh
-	found, err := engine.(*xorm.Engine).Where("threat_event_i_d = ? AND loss_type = ?", id, "Singular").Get(&existingLoss)
+	found, err := engine.(*xorm.Engine).Where("threat_event_id = ? AND loss_type = ?", id, "Singular").Get(&existingLoss)
 	if err != nil {
 		return err
 	}
@@ -122,28 +122,47 @@ func GetSingularLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 		aggregatedData[loss.ThreatEventID].Losses = append(aggregatedData[loss.ThreatEventID].Losses, detail)
 	}
 
-	for _, total := range lossHighTotals {
-		if agg, exists := aggregatedData[total.ThreatEventID]; exists {
-			detail := AggregatedLossDetail{
-				LossType:       "Total",
+	for _, agg := range aggregatedData {
+		total := AggregatedLossDetail{
+			LossType:       "Total",
+			MinimumLoss:    0,
+			MaximumLoss:    0,
+			MostLikelyLoss: 0,
+		}
+		for _, detail := range agg.Losses {
+			total.MinimumLoss += detail.MinimumLoss
+			total.MaximumLoss += detail.MaximumLoss
+			total.MostLikelyLoss += detail.MostLikelyLoss
+		}
+		agg.Losses = append(agg.Losses, total)
+
+		existingTotal := db.LossHighTotal{}
+		found, err := dbEngine.Where("threat_event_id = ? AND type_of_loss = 'Singular' AND name = 'Total'", agg.ThreatEventID).Get(&existingTotal)
+		if err != nil {
+			return nil, err
+		}
+
+		if found {
+			if existingTotal.MinimumLoss != total.MinimumLoss || existingTotal.MaximumLoss != total.MaximumLoss || existingTotal.MostLikelyLoss != total.MostLikelyLoss {
+				existingTotal.MinimumLoss = total.MinimumLoss
+				existingTotal.MaximumLoss = total.MaximumLoss
+				existingTotal.MostLikelyLoss = total.MostLikelyLoss
+				if _, err := dbEngine.ID(existingTotal.ID).Update(&existingTotal); err != nil {
+					return nil, err
+				}
+			}
+		} else {
+			newTotal := db.LossHighTotal{
+				ThreatEventID:  agg.ThreatEventID,
+				ThreatEvent:    agg.ThreatEvent,
+				Name:           "Total",
+				TypeOfLoss:     "Singular",
 				MinimumLoss:    total.MinimumLoss,
 				MaximumLoss:    total.MaximumLoss,
 				MostLikelyLoss: total.MostLikelyLoss,
 			}
-			agg.Losses = append(agg.Losses, detail)
-		} else {
-			aggregatedData[total.ThreatEventID] = &AggregatedLossResponse{
-				ThreatEventID: total.ThreatEventID,
-				ThreatEvent:   total.ThreatEvent,
-				Assets:        "",
-				Losses: []AggregatedLossDetail{
-					{
-						LossType:       "Total",
-						MinimumLoss:    total.MinimumLoss,
-						MaximumLoss:    total.MaximumLoss,
-						MostLikelyLoss: total.MostLikelyLoss,
-					},
-				},
+			if _, err := dbEngine.Insert(&newTotal); err != nil {
+				return nil, err
 			}
 		}
 	}
@@ -159,5 +178,4 @@ func GetSingularLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 	}
 
 	return filteredResult, nil
-
 }

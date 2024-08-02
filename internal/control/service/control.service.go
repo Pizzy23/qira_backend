@@ -134,7 +134,7 @@ func CreateOrUpdateImplementService(c *gin.Context, data interfaces.ImplementsIn
 	}
 
 	var existingImplement db.Implements
-	has, err := engine.(*xorm.Engine).Where("control_i_d = ?", id).Get(&existingImplement)
+	has, err := engine.(*xorm.Engine).Where("control_id = ?", id).Get(&existingImplement)
 	if err != nil {
 		return err
 	}
@@ -196,7 +196,7 @@ func PullAllControl(c *gin.Context) {
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &controls); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -213,7 +213,7 @@ func PullAllImplements(c *gin.Context) {
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &controls); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -255,7 +255,7 @@ func Stren(c *gin.Context) {
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &controls); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -273,7 +273,7 @@ func Prupu(c *gin.Context) {
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &controls); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}

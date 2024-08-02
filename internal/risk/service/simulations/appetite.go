@@ -39,7 +39,7 @@ func MonteCarloSimulationAppetite(c *gin.Context, lossType string) {
 
 	var lossEc []db.LossExceedance
 	if err := db.GetAll(engine.(*xorm.Engine), &lossEc); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}

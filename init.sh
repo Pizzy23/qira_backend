@@ -16,6 +16,3 @@ swag init
 
 # Build the Go application
 go build -o main .
-
-# Run sudo systemctl daemon-reload
-sudo systemctl restart go.service

@@ -27,7 +27,7 @@ func CreateAsset(c *gin.Context) {
 	}
 
 	if err := inventory.CreateAssetService(c, asset); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -85,7 +85,7 @@ func DeleteAsset(c *gin.Context) {
 	}
 
 	if err := inventory.DeleteAsset(c, id); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -119,7 +119,7 @@ func UpdateAsset(c *gin.Context) {
 	}
 
 	if err := inventory.UpdateAssetService(c, id, asset); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}

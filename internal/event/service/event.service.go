@@ -20,7 +20,7 @@ func PullEventService(c *gin.Context) {
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &res); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -55,7 +55,7 @@ func CreateEventService(c *gin.Context, input interfaces.InputThreatEventAssets,
 
 	for _, asset := range input.AffectedAsset {
 		var eventAsset db.ThreatEventAssets
-		has, err := engine.(*xorm.Engine).Where("threat_i_d = ? AND affected_asset = ?", id, asset).Get(&eventAsset)
+		has, err := engine.(*xorm.Engine).Where("threat_id = ? AND affected_asset = ?", id, asset).Get(&eventAsset)
 		if err != nil {
 			return err
 		}

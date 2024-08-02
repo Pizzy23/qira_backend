@@ -37,7 +37,7 @@ func CreateLossHigh(c *gin.Context) {
 	}
 
 	if err := losshigh.CreateLossHighService(c, LossHigh, id); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -56,7 +56,7 @@ func CreateLossHigh(c *gin.Context) {
 func PullAllLossHigh(c *gin.Context) {
 	aggregatedLosses, err := losshigh.GetAggregatedLosses(c)
 	if err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -91,7 +91,7 @@ func CreateLossHighSingular(c *gin.Context) {
 	}
 
 	if err := losshigh.CreateSingularLossService(c, LossHigh, id); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -110,7 +110,7 @@ func CreateLossHighSingular(c *gin.Context) {
 func PullAllLossHighSingular(c *gin.Context) {
 	aggregatedLosses, err := losshigh.GetSingularLosses(c)
 	if err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -145,7 +145,7 @@ func CreateLossHighGranuled(c *gin.Context) {
 	}
 
 	if err := losshigh.CreateLossHighGranularService(c, LossHigh, id); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -164,7 +164,7 @@ func CreateLossHighGranuled(c *gin.Context) {
 func PullAllLossHighGranuled(c *gin.Context) {
 	aggregatedLosses, err := losshigh.GetGranularLosses(c)
 	if err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -184,7 +184,7 @@ func PullLosstId(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}

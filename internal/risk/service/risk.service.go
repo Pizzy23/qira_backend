@@ -19,13 +19,13 @@ func PullAllRisk(c *gin.Context, typeLoss string) {
 
 	_, err := CreateRiskService(c, typeLoss)
 	if err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &calcRisk); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}

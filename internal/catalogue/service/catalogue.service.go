@@ -72,7 +72,7 @@ func PullAllEventService(c *gin.Context) {
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &events); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -110,15 +110,15 @@ func DeleteEventService(c *gin.Context, eventID int64) error {
 		return errors.New("database connection not found")
 	}
 
-	if _, err := engine.(*xorm.Engine).Where("threat_event_i_d = ?", eventID).Delete(&db.Frequency{}); err != nil {
+	if _, err := engine.(*xorm.Engine).Where("threat_event_id = ?", eventID).Delete(&db.Frequency{}); err != nil {
 		return err
 	}
 
-	if _, err := engine.(*xorm.Engine).Where("threat_event_i_d = ?", eventID).Delete(&db.LossHigh{}); err != nil {
+	if _, err := engine.(*xorm.Engine).Where("threat_event_id = ?", eventID).Delete(&db.LossHigh{}); err != nil {
 		return err
 	}
 
-	if _, err := engine.(*xorm.Engine).Where("threat_i_d = ?", eventID).Delete(&db.ThreatEventAssets{}); err != nil {
+	if _, err := engine.(*xorm.Engine).Where("threat_id = ?", eventID).Delete(&db.ThreatEventAssets{}); err != nil {
 		return err
 	}
 

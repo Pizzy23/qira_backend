@@ -19,7 +19,7 @@ func PullAllRevelance(c *gin.Context) {
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &revelances); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -58,7 +58,7 @@ func CreateRelevanceService(c *gin.Context, relevanceInput db.RelevanceDinamicIn
 	}
 
 	var relevanceDb db.Relevance
-	found, err := engine.(*xorm.Engine).Where("control_i_d = ? AND type_of_attack = ?", relevanceInput.ControlID, relevanceInput.TypeOfAttack).Get(&relevanceDb)
+	found, err := engine.(*xorm.Engine).Where("control_id = ? AND type_of_attack = ?", relevanceInput.ControlID, relevanceInput.TypeOfAttack).Get(&relevanceDb)
 	if err != nil {
 		return err
 	}

@@ -72,7 +72,7 @@ func DeleteControlId(c *gin.Context) {
 		return
 	}
 	if err := event.DeleteEvent(c, id); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}

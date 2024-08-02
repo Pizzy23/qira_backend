@@ -96,13 +96,13 @@ func CreateLossSpecific(c *gin.Context, typeOfLoss string) {
 
 func checkLossExists(engine *xorm.Engine, threatEventID int64, typeOfLoss string) (bool, error) {
 	var loss db.LossHigh
-	exists, err := engine.Where("threat_event_i_d = ? AND loss_type = ?", threatEventID, typeOfLoss).Get(&loss)
+	exists, err := engine.Where("threat_event_id = ? AND loss_type = ?", threatEventID, typeOfLoss).Get(&loss)
 	return exists, err
 }
 
 func checkLossGranularExists(engine *xorm.Engine, threatEventID int64, typeOfLoss, impact string) (bool, error) {
 	var loss db.LossHighGranular
-	exists, err := engine.Where("threat_event_i_d = ? AND loss_type = ? AND impact = ?", threatEventID, typeOfLoss, impact).Get(&loss)
+	exists, err := engine.Where("threat_event_id = ? AND loss_type = ? AND impact = ?", threatEventID, typeOfLoss, impact).Get(&loss)
 	return exists, err
 }
 
@@ -132,22 +132,28 @@ func lossesWithGranu(input db.ThreatEventCatalog, lossType string, impact string
 }
 
 func filterOutOfScopeAggregatedLosses(aggregatedLosses []AggregatedLossResponse, dbEngine *xorm.Engine) ([]AggregatedLossResponse, error) {
+	var inScopeEvents []db.ThreatEventCatalog
+	err := dbEngine.Where("in_scope = ?", true).Find(&inScopeEvents)
+	if err != nil {
+		return nil, err
+	}
+	inScopeEventMap := make(map[int64]bool)
+	for _, event := range inScopeEvents {
+		inScopeEventMap[event.ID] = true
+	}
+
 	var filteredAggregatedLosses []AggregatedLossResponse
 	for _, lossResponse := range aggregatedLosses {
-		var event db.ThreatEventCatalog
-		found, err := dbEngine.Where("id = ? AND inscope = ?", lossResponse.ThreatEventID, true).Get(&event)
-		if err != nil {
-			return nil, err
-		}
-		if found {
+		if inScopeEventMap[lossResponse.ThreatEventID] {
 			filteredAggregatedLosses = append(filteredAggregatedLosses, lossResponse)
 		}
 	}
+
 	return filteredAggregatedLosses, nil
 }
 func filterOutOfScopeAggregatedLossesGranulade(aggregatedLosses []AggregatedLossResponseGranulade, dbEngine *xorm.Engine) ([]AggregatedLossResponseGranulade, error) {
 	var inScopeEvents []db.ThreatEventCatalog
-	err := dbEngine.Where("inscope = ?", true).Find(&inScopeEvents)
+	err := dbEngine.Where("in_scope = ?", true).Find(&inScopeEvents)
 	if err != nil {
 		return nil, err
 	}

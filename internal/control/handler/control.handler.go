@@ -105,7 +105,7 @@ func DeleteControlId(c *gin.Context) {
 		return
 	}
 	if err := control.DeleteControl(c, id); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -217,7 +217,7 @@ func PullAggregatedControlStrength(c *gin.Context) {
 
 	finalResults, err := control.CalculateAggregatedControlStrength(engine.(*xorm.Engine))
 	if err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}

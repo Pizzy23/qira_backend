@@ -58,7 +58,7 @@ func CreateRiskService(c *gin.Context, typeLoss string) ([]db.RiskCalculation, e
 			ThreatEventID: event.ID,
 			ThreatEvent:   event.ThreatEvent,
 			Categorie:     typeLoss,
-			RiskType:      typeLoss,
+			RiskType:      "Loss",
 			Min:           loss.MinimumLoss,
 			Max:           loss.MaximumLoss,
 			Mode:          loss.MostLikelyLoss,
@@ -117,7 +117,7 @@ func CreateRiskService(c *gin.Context, typeLoss string) ([]db.RiskCalculation, e
 
 func checkAndUpdateRiskCalculation(engine *xorm.Engine, risk db.RiskCalculation) error {
 	var existingRisk db.RiskCalculation
-	exists, err := engine.Where("threat_event_i_d = ? AND risk_type = ? AND categorie = ?", risk.ThreatEventID, risk.RiskType, risk.Categorie).Get(&existingRisk)
+	exists, err := engine.Where("threat_event_id = ? AND risk_type = ? AND categorie = ?", risk.ThreatEventID, risk.RiskType, risk.Categorie).Get(&existingRisk)
 	if err != nil {
 		return err
 	}

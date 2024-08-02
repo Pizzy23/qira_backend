@@ -17,7 +17,7 @@ func CreateLossHighGranularService(c *gin.Context, LossHigh interfaces.InputLoss
 	}
 
 	var existingLoss db.LossHighGranular
-	found, err := engine.(*xorm.Engine).Where("threat_event_i_d = ? AND loss_type = ? AND impact = ?", id, LossHigh.LossType, LossHigh.Impact).Get(&existingLoss)
+	found, err := engine.(*xorm.Engine).Where("threat_event_id = ? AND loss_type = ? AND impact = ?", id, LossHigh.LossType, LossHigh.Impact).Get(&existingLoss)
 	if err != nil {
 		return err
 	}
@@ -110,7 +110,7 @@ func GetGranularLosses(c *gin.Context) ([]AggregatedLossResponseGranulade, error
 		agg.Losses = append(agg.Losses, total)
 
 		existingTotal := db.LossHighTotal{}
-		found, err := dbEngine.Where("threat_event_i_d = ? AND type_of_loss = 'Granular' AND name = 'Total'", agg.ThreatEventID).Get(&existingTotal)
+		found, err := dbEngine.Where("threat_event_id = ? AND type_of_loss = 'Granular' AND name = 'Total'", agg.ThreatEventID).Get(&existingTotal)
 		if err != nil {
 			return nil, err
 		}

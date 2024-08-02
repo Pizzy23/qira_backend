@@ -17,20 +17,20 @@ func Read(engine *xorm.Engine, table interface{}, condition interface{}) error {
 }
 
 func UpdateByThreatEvent(engine *xorm.Engine, table interface{}, threatEventID int64, riskType string) error {
-	_, err := engine.Where("threat_event_i_d = ? AND risk_type = ?", threatEventID, riskType).Update(table)
+	_, err := engine.Where("threat_event_id = ? AND risk_type = ?", threatEventID, riskType).Update(table)
 	return err
 }
 
 func UpdateByThreat(engine *xorm.Engine, table interface{}, threatEventID int64) error {
-	_, err := engine.Where("threat_event_i_d = ?", threatEventID).Update(table)
+	_, err := engine.Where("threat_event_id = ?", threatEventID).Update(table)
 	return err
 }
 func UpdateByControlIdAndRisk(engine *xorm.Engine, table interface{}, controlID int64, attack string) error {
-	_, err := engine.Where("control_i_d = ? AND type_of_attack = ?", controlID, attack).Update(table)
+	_, err := engine.Where("control_id = ? AND type_of_attack = ?", controlID, attack).Update(table)
 	return err
 }
 func UpdateByControlId(engine *xorm.Engine, table interface{}, controlID int64) error {
-	_, err := engine.Where("control_i_d = ?", controlID).Update(table)
+	_, err := engine.Where("control_id = ?", controlID).Update(table)
 	return err
 }
 
@@ -56,7 +56,7 @@ func GetAll(engine *xorm.Engine, tableSlice interface{}) error {
 
 func GetRiskCalculationsByRiskType(engine *xorm.Engine, threatEventID int64, riskType string) ([]RiskCalculation, error) {
 	var riskCalcs []RiskCalculation
-	err := engine.Where("threat_event_i_d = ? AND risk_type = ?", threatEventID, riskType).Find(&riskCalcs)
+	err := engine.Where("threat_event_id = ? AND risk_type = ?", threatEventID, riskType).Find(&riskCalcs)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func CreateColumn(engine *xorm.Engine, tableName string, columnName string, type
 
 func GetRiskById(engine *xorm.Engine, riskType int64) ([]RiskCalculation, error) {
 	var riskCalcs []RiskCalculation
-	err := engine.Where("threat_event_i_d = ?", riskType).Find(&riskCalcs)
+	err := engine.Where("threat_event_id = ?", riskType).Find(&riskCalcs)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func GetRiskById(engine *xorm.Engine, riskType int64) ([]RiskCalculation, error)
 }
 
 func GetByEventIDAndRiskType(engine *xorm.Engine, table interface{}, eventId int64, riskType string) (bool, error) {
-	found, err := engine.Where("threat_event_i_d = ? AND risk_type = ?", eventId, riskType).Get(table)
+	found, err := engine.Where("threat_event_id = ? AND risk_type = ?", eventId, riskType).Get(table)
 	return found, err
 }
 

@@ -44,7 +44,7 @@ func PullAllAsset(c *gin.Context) {
 	}
 
 	if err := db.GetAll(engine.(*xorm.Engine), &assets); err != nil {
-		c.Set("Response", err)
+		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
