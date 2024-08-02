@@ -157,6 +157,8 @@ definitions:
     type: object
   db.RiskCalculation:
     properties:
+      categorie:
+        type: string
       estimate:
         type: number
       id:
@@ -168,7 +170,6 @@ definitions:
       mode:
         type: number
       risk_type:
-        description: RiskType pode ser "risk", "loss" ou "Frequencia"
         type: string
       threat_event:
         type: string
@@ -314,7 +315,7 @@ definitions:
       loss:
         type: integer
       risk:
-        type: string
+        type: number
     type: object
 externalDocs:
   description: OpenAPI
@@ -742,6 +743,26 @@ paths:
       tags:
       - 1 - Inventory
   /api/event/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Event
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Event Details
+          schema:
+            $ref: '#/definitions/db.ControlLibrary'
+      summary: Delete Event
+      tags:
+      - 4 - Event
     put:
       consumes:
       - application/json

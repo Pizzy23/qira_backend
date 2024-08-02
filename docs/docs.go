@@ -688,6 +688,36 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Delete Event",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "4 - Event"
+                ],
+                "summary": "Delete Event",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Event Details",
+                        "schema": {
+                            "$ref": "#/definitions/db.ControlLibrary"
+                        }
+                    }
+                }
             }
         },
         "/api/frequency/{id}": {
@@ -1665,6 +1695,9 @@ const docTemplate = `{
         "db.RiskCalculation": {
             "type": "object",
             "properties": {
+                "categorie": {
+                    "type": "string"
+                },
                 "estimate": {
                     "type": "number"
                 },
@@ -1681,7 +1714,6 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "risk_type": {
-                    "description": "RiskType pode ser \"risk\", \"loss\" ou \"Frequencia\"",
                     "type": "string"
                 },
                 "threat_event": {
@@ -1905,7 +1937,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "risk": {
-                    "type": "string"
+                    "type": "number"
                 }
             }
         }
