@@ -98,7 +98,7 @@ func PullControlId(c *gin.Context) {
 // @Router /api/control/{id} [delete]
 func DeleteControlId(c *gin.Context) {
 	idParam := c.Param("id")
-	id, err := strconv.Atoi(idParam)
+	id, err := strconv.ParseInt(idParam, 10, 64)
 	if err != nil {
 		c.Set("Response", "Invalid asset ID")
 		c.Status(http.StatusBadRequest)
