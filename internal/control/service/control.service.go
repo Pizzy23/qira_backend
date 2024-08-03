@@ -203,6 +203,7 @@ func PullAllControl(c *gin.Context) {
 	c.Set("Response", controls)
 	c.Status(http.StatusOK)
 }
+
 func PullAllImplements(c *gin.Context) {
 	var controls []db.Implements
 	engine, exists := c.Get("db")
@@ -281,13 +282,13 @@ func Prupu(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-func DeleteControl(c *gin.Context, id int) error {
-	var asset db.ControlLibrary
+func DeleteControl(c *gin.Context, id int64) error {
 	engine, exists := c.Get("db")
 	if !exists {
 		return errors.New("database connection not found")
 	}
 
+	var asset db.ControlLibrary
 	has, err := engine.(*xorm.Engine).ID(id).Get(&asset)
 	if err != nil {
 		return err
@@ -296,8 +297,23 @@ func DeleteControl(c *gin.Context, id int) error {
 		return errors.New("Control not found")
 	}
 
-	_, err = engine.(*xorm.Engine).ID(id).Delete(&asset)
-	if err != nil {
+	if _, err := engine.(*xorm.Engine).Where("control_id = ?", id).Delete(&db.Relevance{}); err != nil {
+		return err
+	}
+
+	if _, err := engine.(*xorm.Engine).Where("control_id = ?", id).Delete(&db.Control{}); err != nil {
+		return err
+	}
+
+	if _, err := engine.(*xorm.Engine).Where("control_id = ?", id).Delete(&db.Propused{}); err != nil {
+		return err
+	}
+
+	if _, err := engine.(*xorm.Engine).Where("control_id = ?", id).Delete(&db.Implements{}); err != nil {
+		return err
+	}
+
+	if _, err := engine.(*xorm.Engine).ID(id).Delete(&db.ControlLibrary{}); err != nil {
 		return err
 	}
 
