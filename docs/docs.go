@@ -1618,6 +1618,9 @@ const docTemplate = `{
                 "impact": {
                     "type": "string"
                 },
+                "lossEditNumber": {
+                    "type": "integer"
+                },
                 "lossType": {
                     "type": "string"
                 },
@@ -1881,6 +1884,9 @@ const docTemplate = `{
                 },
                 "impact": {
                     "type": "string"
+                },
+                "lossEditNumber": {
+                    "type": "integer"
                 },
                 "loss_type": {
                     "type": "string"

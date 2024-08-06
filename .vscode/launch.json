@@ -9,6 +9,16 @@
             "program": "${workspaceFolder}",
             "env": {},
             "args": []
+        },
+        {
+            "name": "Launch with go-watch",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}",
+            "env": {},
+            "args": [],
+            "preLaunchTask": "go-watch"
         }
     ]
 }

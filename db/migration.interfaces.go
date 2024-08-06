@@ -53,6 +53,7 @@ type LossHighGranular struct {
 	ID             int64   `xorm:"pk autoincr 'id'"`
 	ThreatEventID  int64   `xorm:"INT 'threat_event_id'"`
 	ThreatEvent    string  `xorm:"VARCHAR(255) 'threat_event'"`
+	LossEditNumber int64   `xorm:"INT 'loss_edit_number'"`
 	Assets         string  `xorm:"TEXT 'assets'"`
 	LossType       string  `xorm:"VARCHAR(255) 'loss_type'"`
 	Impact         string  `xorm:"VARCHAR(255) 'impact'"`

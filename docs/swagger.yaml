@@ -107,6 +107,8 @@ definitions:
         type: integer
       impact:
         type: string
+      lossEditNumber:
+        type: integer
       lossType:
         type: string
       maximumLoss:
@@ -281,6 +283,8 @@ definitions:
         type: string
       loss_type:
         type: string
+      lossEditNumber:
+        type: integer
       maximum_loss:
         type: number
       minimum_loss:

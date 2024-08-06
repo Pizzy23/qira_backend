@@ -46,11 +46,12 @@ type InputLossHigh struct {
 }
 
 type AggregatedLossDetailGranulade struct {
-	LossType       string
-	Impact         string
-	MinimumLoss    float64
-	MaximumLoss    float64
-	MostLikelyLoss float64
+	LossType       string  `json:"LossType"`
+	Impact         string  `json:"Impact"`
+	LossEditNumber int64   `json:"loss_edit_number"`
+	MinimumLoss    float64 `json:"MinimumLoss"`
+	MaximumLoss    float64 `json:"MaximumLoss"`
+	MostLikelyLoss float64 `json:"MostLikelyLoss"`
 }
 
 type AggregatedLossResponseGranulade struct {

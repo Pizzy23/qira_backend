@@ -17,7 +17,8 @@ func CreateLossHighGranularService(c *gin.Context, LossHigh interfaces.InputLoss
 	}
 
 	var existingLoss db.LossHighGranular
-	found, err := engine.(*xorm.Engine).Where("threat_event_id = ? AND loss_type = ? AND impact = ?", id, LossHigh.LossType, LossHigh.Impact).Get(&existingLoss)
+	found, err := engine.(*xorm.Engine).Where("threat_event_id = ? AND loss_type = ? AND impact = ? AND loss_edit_number",
+		id, LossHigh.LossType, LossHigh.Impact, LossHigh.LossEditNumber).Get(&existingLoss)
 	if err != nil {
 		return err
 	}
@@ -25,6 +26,7 @@ func CreateLossHighGranularService(c *gin.Context, LossHigh interfaces.InputLoss
 	if found {
 		existingLoss.ThreatEvent = LossHigh.ThreatEvent
 		existingLoss.Assets = strings.Join(LossHigh.Assets, ",")
+		existingLoss.Impact = LossHigh.Impact
 		existingLoss.MinimumLoss = LossHigh.MinimumLoss
 		existingLoss.MaximumLoss = LossHigh.MaximumLoss
 		existingLoss.MostLikelyLoss = LossHigh.MostLikelyLoss
@@ -33,9 +35,26 @@ func CreateLossHighGranularService(c *gin.Context, LossHigh interfaces.InputLoss
 			return err
 		}
 	} else {
+		// Verificar o próximo `LossEditNumber` disponível
+		var maxEditNumber int64
+		_, err := engine.(*xorm.Engine).Table("loss_high_granular").
+			Where("threat_event_id = ? AND loss_type = ? AND impact = ?", id, LossHigh.LossType, LossHigh.Impact).
+			Select("MAX(loss_edit_number)").
+			Get(&maxEditNumber)
+		if err != nil {
+			return err
+		}
+
+		// Atribuir o próximo número de edição disponível (de 1 a 4)
+		nextEditNumber := maxEditNumber + 1
+		if nextEditNumber > 4 {
+			return errors.New("maximum loss_edit_number exceeded for this combination of threat_event_id, loss_type, and impact")
+		}
+
 		newLoss := db.LossHighGranular{
 			ThreatEventID:  id,
 			ThreatEvent:    LossHigh.ThreatEvent,
+			LossEditNumber: nextEditNumber,
 			Assets:         strings.Join(LossHigh.Assets, ","),
 			LossType:       LossHigh.LossType,
 			Impact:         LossHigh.Impact,
@@ -84,9 +103,14 @@ func GetGranularLosses(c *gin.Context) ([]AggregatedLossResponseGranulade, error
 				Losses:        []AggregatedLossDetailGranulade{},
 			}
 		}
+
+		// Determine loss_edit_number based on existing losses
+		lossEditNumber := int64(len(aggregatedData[loss.ThreatEventID].Losses) + 1)
+
 		detail := AggregatedLossDetailGranulade{
 			LossType:       loss.LossType,
 			Impact:         loss.Impact,
+			LossEditNumber: lossEditNumber,
 			MinimumLoss:    loss.MinimumLoss,
 			MaximumLoss:    loss.MaximumLoss,
 			MostLikelyLoss: loss.MostLikelyLoss,
@@ -98,6 +122,7 @@ func GetGranularLosses(c *gin.Context) ([]AggregatedLossResponseGranulade, error
 		total := AggregatedLossDetailGranulade{
 			LossType:       "Granular",
 			Impact:         "Total",
+			LossEditNumber: int64(len(agg.Losses) + 1),
 			MinimumLoss:    0,
 			MaximumLoss:    0,
 			MostLikelyLoss: 0,

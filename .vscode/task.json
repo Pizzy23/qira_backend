@@ -1,0 +1,13 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "go-watch",
+            "type": "shell",
+            "command": "go-watch",
+            "args": ["main.go"], 
+            "group": "build",
+            "problemMatcher": []
+        }
+    ]
+}

@@ -144,6 +144,7 @@ type InputLossHighGranulade struct {
 	Assets         []string `json:"assets"`
 	LossType       string   `json:"loss_type"`
 	Impact         string   `json:"impact"`
+	LossEditNumber int64    `json:loss_edit_number`
 	MinimumLoss    float64  `json:"minimum_loss"`
 	MaximumLoss    float64  `json:"maximum_loss"`
 	MostLikelyLoss float64  `json:"most_likely_loss"`
