@@ -19,6 +19,3 @@ go build -o main .
 
 # Run sudo systemctl daemon-reload
 sudo systemctl daemon-reload
-
-# Start the application
-./main

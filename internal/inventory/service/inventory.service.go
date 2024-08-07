@@ -1,6 +1,7 @@
 package inventory
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"qira/db"
@@ -108,6 +109,7 @@ func UpdateAssetService(c *gin.Context, id int64, asset interfaces.InputAssetsIn
 
 func DeleteAsset(c *gin.Context, id int64) error {
 	var asset db.AssetInventory
+
 	engine, exists := c.Get("db")
 	if !exists {
 		return errors.New("database connection not found")
@@ -124,6 +126,44 @@ func DeleteAsset(c *gin.Context, id int64) error {
 	_, err = engine.(*xorm.Engine).ID(id).Delete(&asset)
 	if err != nil {
 		return err
+	}
+
+	events := make([]db.ThreatEventAssets, 0)
+	err = engine.(*xorm.Engine).Find(&events)
+	if err != nil {
+		return err
+	}
+
+	for _, event := range events {
+		affectedAssets := make([]string, 0)
+		err = json.Unmarshal([]byte(event.AffectedAsset), &affectedAssets)
+		if err != nil {
+			return err
+		}
+
+		updatedAssets := make([]string, 0)
+		for _, assetName := range affectedAssets {
+			if assetName != asset.Name {
+				updatedAssets = append(updatedAssets, assetName)
+			}
+		}
+
+		if len(updatedAssets) > 0 {
+			updatedAssetsJSON, err := json.Marshal(updatedAssets)
+			if err != nil {
+				return err
+			}
+			event.AffectedAsset = string(updatedAssetsJSON)
+			_, err = engine.(*xorm.Engine).ID(event.ID).Update(&event)
+			if err != nil {
+				return err
+			}
+		} else {
+			_, err = engine.(*xorm.Engine).ID(event.ID).Delete(&event)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	return nil

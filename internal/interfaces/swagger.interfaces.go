@@ -132,22 +132,20 @@ type OutPutThreatEventAssets struct {
 }
 
 type InputLossHigh struct {
-	ThreatEvent    string   `json:"threat_event"`
-	Assets         []string `json:"assets"`
-	LossType       string   `json:"loss_type"`
-	MinimumLoss    float64  `json:"minimum_loss"`
-	MaximumLoss    float64  `json:"maximum_loss"`
-	MostLikelyLoss float64  `json:"most_likely_loss"`
+	ThreatEvent    string  `json:"threat_event"`
+	LossType       string  `json:"loss_type"`
+	MinimumLoss    float64 `json:"minimum_loss"`
+	MaximumLoss    float64 `json:"maximum_loss"`
+	MostLikelyLoss float64 `json:"most_likely_loss"`
 }
 type InputLossHighGranulade struct {
-	ThreatEvent    string   `json:"threat_event"`
-	Assets         []string `json:"assets"`
-	LossType       string   `json:"loss_type"`
-	Impact         string   `json:"impact"`
-	LossEditNumber int64    `json:loss_edit_number`
-	MinimumLoss    float64  `json:"minimum_loss"`
-	MaximumLoss    float64  `json:"maximum_loss"`
-	MostLikelyLoss float64  `json:"most_likely_loss"`
+	ThreatEvent    string  `json:"threat_event"`
+	LossType       string  `json:"loss_type"`
+	Impact         string  `json:"impact"`
+	LossEditNumber int64   `json:loss_edit_number`
+	MinimumLoss    float64 `json:"minimum_loss"`
+	MaximumLoss    float64 `json:"maximum_loss"`
+	MostLikelyLoss float64 `json:"most_likely_loss"`
 }
 
 type InputRiskCalculator struct {

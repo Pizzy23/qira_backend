@@ -110,6 +110,16 @@ func DeleteEventService(c *gin.Context, eventID int64) error {
 		return errors.New("database connection not found")
 	}
 
+	// Obter o evento de ameaça para usar seu nome no filtro de relevância
+	var threatEvent db.ThreatEventCatalog
+	has, err := engine.(*xorm.Engine).ID(eventID).Get(&threatEvent)
+	if err != nil {
+		return err
+	}
+	if !has {
+		return errors.New("threat event not found")
+	}
+
 	if _, err := engine.(*xorm.Engine).Where("threat_event_id = ?", eventID).Delete(&db.Frequency{}); err != nil {
 		return err
 	}
@@ -123,6 +133,10 @@ func DeleteEventService(c *gin.Context, eventID int64) error {
 	}
 
 	if _, err := engine.(*xorm.Engine).Where("threat_event_id = ?", eventID).Delete(&db.RiskCalculation{}); err != nil {
+		return err
+	}
+
+	if _, err := engine.(*xorm.Engine).Where("type_of_attack = ?", threatEvent.ThreatEvent).Delete(&db.Relevance{}); err != nil {
 		return err
 	}
 

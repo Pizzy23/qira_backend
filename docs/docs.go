@@ -1844,12 +1844,6 @@ const docTemplate = `{
         "interfaces.InputLossHigh": {
             "type": "object",
             "properties": {
-                "assets": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
                 "loss_type": {
                     "type": "string"
                 },
@@ -1870,12 +1864,6 @@ const docTemplate = `{
         "interfaces.InputLossHighGranulade": {
             "type": "object",
             "properties": {
-                "assets": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
                 "impact": {
                     "type": "string"
                 },

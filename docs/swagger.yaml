@@ -254,10 +254,6 @@ definitions:
     type: object
   interfaces.InputLossHigh:
     properties:
-      assets:
-        items:
-          type: string
-        type: array
       loss_type:
         type: string
       maximum_loss:
@@ -271,10 +267,6 @@ definitions:
     type: object
   interfaces.InputLossHighGranulade:
     properties:
-      assets:
-        items:
-          type: string
-        type: array
       impact:
         type: string
       loss_type:

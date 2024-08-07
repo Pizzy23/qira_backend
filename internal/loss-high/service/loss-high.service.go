@@ -69,19 +69,19 @@ func GetAggregatedLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 	if err := db.GetAllWithCondition(dbEngine, &lossHighTotals, "name = 'Total' AND type_of_loss = 'LossHigh'"); err != nil {
 		return nil, err
 	}
-	assets, err := getAssetsLossHigh(dbEngine, lossHighs[0])
-	if err != nil {
-		return nil, err
-	}
 
 	aggregatedData := make(map[int64]*AggregatedLossResponse)
 
 	for _, loss := range lossHighs {
 		if _, exists := aggregatedData[loss.ThreatEventID]; !exists {
+			assets, err := getAssetsLossHigh(dbEngine, loss)
+			if err != nil {
+				return nil, err
+			}
 			aggregatedData[loss.ThreatEventID] = &AggregatedLossResponse{
 				ThreatEventID: loss.ThreatEventID,
 				ThreatEvent:   loss.ThreatEvent,
-				Assets:        assets, // Usar a lista extraída
+				Assets:        assets,
 				Losses:        []AggregatedLossDetail{},
 			}
 		}
@@ -93,6 +93,7 @@ func GetAggregatedLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 		}
 		aggregatedData[loss.ThreatEventID].Losses = append(aggregatedData[loss.ThreatEventID].Losses, detail)
 	}
+
 	for _, agg := range aggregatedData {
 		total := AggregatedLossDetail{
 			LossType:       "Total",
