@@ -86,3 +86,10 @@ func GetByEventIDAndRiskType(engine *xorm.Engine, table interface{}, eventId int
 func GetAllWithCondition(engine *xorm.Engine, tableSlice interface{}, condition string, args ...interface{}) error {
 	return engine.Where(condition, args...).Find(tableSlice)
 }
+
+func InScope(engine *xorm.Session, tableSlice interface{}) error {
+	if err := engine.Where("in_scope = ?", true).Find(tableSlice); err != nil {
+		return err
+	}
+	return nil
+}
