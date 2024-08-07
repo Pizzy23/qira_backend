@@ -17,7 +17,7 @@ import (
 // @Success 200 {object} []db.Relevance "List of All Relevance"
 // @Router /api/revelance [get]
 func PullAllRevelance(c *gin.Context) {
-	revelance.PullAllRevelance(c)
+	revelance.PullAllRelevance(c)
 }
 
 // @Summary Retrieve Revelance by ID

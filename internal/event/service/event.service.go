@@ -53,17 +53,26 @@ func CreateEventService(c *gin.Context, input interfaces.InputThreatEventAssets,
 		return errors.New("database connection not found")
 	}
 
-	for _, asset := range input.AffectedAsset {
-		var eventAsset db.ThreatEventAssets
-		has, err := engine.(*xorm.Engine).Where("threat_id = ? AND affected_asset = ?", id, asset).Get(&eventAsset)
-		if err != nil {
-			return err
-		}
+	var existingAssets []db.ThreatEventAssets
+	if err := engine.(*xorm.Engine).Where("threat_id = ?", id).Find(&existingAssets); err != nil {
+		return err
+	}
 
-		if has {
-			eventAsset.ThreatEvent = input.ThreatEvent
-			if _, err := engine.(*xorm.Engine).ID(eventAsset.ID).Update(&eventAsset); err != nil {
-				return err
+	existingMap := make(map[string]db.ThreatEventAssets)
+	for _, ea := range existingAssets {
+		existingMap[ea.AffectedAsset] = ea
+	}
+
+	newAssetsMap := make(map[string]bool)
+	for _, asset := range input.AffectedAsset {
+		newAssetsMap[asset] = true
+
+		if eventAsset, exists := existingMap[asset]; exists {
+			if eventAsset.ThreatEvent != input.ThreatEvent {
+				eventAsset.ThreatEvent = input.ThreatEvent
+				if _, err := engine.(*xorm.Engine).ID(eventAsset.ID).Update(&eventAsset); err != nil {
+					return err
+				}
 			}
 		} else {
 			newEventAsset := db.ThreatEventAssets{
@@ -76,6 +85,15 @@ func CreateEventService(c *gin.Context, input interfaces.InputThreatEventAssets,
 			}
 		}
 	}
+
+	for key, eventAsset := range existingMap {
+		if !newAssetsMap[key] {
+			if _, err := engine.(*xorm.Engine).ID(eventAsset.ID).Delete(&db.ThreatEventAssets{}); err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 }
 

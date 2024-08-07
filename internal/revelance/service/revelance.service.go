@@ -2,6 +2,7 @@ package revelance
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"qira/db"
 
@@ -9,8 +10,10 @@ import (
 	"xorm.io/xorm"
 )
 
-func PullAllRevelance(c *gin.Context) {
-	var revelances []db.Relevance
+func PullAllRelevance(c *gin.Context) {
+	var relevances []db.Relevance
+	var threatEvents []db.ThreatEventCatalog
+	var controls []db.ControlLibrary
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Response", "Database connection not found")
@@ -18,12 +21,54 @@ func PullAllRevelance(c *gin.Context) {
 		return
 	}
 
-	if err := db.GetAll(engine.(*xorm.Engine), &revelances); err != nil {
+	if err := engine.(*xorm.Engine).Where("in_scope = ?", true).Find(&threatEvents); err != nil {
 		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	c.Set("Response", revelances)
+
+	if err := engine.(*xorm.Engine).Where("in_scope = ?", true).Find(&controls); err != nil {
+		c.Set("Response", err.Error())
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	if err := db.GetAll(engine.(*xorm.Engine), &relevances); err != nil {
+		c.Set("Response", err.Error())
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	existingRelevanceMap := make(map[string]bool)
+	for _, relevance := range relevances {
+		key := fmt.Sprintf("%d-%s", relevance.ControlID, relevance.TypeOfAttack)
+		existingRelevanceMap[key] = true
+	}
+
+	for _, event := range threatEvents {
+		for _, control := range controls {
+			key := fmt.Sprintf("%d-%s", control.ID, event.ThreatEvent)
+			if !existingRelevanceMap[key] {
+				newRelevance := db.Relevance{
+					ControlID:    control.ID,
+					TypeOfAttack: event.ThreatEvent,
+					Porcent:      0,
+				}
+				if _, err := engine.(*xorm.Engine).Insert(&newRelevance); err != nil {
+					c.Set("Response", err.Error())
+					c.Status(http.StatusInternalServerError)
+					return
+				}
+			}
+		}
+	}
+
+	if err := db.GetAll(engine.(*xorm.Engine), &relevances); err != nil {
+		c.Set("Response", err.Error())
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+	c.Set("Response", relevances)
 	c.Status(http.StatusOK)
 }
 

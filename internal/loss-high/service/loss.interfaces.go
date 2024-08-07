@@ -3,7 +3,6 @@ package losshigh
 type AggregatedLossControl struct {
 	ThreatEventId  int64   `json:"threat_event_id"`
 	ThreatEvent    string  `json:"threat_event"`
-	Assets         string  `json:"assets"`
 	LossType       string  `json:"loss_type"`
 	MinimumLoss    float64 `json:"minimum_loss"`
 	MaximumLoss    float64 `json:"maximum_loss"`
@@ -13,7 +12,6 @@ type AggregatedLossControl struct {
 type AggregatedLoss struct {
 	ThreatEventID  int64   `json:"threat_event_id"`
 	ThreatEvent    string  `json:"threat_event"`
-	Assets         string  `json:"assets"`
 	LossType       string  `json:"loss_type"`
 	MinimumLoss    float64 `json:"minimum_loss"`
 	MaximumLoss    float64 `json:"maximum_loss"`
@@ -23,7 +21,7 @@ type AggregatedLoss struct {
 type AggregatedLossResponse struct {
 	ThreatEventID int64                  `json:"threat_event_id"`
 	ThreatEvent   string                 `json:"threat_event"`
-	Assets        string                 `json:"assets"`
+	Assets        []string               `json:"assets"`
 	Losses        []AggregatedLossDetail `json:"losses"`
 }
 
@@ -37,7 +35,6 @@ type AggregatedLossDetail struct {
 
 type InputLossHigh struct {
 	ThreatEvent    string
-	Assets         []string
 	LossType       string
 	Impact         string
 	MinimumLoss    float64
@@ -57,6 +54,6 @@ type AggregatedLossDetailGranulade struct {
 type AggregatedLossResponseGranulade struct {
 	ThreatEventID int64
 	ThreatEvent   string
-	Assets        string
+	Assets        []string
 	Losses        []AggregatedLossDetailGranulade
 }

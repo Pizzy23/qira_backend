@@ -42,7 +42,6 @@ type LossHigh struct {
 	ID             int64   `xorm:"pk autoincr 'id'"`
 	ThreatEventID  int64   `xorm:"INT 'threat_event_id'"`
 	ThreatEvent    string  `xorm:"VARCHAR(255) 'threat_event'"`
-	Assets         string  `xorm:"TEXT 'assets'"`
 	LossType       string  `xorm:"VARCHAR(255) 'loss_type'"`
 	MinimumLoss    float64 `xorm:"FLOAT 'minimum_loss'"`
 	MaximumLoss    float64 `xorm:"FLOAT 'maximum_loss'"`
@@ -54,7 +53,6 @@ type LossHighGranular struct {
 	ThreatEventID  int64   `xorm:"INT 'threat_event_id'"`
 	ThreatEvent    string  `xorm:"VARCHAR(255) 'threat_event'"`
 	LossEditNumber int64   `xorm:"INT 'loss_edit_number'"`
-	Assets         string  `xorm:"TEXT 'assets'"`
 	LossType       string  `xorm:"VARCHAR(255) 'loss_type'"`
 	Impact         string  `xorm:"VARCHAR(255) 'impact'"`
 	MinimumLoss    float64 `xorm:"FLOAT 'minimum_loss'"`

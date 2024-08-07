@@ -12,6 +12,7 @@ func CreateLossSpecific(c *gin.Context, typeOfLoss string) {
 	var lossesInput []db.LossHigh
 	var lossesInputGranular []db.LossHighGranular
 	var catalogue []db.ThreatEventCatalog
+	//var events []db.ThreatEventAssets
 
 	engine, exists := c.Get("db")
 	if !exists {
@@ -33,6 +34,7 @@ func CreateLossSpecific(c *gin.Context, typeOfLoss string) {
 	}
 
 	for _, event := range catalogue {
+
 		switch typeOfLoss {
 		case "Singular":
 			loss := lossesNotGranu(event, "Singular")
@@ -110,7 +112,6 @@ func lossesNotGranu(input db.ThreatEventCatalog, lossType string) db.LossHigh {
 	return db.LossHigh{
 		ThreatEventID:  input.ID,
 		ThreatEvent:    input.ThreatEvent,
-		Assets:         "",
 		LossType:       lossType,
 		MinimumLoss:    0,
 		MaximumLoss:    0,
@@ -122,7 +123,6 @@ func lossesWithGranu(input db.ThreatEventCatalog, lossType string, impact string
 	return db.LossHighGranular{
 		ThreatEventID:  input.ID,
 		ThreatEvent:    input.ThreatEvent,
-		Assets:         "",
 		Impact:         impact,
 		LossType:       lossType,
 		MinimumLoss:    0,
@@ -171,4 +171,32 @@ func filterOutOfScopeAggregatedLossesGranulade(aggregatedLosses []AggregatedLoss
 	}
 
 	return filteredAggregatedLosses, nil
+}
+
+func getAssetsLossHigh(engine *xorm.Engine, loss db.LossHigh) ([]string, error) {
+	var events []db.ThreatEventAssets
+
+	if err := engine.Where("threat_event = ?", loss.ThreatEvent).Find(&events); err != nil {
+		return nil, err
+	}
+
+	affectedAssets := make([]string, len(events))
+	for i, event := range events {
+		affectedAssets[i] = event.AffectedAsset
+	}
+	return affectedAssets, nil
+}
+
+func getAssetsLossGran(engine *xorm.Engine, loss db.LossHighGranular) ([]string, error) {
+	var events []db.ThreatEventAssets
+
+	if err := engine.Where("threat_event = ?", loss.ThreatEvent).Find(&events); err != nil {
+		return nil, err
+	}
+
+	affectedAssets := make([]string, len(events))
+	for i, event := range events {
+		affectedAssets[i] = event.AffectedAsset
+	}
+	return affectedAssets, nil
 }

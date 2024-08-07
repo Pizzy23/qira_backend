@@ -1,26 +1,12 @@
-Bugs:
+Back-End
+Calculated Risk (GET) -  (A excluir novos ataques, ele não exclui.)
+Implementation (GET) - (Não está adicionando novos controles)
 
-Inventario de Assets
--> Quando ele n tem asset, ele retorna null
-
-Catalogo de Ameacas
--> Se n tem assets, ele buga todo tambem
-
-Link-Threat
--> Mesma coisa do assets.
--> Ele n atualiza com os novos (eventos de ataques/assets)
-
-Unica/Perda Alta/Granular
--> Os novos eventos de ataque nao aparecem la 
-
-Granular
--> PUT Direct/Indirect ------------
-
-Forca Controlle Normal/Proposto
--> N atualiza com os novos ataques/remove ------------
-
-Forca de Controlle Proposta
--> Totalmente bugada
-
-Relevancia criar automatico quando der um get
-
+##Controlle PUT: "strconv.ParseInt: parsing \"\": invalid syntax"
+##Assets se não houver nenhum asset cadastrado, ele está retornando null
+##Link-Asset com os assets antigos (GET) (Exemplo quando o asset ta sendo alterado, ele não está sendo alterado)
+##Relevance (GET) - (A excluir novos ataques, ele não exclui e adiciona somente quando quer os novos.) 
+##Força de Controle (GET) - (Não está adicionando novos controles e nem remove os ataques antigos e adiciona somente quando quer os novos)
+##Força de Controle Proposta (GET) - (Não está adicionando novos controles e nem remove os ataques antigos e adiciona somente quando quer os novos)
+##Arrumar Granular (PUT) (Adicionar uma variável para conseguir editar os campos)
+##Loss Approach (GET) (Os assets nao esta sendo atualizados nos tipo do loss approach) {Usar o Link-Asset junto, pra retornar}

@@ -243,7 +243,7 @@ func UpdateControl(c *gin.Context) {
 		return
 	}
 
-	controlIDStr := c.Param("controlID")
+	controlIDStr := c.Param("id")
 	controlID, err := strconv.ParseInt(controlIDStr, 10, 64)
 	if err != nil {
 		c.Set("Response", err.Error())

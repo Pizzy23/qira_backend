@@ -4,7 +4,6 @@ import (
 	"errors"
 	"qira/db"
 	"qira/internal/interfaces"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"xorm.io/xorm"
@@ -25,7 +24,6 @@ func CreateLossHighGranularService(c *gin.Context, LossHigh interfaces.InputLoss
 
 	if found {
 		existingLoss.ThreatEvent = LossHigh.ThreatEvent
-		existingLoss.Assets = strings.Join(LossHigh.Assets, ",")
 		existingLoss.Impact = LossHigh.Impact
 		existingLoss.MinimumLoss = LossHigh.MinimumLoss
 		existingLoss.MaximumLoss = LossHigh.MaximumLoss
@@ -55,7 +53,6 @@ func CreateLossHighGranularService(c *gin.Context, LossHigh interfaces.InputLoss
 			ThreatEventID:  id,
 			ThreatEvent:    LossHigh.ThreatEvent,
 			LossEditNumber: nextEditNumber,
-			Assets:         strings.Join(LossHigh.Assets, ","),
 			LossType:       LossHigh.LossType,
 			Impact:         LossHigh.Impact,
 			MinimumLoss:    LossHigh.MinimumLoss,
@@ -91,7 +88,10 @@ func GetGranularLosses(c *gin.Context) ([]AggregatedLossResponseGranulade, error
 	if err := db.GetAllWithCondition(dbEngine, &lossHighTotals, "name = 'Total' AND type_of_loss = 'Granular'"); err != nil {
 		return nil, err
 	}
-
+	assets, err := getAssetsLossGran(dbEngine, lossHighs[0])
+	if err != nil {
+		return nil, err
+	}
 	aggregatedData := make(map[int64]*AggregatedLossResponseGranulade)
 
 	for _, loss := range lossHighs {
@@ -99,12 +99,11 @@ func GetGranularLosses(c *gin.Context) ([]AggregatedLossResponseGranulade, error
 			aggregatedData[loss.ThreatEventID] = &AggregatedLossResponseGranulade{
 				ThreatEventID: loss.ThreatEventID,
 				ThreatEvent:   loss.ThreatEvent,
-				Assets:        loss.Assets,
+				Assets:        assets,
 				Losses:        []AggregatedLossDetailGranulade{},
 			}
 		}
 
-		// Determine loss_edit_number based on existing losses
 		lossEditNumber := int64(len(aggregatedData[loss.ThreatEventID].Losses) + 1)
 
 		detail := AggregatedLossDetailGranulade{

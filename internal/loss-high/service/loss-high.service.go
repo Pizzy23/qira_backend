@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"qira/db"
 	"qira/internal/interfaces"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"xorm.io/xorm"
@@ -25,7 +24,6 @@ func CreateLossHighService(c *gin.Context, LossHigh interfaces.InputLossHigh, id
 
 	if found {
 		existingLoss.ThreatEvent = LossHigh.ThreatEvent
-		existingLoss.Assets = strings.Join(LossHigh.Assets, ",")
 		existingLoss.MinimumLoss = LossHigh.MinimumLoss
 		existingLoss.MaximumLoss = LossHigh.MaximumLoss
 		existingLoss.MostLikelyLoss = LossHigh.MostLikelyLoss
@@ -37,7 +35,6 @@ func CreateLossHighService(c *gin.Context, LossHigh interfaces.InputLossHigh, id
 		newLoss := db.LossHigh{
 			ThreatEventID:  id,
 			ThreatEvent:    LossHigh.ThreatEvent,
-			Assets:         strings.Join(LossHigh.Assets, ","),
 			LossType:       LossHigh.LossType,
 			MinimumLoss:    LossHigh.MinimumLoss,
 			MaximumLoss:    LossHigh.MaximumLoss,
@@ -55,7 +52,6 @@ func CreateLossHighService(c *gin.Context, LossHigh interfaces.InputLossHigh, id
 func GetAggregatedLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 	var lossHighs []db.LossHigh
 	var lossHighTotals []db.LossHighTotal
-
 	engine, exists := c.Get("db")
 	if !exists {
 		return nil, errors.New("database connection not found")
@@ -73,6 +69,10 @@ func GetAggregatedLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 	if err := db.GetAllWithCondition(dbEngine, &lossHighTotals, "name = 'Total' AND type_of_loss = 'LossHigh'"); err != nil {
 		return nil, err
 	}
+	assets, err := getAssetsLossHigh(dbEngine, lossHighs[0])
+	if err != nil {
+		return nil, err
+	}
 
 	aggregatedData := make(map[int64]*AggregatedLossResponse)
 
@@ -81,7 +81,7 @@ func GetAggregatedLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 			aggregatedData[loss.ThreatEventID] = &AggregatedLossResponse{
 				ThreatEventID: loss.ThreatEventID,
 				ThreatEvent:   loss.ThreatEvent,
-				Assets:        loss.Assets,
+				Assets:        assets, // Usar a lista extraída
 				Losses:        []AggregatedLossDetail{},
 			}
 		}
@@ -93,7 +93,6 @@ func GetAggregatedLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 		}
 		aggregatedData[loss.ThreatEventID].Losses = append(aggregatedData[loss.ThreatEventID].Losses, detail)
 	}
-
 	for _, agg := range aggregatedData {
 		total := AggregatedLossDetail{
 			LossType:       "Total",
