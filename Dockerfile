@@ -35,9 +35,7 @@ WORKDIR /app
 # Copy binary and swagger files from /build to /app
 COPY --from=builder /build/main .
 COPY --from=builder /build/docs ./docs
-
-# Copy any other necessary files
-COPY --from=builder /app/init.sh /app/init.sh
+COPY --from=builder /build/init.sh /app/init.sh 
 RUN chmod +x /app/init.sh
 
 # Command to run
