@@ -1,45 +1,34 @@
 # Build stage
 FROM golang:1.21.4-alpine as builder
 
-# Install git and other necessary tools
+# Install git and other necessary tools for building
 RUN apk add --no-cache git
-
-# Set the working directory
 WORKDIR /build
-
-# Copy go mod files and download dependencies
 COPY go.mod go.sum ./
 RUN go mod download
-
-# Copy the entire source code
 COPY . .
-
-# Build the application
 RUN go build -o main .
+RUN go install github.com/swaggo/swag/cmd/swag@latest
+RUN swag init
 
 # Final stage
 FROM alpine:latest
 
-# Install runtime dependencies
+# Install runtime dependencies including Git and tools for swag and go
 RUN apk --no-cache add ca-certificates git
-
-# Set environment variables
 ENV GOROOT=/usr/local/go \
     GOPATH=/go \
     PATH=$GOPATH/bin:$GOROOT/bin:$PATH
 
-# Set the working directory in the container
+# Install Go and Swag in the runtime image if you need to run these at startup
+COPY --from=builder /usr/local/go /usr/local/go
+COPY --from=builder /go/bin/swag /usr/local/bin/swag
+
 WORKDIR /app
-
-# Copy the built binary from the builder stage
 COPY --from=builder /build/main .
-
-# Copy your init script and swagger docs
-COPY --from=builder /build/init.sh /app/init.sh
 COPY --from=builder /build/docs ./docs
-
-# Make the init script executable
+COPY --from=builder /build/init.sh /app/init.sh 
 RUN chmod +x /app/init.sh
 
 # Command to run the init script
-CMD ["./init.sh"]
+CMD ["/app/init.sh"]
