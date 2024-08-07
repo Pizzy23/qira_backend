@@ -1580,9 +1580,6 @@ const docTemplate = `{
         "db.LossHigh": {
             "type": "object",
             "properties": {
-                "assets": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
                 },
@@ -1609,9 +1606,6 @@ const docTemplate = `{
         "db.LossHighGranular": {
             "type": "object",
             "properties": {
-                "assets": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
                 },

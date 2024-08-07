@@ -1572,9 +1572,6 @@
         "db.LossHigh": {
             "type": "object",
             "properties": {
-                "assets": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
                 },
@@ -1601,9 +1598,6 @@
         "db.LossHighGranular": {
             "type": "object",
             "properties": {
-                "assets": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
                 },
