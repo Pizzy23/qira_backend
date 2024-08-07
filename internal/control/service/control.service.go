@@ -205,7 +205,9 @@ func PullAllControl(c *gin.Context) {
 }
 
 func PullAllImplements(c *gin.Context) {
-	var controls []db.Implements
+	var controls []db.ControlLibrary
+	var implementations []db.Implements
+
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Response", "Database connection not found")
@@ -218,10 +220,52 @@ func PullAllImplements(c *gin.Context) {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	c.Set("Response", controls)
+
+	if err := db.GetAll(engine.(*xorm.Engine), &implementations); err != nil {
+		c.Set("Response", err.Error())
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	// Mapear as implementações existentes para controle rápido
+	implementationMap := make(map[int64]bool)
+	for _, impl := range implementations {
+		implementationMap[impl.ControlID] = true
+	}
+
+	// Verificar quais controles não têm implementações e criar entradas padrão
+	var newImplementations []db.Implements
+	for _, control := range controls {
+		if !implementationMap[control.ID] {
+			newImpl := db.Implements{
+				ControlID:       control.ID,
+				Current:         0,
+				Proposed:        0,
+				PercentCurrent:  "",
+				PercentProposed: "",
+				Cost:            0,
+			}
+			newImplementations = append(newImplementations, newImpl)
+		}
+	}
+
+	if len(newImplementations) > 0 {
+		if _, err := engine.(*xorm.Engine).Insert(&newImplementations); err != nil {
+			c.Set("Response", err.Error())
+			c.Status(http.StatusInternalServerError)
+			return
+		}
+	}
+
+	if err := db.GetAll(engine.(*xorm.Engine), &implementations); err != nil {
+		c.Set("Response", err.Error())
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	c.Set("Response", implementations)
 	c.Status(http.StatusOK)
 }
-
 func PullControlId(c *gin.Context, id int) {
 	var control db.Implements
 	engine, exists := c.Get("db")
