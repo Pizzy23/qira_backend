@@ -99,15 +99,14 @@ func GetSingularLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 		return nil, err
 	}
 
-	assets, err := getAssetsLossHigh(dbEngine, lossHighs[0])
-	if err != nil {
-		return nil, err
-	}
-
 	aggregatedData := make(map[int64]*AggregatedLossResponse)
 
 	for _, loss := range lossHighs {
 		if _, exists := aggregatedData[loss.ThreatEventID]; !exists {
+			assets, err := getAssetsLossHigh(dbEngine, loss)
+			if err != nil {
+				return nil, err
+			}
 			aggregatedData[loss.ThreatEventID] = &AggregatedLossResponse{
 				ThreatEventID: loss.ThreatEventID,
 				ThreatEvent:   loss.ThreatEvent,
@@ -115,6 +114,7 @@ func GetSingularLosses(c *gin.Context) ([]AggregatedLossResponse, error) {
 				Losses:        []AggregatedLossDetail{},
 			}
 		}
+
 		detail := AggregatedLossDetail{
 			LossType:       loss.LossType,
 			MinimumLoss:    loss.MinimumLoss,

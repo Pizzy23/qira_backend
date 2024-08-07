@@ -127,6 +127,12 @@ func DeleteEventService(c *gin.Context, eventID int64) error {
 	if _, err := engine.(*xorm.Engine).Where("threat_event_id = ?", eventID).Delete(&db.LossHigh{}); err != nil {
 		return err
 	}
+	if _, err := engine.(*xorm.Engine).Where("threat_event_id = ?", eventID).Delete(&db.LossHighGranular{}); err != nil {
+		return err
+	}
+	if _, err := engine.(*xorm.Engine).Where("threat_event_id = ?", eventID).Delete(&db.LossHighTotal{}); err != nil {
+		return err
+	}
 
 	if _, err := engine.(*xorm.Engine).Where("threat_id = ?", eventID).Delete(&db.ThreatEventAssets{}); err != nil {
 		return err

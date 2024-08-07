@@ -88,14 +88,15 @@ func GetGranularLosses(c *gin.Context) ([]AggregatedLossResponseGranulade, error
 	if err := db.GetAllWithCondition(dbEngine, &lossHighTotals, "name = 'Total' AND type_of_loss = 'Granular'"); err != nil {
 		return nil, err
 	}
-	assets, err := getAssetsLossGran(dbEngine, lossHighs[0])
-	if err != nil {
-		return nil, err
-	}
+
 	aggregatedData := make(map[int64]*AggregatedLossResponseGranulade)
 
 	for _, loss := range lossHighs {
 		if _, exists := aggregatedData[loss.ThreatEventID]; !exists {
+			assets, err := getAssetsLossGran(dbEngine, loss)
+			if err != nil {
+				return nil, err
+			}
 			aggregatedData[loss.ThreatEventID] = &AggregatedLossResponseGranulade{
 				ThreatEventID: loss.ThreatEventID,
 				ThreatEvent:   loss.ThreatEvent,
