@@ -1,7 +1,10 @@
 # Build stage
 FROM golang:1.21.4-alpine as builder
 
-# Set necessary environmet variables needed for our image
+# Install git and other necessary dependencies
+RUN apk add --no-cache git gcc g++
+
+# Set necessary environment variables needed for our image
 ENV GO111MODULE=on \
     CGO_ENABLED=0 \
     GOOS=linux \
@@ -25,18 +28,19 @@ RUN go build -o main .
 RUN go install github.com/swaggo/swag/cmd/swag@latest
 RUN swag init
 
-# Run stage
-FROM alpine:latest  
+# Final stage to setup runtime container
+FROM alpine:latest
 
+# Install CA certificates, necessary for making HTTPS requests (e.g., git pull)
 RUN apk --no-cache add ca-certificates
 
 WORKDIR /app
 
-# Copy binary and swagger files from /build to /app
+# Copy binary and swagger files from builder stage
 COPY --from=builder /build/main .
 COPY --from=builder /build/docs ./docs
-COPY --from=builder /build/init.sh /app/init.sh 
+COPY --from=builder /build/init.sh /app/init.sh
 RUN chmod +x /app/init.sh
 
-# Command to run
+# Set up the command to run when starting the container
 ENTRYPOINT ["/app/init.sh"]
