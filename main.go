@@ -21,7 +21,7 @@ import (
 func main() {
 	r := middleware.SetupRouter()
 
-	db.ConnectDatabase()
+	db.ConnectDatabaseXorm()
 	//migrate()
 
 	host := os.Getenv("API_HOST")

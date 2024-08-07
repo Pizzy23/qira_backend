@@ -186,7 +186,20 @@ func PullAllControlStrength(c *gin.Context) {
 	}
 
 	if len(dataToAdd) == 0 && len(dataToUpdate) == 0 {
-		c.Set("Response", finalResults)
+		var control []db.Control
+		if err := db.GetAll(engine.(*xorm.Engine), &control); err != nil {
+			c.Set("Response", err.Error())
+			c.Status(http.StatusInternalServerError)
+			return
+		}
+
+		var filteredStrength []db.Control
+		for _, prop := range control {
+			if inScope, exists := eventsInScope[strings.ToLower(prop.TypeOfAttack)]; exists && inScope {
+				filteredStrength = append(filteredStrength, prop)
+			}
+		}
+		c.Set("Response", filteredStrength)
 		c.Status(http.StatusOK)
 		return
 	}

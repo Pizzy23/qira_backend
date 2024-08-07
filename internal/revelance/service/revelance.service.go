@@ -21,7 +21,6 @@ func PullAllRelevance(c *gin.Context) {
 	session := engine.(*xorm.Engine).NewSession()
 	defer session.Close()
 
-	// Iniciando uma transação
 	if err := session.Begin(); err != nil {
 		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)

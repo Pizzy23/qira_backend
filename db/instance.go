@@ -12,7 +12,7 @@ import (
 
 var Repo *xorm.Engine
 
-func ConnectDatabase() {
+func ConnectDatabaseXorm() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Erro ao carregar o arquivo .env")
