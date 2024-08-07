@@ -1,46 +1,28 @@
-# Build stage
-FROM golang:1.21.4-alpine as builder
+# Use uma imagem oficial do Go como base
+FROM golang:1.21.4-alpine
 
-# Install git and other necessary dependencies
-RUN apk add --no-cache git gcc g++
+# Instala o sudo, git, openrc (substituto para systemd no Alpine)
+RUN apk add --no-cache sudo git openrc
 
-# Set necessary environment variables needed for our image
-ENV GO111MODULE=on \
-    CGO_ENABLED=0 \
-    GOOS=linux \
-    GOARCH=amd64
+# Configurações do ambiente Go
+ENV GOROOT=/usr/local/go
+ENV GOPATH=/go
+ENV PATH=$GOPATH/bin:$GOROOT/bin:$PATH
 
-# Move to working directory /build
-WORKDIR /build
-
-# Copy and download dependency using go mod
-COPY go.mod .
-COPY go.sum .
-RUN go mod download
-
-# Copy the code into the container
-COPY . .
-
-# Build the application
-RUN go build -o main .
-
-# Generate Swagger docs
-RUN go install github.com/swaggo/swag/cmd/swag@latest
-RUN swag init
-
-# Final stage to setup runtime container
-FROM alpine:latest
-
-# Install CA certificates, necessary for making HTTPS requests (e.g., git pull)
-RUN apk --no-cache add ca-certificates
-
+# Diretório de trabalho dentro do container
 WORKDIR /app
 
-# Copy binary and swagger files from builder stage
-COPY --from=builder /build/main .
-COPY --from=builder /build/docs ./docs
-COPY --from=builder /build/init.sh /app/init.sh
+# Instala o Swag
+RUN go install github.com/swaggo/swag/cmd/swag@latest
+
+# Copia o script de inicialização
+COPY init.sh /app/init.sh
+
+# Permite que o script de inicialização seja executado
 RUN chmod +x /app/init.sh
 
-# Set up the command to run when starting the container
-ENTRYPOINT ["/app/init.sh"]
+# Executa o container como root
+USER root
+
+# Comando para rodar o script de inicialização
+CMD ["/app/init.sh"]
