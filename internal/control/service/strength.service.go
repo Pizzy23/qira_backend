@@ -55,6 +55,11 @@ func PullAllControlStrength(c *gin.Context) {
 		return
 	}
 
+	controlInScopeMap := make(map[int64]bool)
+	for _, control := range controls {
+		controlInScopeMap[control.ID] = control.InScope
+	}
+
 	relevanceMap := make(map[int64][]db.Relevance)
 	for _, relevance := range relevances {
 		if relevance.Porcent >= 1 && eventsInScope[strings.ToLower(relevance.TypeOfAttack)] {
@@ -89,6 +94,7 @@ func PullAllControlStrength(c *gin.Context) {
 		}
 
 		for _, relevance := range relevances {
+			var relevanceValue float64
 			typeOfAttack := relevance.TypeOfAttack
 			lowerCaseTypeOfAttack := strings.ToLower(typeOfAttack)
 
@@ -96,11 +102,14 @@ func PullAllControlStrength(c *gin.Context) {
 			if err != nil {
 				continue
 			}
-			relevanceValue, err := strconv.ParseFloat(strings.TrimSuffix(relevanceAvgStr, "%"), 64)
-			if err != nil {
-				continue
+			if relevanceAvgStr != "N/A" {
+				relevanceValue, err = strconv.ParseFloat(strings.TrimSuffix(relevanceAvgStr, "%"), 64)
+				if err != nil {
+					continue
+				}
+			} else {
+				relevanceValue = 0
 			}
-
 			totalRelevanceMap[lowerCaseTypeOfAttack] += relevanceValue
 
 			currentValue, err := strconv.ParseFloat(strings.TrimSuffix(impl.PercentCurrent, "%"), 64)
@@ -143,6 +152,20 @@ func PullAllControlStrength(c *gin.Context) {
 		}
 	}
 
+	for _, control := range controls {
+		if _, found := relevanceMap[control.ID]; !found && controlInScopeMap[control.ID] {
+			for _, relevance := range relevances {
+				if relevance.ControlID == control.ID {
+					finalResults = append(finalResults, db.Control{
+						ControlID:    control.ID,
+						TypeOfAttack: strings.Title(strings.ToLower(relevance.TypeOfAttack)),
+						Porcent:      "0%",
+					})
+				}
+			}
+		}
+	}
+
 	for typeOfAttack, totalStrength := range controlStrengthMap {
 		totalRelevance := totalRelevanceMap[strings.ToLower(typeOfAttack)]
 		notPorcent := (totalStrength * 100.0)
@@ -151,13 +174,13 @@ func PullAllControlStrength(c *gin.Context) {
 
 		finalResults = append(finalResults, db.Control{
 			ControlID:    -1,
-			TypeOfAttack: typeOfAttack,
-			Aggregate:    fmt.Sprintf("%.0f%%", aggregated),
+			TypeOfAttack: strings.Title(typeOfAttack),
+			Aggregate:    fmt.Sprintf("%d%%", int(aggregated)),
 		})
 
 		finalResults = append(finalResults, db.Control{
 			ControlID:    -2,
-			TypeOfAttack: typeOfAttack,
+			TypeOfAttack: strings.Title(typeOfAttack),
 			ControlGap:   fmt.Sprintf("%d%%", controlGap),
 		})
 	}
@@ -186,24 +209,27 @@ func PullAllControlStrength(c *gin.Context) {
 	}
 
 	if len(dataToAdd) == 0 && len(dataToUpdate) == 0 {
-		var control []db.Control
-		if err := db.GetAll(engine.(*xorm.Engine), &control); err != nil {
+		var proposed []db.Control
+		if err := db.GetAll(engine.(*xorm.Engine), &proposed); err != nil {
 			c.Set("Response", err.Error())
 			c.Status(http.StatusInternalServerError)
 			return
 		}
 
-		var filteredStrength []db.Control
-		for _, prop := range control {
-			if inScope, exists := eventsInScope[strings.ToLower(prop.TypeOfAttack)]; exists && inScope {
-				filteredStrength = append(filteredStrength, prop)
+		var filteredProposed []db.Control
+		for _, prop := range proposed {
+			if inScope, exists := controlInScopeMap[prop.ControlID]; exists && inScope {
+				if eventInScope, eventExists := eventsInScope[strings.ToLower(prop.TypeOfAttack)]; eventExists && eventInScope {
+					filteredProposed = append(filteredProposed, prop)
+				}
 			}
 		}
-		c.Set("Response", filteredStrength)
+
+		c.Set("Response", filteredProposed)
 		c.Status(http.StatusOK)
 		return
 	}
-
 	c.Set("Response", finalResults)
 	c.Status(http.StatusOK)
+
 }

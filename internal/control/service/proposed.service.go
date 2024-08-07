@@ -55,6 +55,11 @@ func PullAllControlProposed(c *gin.Context) {
 		return
 	}
 
+	controlInScopeMap := make(map[int64]bool)
+	for _, control := range controls {
+		controlInScopeMap[control.ID] = control.InScope
+	}
+
 	relevanceMap := make(map[int64][]db.Relevance)
 	for _, relevance := range relevances {
 		if relevance.Porcent >= 1 && eventsInScope[strings.ToLower(relevance.TypeOfAttack)] {
@@ -89,16 +94,21 @@ func PullAllControlProposed(c *gin.Context) {
 		}
 
 		for _, relevance := range relevances {
+			var relevanceValue float64
 			typeOfAttack := relevance.TypeOfAttack
-			lowerCaseTypeOfAttack := strings.ToLower(typeOfAttack) // Converte para minúsculo para processamento interno
+			lowerCaseTypeOfAttack := strings.ToLower(typeOfAttack)
 
 			relevanceAvgStr, err := mock.FindAverageByScore(int(relevance.Porcent))
 			if err != nil {
 				continue
 			}
-			relevanceValue, err := strconv.ParseFloat(strings.TrimSuffix(relevanceAvgStr, "%"), 64)
-			if err != nil {
-				continue
+			if relevanceAvgStr != "N/A" {
+				relevanceValue, err = strconv.ParseFloat(strings.TrimSuffix(relevanceAvgStr, "%"), 64)
+				if err != nil {
+					continue
+				}
+			} else {
+				relevanceValue = 0
 			}
 
 			totalRelevanceMap[lowerCaseTypeOfAttack] += relevanceValue
@@ -140,6 +150,20 @@ func PullAllControlProposed(c *gin.Context) {
 				TypeOfAttack: strings.Title(strings.ToLower(relevance.TypeOfAttack)),
 				Porcent:      fmt.Sprintf("%.0f%%", math.Floor(porcentMap[control.ID]*100)),
 			})
+		}
+	}
+
+	for _, control := range controls {
+		if _, found := relevanceMap[control.ID]; !found && controlInScopeMap[control.ID] {
+			for _, relevance := range relevances {
+				if relevance.ControlID == control.ID {
+					finalResults = append(finalResults, db.Propused{
+						ControlID:    control.ID,
+						TypeOfAttack: strings.Title(strings.ToLower(relevance.TypeOfAttack)),
+						Porcent:      "0%",
+					})
+				}
+			}
 		}
 	}
 
@@ -195,8 +219,10 @@ func PullAllControlProposed(c *gin.Context) {
 
 		var filteredProposed []db.Propused
 		for _, prop := range proposed {
-			if inScope, exists := eventsInScope[strings.ToLower(prop.TypeOfAttack)]; exists && inScope {
-				filteredProposed = append(filteredProposed, prop)
+			if inScope, exists := controlInScopeMap[prop.ControlID]; exists && inScope {
+				if eventInScope, eventExists := eventsInScope[strings.ToLower(prop.TypeOfAttack)]; eventExists && eventInScope {
+					filteredProposed = append(filteredProposed, prop)
+				}
 			}
 		}
 
