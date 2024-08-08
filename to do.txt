@@ -1,7 +1,5 @@
 Back-End
-Calculated Risk (GET) -  (A excluir novos ataques, ele não exclui.)
 Implementation (GET) - (Não está adicionando novos controles)
-Asset (DELETE): falha ao excluir o asset: 500 - {"Response":"invalid character 'S' looking for beginning of value"}
 
 
 ##Report: "ProposedMin": 0,  "ProposedMax": 0,  "ProposedPert": 0,
@@ -16,3 +14,5 @@ Asset (DELETE): falha ao excluir o asset: 500 - {"Response":"invalid character '
 ##Caracteres especiais não funcionam (acredito ser por causa do tipo de dado aceito no(s) campo(s) do BD
 ##Relevância: Trazer a descrição do controlle (Information) depois do controlid
 ##Cálculos dos controles: Nenhum dado encontrado para o tipo de ataque especificado.
+##Asset (DELETE): falha ao excluir o asset: 500 - {"Response":"invalid character 'S' looking for beginning of value"}
+##Calculated Risk (GET) -  (A excluir novos ataques, ele não exclui.)
