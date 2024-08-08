@@ -27,7 +27,7 @@ func MonteCarloSimulationRisk(c *gin.Context, threatEvent string, lossType strin
 
 	frequencies, losses, err := retrieveFrequencyAndLossEntries(dbEngine, threatEvent, lossType)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 

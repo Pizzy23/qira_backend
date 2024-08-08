@@ -58,12 +58,15 @@ func PullAllRelevance(c *gin.Context) {
 		existingRelevanceMap[key] = true
 	}
 
+	newRelevances := []db.Relevance{}
+
 	for _, event := range threatEvents {
 		for _, control := range controls {
 			key := fmt.Sprintf("%d-%s", control.ID, event.ThreatEvent)
 			if !existingRelevanceMap[key] {
 				newRelevance := db.Relevance{
 					ControlID:    control.ID,
+					Information:  control.Information,
 					TypeOfAttack: event.ThreatEvent,
 					Porcent:      0,
 				}
@@ -73,6 +76,7 @@ func PullAllRelevance(c *gin.Context) {
 					c.Status(http.StatusInternalServerError)
 					return
 				}
+				newRelevances = append(newRelevances, newRelevance)
 			}
 		}
 	}
@@ -83,6 +87,8 @@ func PullAllRelevance(c *gin.Context) {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
+
+	relevances = append(relevances, newRelevances...)
 
 	c.Set("Response", relevances)
 	c.Status(http.StatusOK)

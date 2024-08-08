@@ -3,6 +3,7 @@ package db
 type Relevance struct {
 	ID           int64  `json:"id" xorm:"pk autoincr 'id'"`
 	ControlID    int64  `json:"controlId" xorm:"INT 'control_id'"`
+	Information  string `xorm:"TEXT 'information'"`
 	TypeOfAttack string `json:"type_of_attack" xorm:"VARCHAR(255) 'type_of_attack'"`
 	Porcent      int64  `json:"porcent" xorm:"INT 'porcent'"`
 }

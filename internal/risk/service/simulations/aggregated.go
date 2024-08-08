@@ -23,7 +23,7 @@ func MonteCarloSimulationAggregated(c *gin.Context, lossType string) {
 	}
 
 	if err := db.GetAll(dbEngine, &riskCalculations); err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 

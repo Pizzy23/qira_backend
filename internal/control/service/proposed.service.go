@@ -60,6 +60,9 @@ func PullAllControlProposed(c *gin.Context) {
 		controlInScopeMap[control.ID] = control.InScope
 	}
 
+	controlInScopeMap[-1] = true
+	controlInScopeMap[-2] = true
+
 	relevanceMap := make(map[int64][]db.Relevance)
 	for _, relevance := range relevances {
 		if relevance.Porcent >= 1 && eventsInScope[strings.ToLower(relevance.TypeOfAttack)] {

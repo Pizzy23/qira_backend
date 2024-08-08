@@ -10,7 +10,7 @@ import (
 )
 
 // @title           Qira
-// @version         1.0
+// @version         2.0
 // @description     This is a server for app.
 
 // @securityDefinitions.basic  BasicAuth

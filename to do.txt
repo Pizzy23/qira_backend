@@ -1,7 +1,10 @@
 Back-End
 Calculated Risk (GET) -  (A excluir novos ataques, ele não exclui.)
 Implementation (GET) - (Não está adicionando novos controles)
+Asset (DELETE): falha ao excluir o asset: 500 - {"Response":"invalid character 'S' looking for beginning of value"}
 
+
+##Report: "ProposedMin": 0,  "ProposedMax": 0,  "ProposedPert": 0,
 ##Controlle PUT: "strconv.ParseInt: parsing \"\": invalid syntax"
 ##Assets se não houver nenhum asset cadastrado, ele está retornando null
 ##Link-Asset com os assets antigos (GET) (Exemplo quando o asset ta sendo alterado, ele não está sendo alterado)
@@ -10,3 +13,6 @@ Implementation (GET) - (Não está adicionando novos controles)
 ##Força de Controle Proposta (GET) - (Não está adicionando novos controles e nem remove os ataques antigos e adiciona somente quando quer os novos)
 ##Arrumar Granular (PUT) (Adicionar uma variável para conseguir editar os campos)
 ##Loss Approach (GET) (Os assets nao esta sendo atualizados nos tipo do loss approach) {Usar o Link-Asset junto, pra retornar}
+##Caracteres especiais não funcionam (acredito ser por causa do tipo de dado aceito no(s) campo(s) do BD
+##Relevância: Trazer a descrição do controlle (Information) depois do controlid
+##Cálculos dos controles: Nenhum dado encontrado para o tipo de ataque especificado.

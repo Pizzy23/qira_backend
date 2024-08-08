@@ -1,7 +1,6 @@
 package inventory
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 	"qira/db"
@@ -135,30 +134,7 @@ func DeleteAsset(c *gin.Context, id int64) error {
 	}
 
 	for _, event := range events {
-		affectedAssets := make([]string, 0)
-		err = json.Unmarshal([]byte(event.AffectedAsset), &affectedAssets)
-		if err != nil {
-			return err
-		}
-
-		updatedAssets := make([]string, 0)
-		for _, assetName := range affectedAssets {
-			if assetName != asset.Name {
-				updatedAssets = append(updatedAssets, assetName)
-			}
-		}
-
-		if len(updatedAssets) > 0 {
-			updatedAssetsJSON, err := json.Marshal(updatedAssets)
-			if err != nil {
-				return err
-			}
-			event.AffectedAsset = string(updatedAssetsJSON)
-			_, err = engine.(*xorm.Engine).ID(event.ID).Update(&event)
-			if err != nil {
-				return err
-			}
-		} else {
+		if event.AffectedAsset == asset.Name {
 			_, err = engine.(*xorm.Engine).ID(event.ID).Delete(&event)
 			if err != nil {
 				return err

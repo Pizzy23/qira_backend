@@ -1,32 +1,10 @@
 package simulation
 
 import (
-	"errors"
 	"qira/db"
 
 	"xorm.io/xorm"
 )
-
-func retrieveFrequencyAndLossEntries(engine *xorm.Engine, threatEvent, lossType string) ([]db.Frequency, []db.LossHighTotal, error) {
-	var frequencyEntries []db.Frequency
-	var lossEntries []db.LossHighTotal
-
-	err := engine.Where("threat_event = ?", threatEvent).Find(&frequencyEntries)
-	if err != nil {
-		return nil, nil, errors.New("error retrieving frequency entries")
-	}
-
-	err = engine.Where("threat_event = ? AND type_of_loss = ?", threatEvent, lossType).Find(&lossEntries)
-	if err != nil {
-		return nil, nil, errors.New("error retrieving loss entries")
-	}
-
-	if lossZero(lossEntries) {
-		return nil, nil, errors.New("all loss values are zero")
-	}
-
-	return frequencyEntries, lossEntries, nil
-}
 
 func lossZero(loss []db.LossHighTotal) bool {
 	for _, l := range loss {
@@ -35,4 +13,33 @@ func lossZero(loss []db.LossHighTotal) bool {
 		}
 	}
 	return true
+}
+
+func retrieveFrequencyAndLossEntries(dbEngine *xorm.Engine, threatEvent string, lossType string) ([]db.Frequency, []db.LossHigh, error) {
+	var frequencies []db.Frequency
+	var losses []db.LossHigh
+
+	if lossType == "Singular" {
+		err := dbEngine.Where("threat_event = ?", threatEvent).Find(&frequencies)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		err = dbEngine.Where("threat_event = ?", threatEvent).Find(&losses)
+		if err != nil {
+			return nil, nil, err
+		}
+	} else if lossType == "LossHigh" {
+		err := dbEngine.Where("threat_event = ? AND loss_type = ?", threatEvent, "LossHigh").Find(&losses)
+		if err != nil {
+			return nil, nil, err
+		}
+	} else if lossType == "Granular" {
+		err := dbEngine.Where("threat_event = ? AND loss_type = ?", threatEvent, "Granular").Find(&losses)
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
+	return frequencies, losses, nil
 }
