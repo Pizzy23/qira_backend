@@ -186,7 +186,7 @@ func validateStrengthDataExist(engine *xorm.Engine, finalResults []db.Control) (
 		for _, existing := range existingProposedData {
 			if result.ControlID == existing.ControlID && result.TypeOfAttack == existing.TypeOfAttack {
 				found = true
-				if result.Porcent != existing.Porcent || result.Aggregate != existing.Aggregate || result.ControlGap != existing.ControlGap {
+				if result.Porcent != existing.Porcent || result.Aggregate != existing.Aggregate || result.ControlGap != existing.ControlGap || result.Information != existing.Information {
 					dataToUpdate = append(dataToUpdate, result)
 				}
 				break
@@ -215,7 +215,7 @@ func validateProposedDataExist(engine *xorm.Engine, finalResults []db.Propused) 
 		for _, existing := range existingProposedData {
 			if result.ControlID == existing.ControlID && result.TypeOfAttack == existing.TypeOfAttack {
 				found = true
-				if result.Porcent != existing.Porcent || result.Aggregate != existing.Aggregate || result.ControlGap != existing.ControlGap {
+				if result.Porcent != existing.Porcent || result.Aggregate != existing.Aggregate || result.ControlGap != existing.ControlGap || result.Information != existing.Information {
 					dataToUpdate = append(dataToUpdate, result)
 				}
 				break

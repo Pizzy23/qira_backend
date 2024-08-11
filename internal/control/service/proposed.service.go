@@ -78,6 +78,7 @@ func PullAllControlProposed(c *gin.Context) {
 	type ControlProposed struct {
 		ControlID    int64
 		TypeOfAttack string
+		Information  string
 		Proposed     float64
 		Porcent      float64
 	}
@@ -125,6 +126,7 @@ func PullAllControlProposed(c *gin.Context) {
 
 			controlStrengths = append(controlStrengths, ControlProposed{
 				ControlID:    control.ID,
+				Information:  control.Information,
 				TypeOfAttack: strings.Title(lowerCaseTypeOfAttack),
 				Proposed:     porcent,
 				Porcent:      porcent,

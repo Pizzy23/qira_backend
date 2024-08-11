@@ -78,6 +78,7 @@ func PullAllControlStrength(c *gin.Context) {
 	type ControlStrength struct {
 		ControlID    int64
 		TypeOfAttack string
+		Information  string
 		Strength     float64
 		Porcent      float64
 	}
@@ -124,6 +125,7 @@ func PullAllControlStrength(c *gin.Context) {
 
 			controlStrengths = append(controlStrengths, ControlStrength{
 				ControlID:    control.ID,
+				Information:  control.Information,
 				TypeOfAttack: strings.Title(lowerCaseTypeOfAttack),
 				Strength:     porcent,
 				Porcent:      porcent,
