@@ -126,3 +126,20 @@ type LossExceedance struct {
 	Risk float64 `json:"risk" xorm:"VARCHAR(255) 'risk'"`
 	Loss int64   `json:"loss" xorm:"INT 'loss'"`
 }
+
+type RiskAssessment struct {
+	ID                       int64   `json:"id" xorm:"pk autoincr 'id'"`
+	RiskAssessmentName       string  `json:"risk_assessment_name" xorm:"VARCHAR(255) 'risk_assessment_name'"`
+	Practitioner             string  `json:"practitioner" xorm:"VARCHAR(255) 'practitioner'"`
+	AssessmentStartDate      string  `json:"assessment_start_date" xorm:"DATE 'assessment_start_date'"`
+	AssessmentEndDate        string  `json:"assessment_end_date" xorm:"DATE 'assessment_end_date'"`
+	Sponsor                  string  `json:"sponsor" xorm:"VARCHAR(255) 'sponsor'"`
+	TargetEnvironment        string  `json:"target_environment" xorm:"VARCHAR(255) 'target_environment'"`
+	Profit                   float64 `json:"profit" xorm:"FLOAT 'profit'"`
+	AnnualRevenue            float64 `json:"annual_revenue" xorm:"FLOAT 'annual_revenue'"`
+	StockPrice               float64 `json:"stock_price" xorm:"FLOAT 'stock_price'"`
+	IndustrySector           string  `json:"industry_sector" xorm:"VARCHAR(255) 'industry_sector'"`
+	GeographicRegion         string  `json:"geographic_region" xorm:"VARCHAR(255) 'geographic_region'"`
+	NumberOfOperationalSites int     `json:"number_of_operational_sites" xorm:"INT 'number_of_operational_sites'"`
+	NumberOfEmployees        string  `json:"number_of_employees" xorm:"VARCHAR(255) 'number_of_employees'"`
+}

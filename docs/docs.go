@@ -649,6 +649,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/create-risk-assessment": {
+            "post": {
+                "description": "Create new Risk Assessment",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "0 - Environment"
+                ],
+                "summary": "Create Risk Assessment",
+                "parameters": [
+                    {
+                        "description": "Data for create new Risk Assessment",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/interfaces.InputRiskAssessment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Risk Assessment Created",
+                        "schema": {
+                            "$ref": "#/definitions/db.RiskAssessment"
+                        }
+                    }
+                }
+            }
+        },
         "/api/event/{id}": {
             "put": {
                 "description": "Create Event",
@@ -1098,6 +1132,133 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/risk-assessment/{id}": {
+            "get": {
+                "description": "Retrieve a Risk Assessment by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "0 - Environment"
+                ],
+                "summary": "Retrieve Risk Assessment by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Risk Assessment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Risk Assessment Details",
+                        "schema": {
+                            "$ref": "#/definitions/db.RiskAssessment"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing Risk Assessment",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "0 - Environment"
+                ],
+                "summary": "Update Risk Assessment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Risk Assessment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Data to update Risk Assessment",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/interfaces.InputRiskAssessment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Risk Assessment Updated",
+                        "schema": {
+                            "$ref": "#/definitions/db.RiskAssessment"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete an existing Risk Assessment",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "0 - Environment"
+                ],
+                "summary": "Delete Risk Assessment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Risk Assessment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Risk Assessment Deleted",
+                        "schema": {
+                            "$ref": "#/definitions/db.RiskAssessment"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/risk-assessments": {
+            "get": {
+                "description": "Retrieve all Risk Assessments",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "0 - Environment"
+                ],
+                "summary": "Retrieve All Risk Assessments",
+                "responses": {
+                    "200": {
+                        "description": "List of All Risk Assessments",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.RiskAssessment"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/risk/{id}": {
             "get": {
                 "description": "Retrieve an Risk by its ID",
@@ -1523,6 +1684,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "information": {
+                    "type": "string"
+                },
                 "porcent": {
                     "type": "string"
                 },
@@ -1650,6 +1814,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "information": {
+                    "type": "string"
+                },
                 "porcent": {
                     "type": "string"
                 },
@@ -1666,6 +1833,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "information": {
+                    "type": "string"
                 },
                 "porcent": {
                     "type": "integer"
@@ -1685,6 +1855,53 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "type_of_attack": {
+                    "type": "string"
+                }
+            }
+        },
+        "db.RiskAssessment": {
+            "type": "object",
+            "properties": {
+                "annual_revenue": {
+                    "type": "number"
+                },
+                "assessment_end_date": {
+                    "type": "string"
+                },
+                "assessment_start_date": {
+                    "type": "string"
+                },
+                "geographic_region": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "industry_sector": {
+                    "type": "string"
+                },
+                "number_of_employees": {
+                    "type": "string"
+                },
+                "number_of_operational_sites": {
+                    "type": "integer"
+                },
+                "practitioner": {
+                    "type": "string"
+                },
+                "profit": {
+                    "type": "number"
+                },
+                "risk_assessment_name": {
+                    "type": "string"
+                },
+                "sponsor": {
+                    "type": "string"
+                },
+                "stock_price": {
+                    "type": "number"
+                },
+                "target_environment": {
                     "type": "string"
                 }
             }
@@ -1887,6 +2104,50 @@ const docTemplate = `{
                 }
             }
         },
+        "interfaces.InputRiskAssessment": {
+            "type": "object",
+            "properties": {
+                "annual_revenue": {
+                    "type": "number"
+                },
+                "assessment_end_date": {
+                    "type": "string"
+                },
+                "assessment_start_date": {
+                    "type": "string"
+                },
+                "geographic_region": {
+                    "type": "string"
+                },
+                "industry_sector": {
+                    "type": "string"
+                },
+                "number_of_employees": {
+                    "type": "string"
+                },
+                "number_of_operational_sites": {
+                    "type": "integer"
+                },
+                "practitioner": {
+                    "type": "string"
+                },
+                "profit": {
+                    "type": "number"
+                },
+                "risk_assessment_name": {
+                    "type": "string"
+                },
+                "sponsor": {
+                    "type": "string"
+                },
+                "stock_price": {
+                    "type": "number"
+                },
+                "target_environment": {
+                    "type": "string"
+                }
+            }
+        },
         "interfaces.InputThreatEventAssets": {
             "type": "object",
             "properties": {
@@ -1943,7 +2204,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
+	Version:          "2.0",
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},

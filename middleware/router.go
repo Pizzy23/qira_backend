@@ -5,6 +5,7 @@ import (
 	_ "qira/docs"
 	catalogue "qira/internal/catalogue/handler"
 	control "qira/internal/control/handler"
+	environment "qira/internal/environment/handler"
 	event "qira/internal/event/handler"
 	frequency "qira/internal/frequency/handler"
 	revelance "qira/internal/revelance/handler"
@@ -52,6 +53,13 @@ func SetupRouter() *gin.Engine {
 	auth.PUT("/asset/:id", inventory.UpdateAsset)
 	auth.GET("/assets", inventory.PullAllAsset)
 	auth.DELETE("/asset/:id", inventory.DeleteAsset)
+
+	//Environment
+	auth.GET("/risk-assessment/:id", environment.PullRiskAssessmentById)
+	auth.POST("/create-risk-assessment", environment.CreateRiskAssessment)
+	auth.PUT("/risk-assessment/:id", environment.UpdateRiskAssessment)
+	auth.GET("/risk-assessments", environment.PullAllRiskAssessments)
+	auth.DELETE("/risk-assessment/:id", environment.DeleteRiskAssessment)
 
 	//frequency
 	auth.GET("/frequency/:id", frequency.PullFrequencyById)

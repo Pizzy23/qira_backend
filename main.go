@@ -21,8 +21,8 @@ import (
 func main() {
 	r := middleware.SetupRouter()
 
-	db.ConnectDatabaseXorm()
-	//migrate()
+	db.ConnectDatabaseXorm("qira")
+	migrate()
 
 	host := os.Getenv("API_HOST")
 	if host == "" {

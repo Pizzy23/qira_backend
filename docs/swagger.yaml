@@ -45,6 +45,8 @@ definitions:
         type: integer
       id:
         type: integer
+      information:
+        type: string
       porcent:
         type: string
       type_of_attack:
@@ -128,6 +130,8 @@ definitions:
         type: integer
       id:
         type: integer
+      information:
+        type: string
       porcent:
         type: string
       type_of_attack:
@@ -139,6 +143,8 @@ definitions:
         type: integer
       id:
         type: integer
+      information:
+        type: string
       porcent:
         type: integer
       type_of_attack:
@@ -151,6 +157,37 @@ definitions:
       porcent:
         type: integer
       type_of_attack:
+        type: string
+    type: object
+  db.RiskAssessment:
+    properties:
+      annual_revenue:
+        type: number
+      assessment_end_date:
+        type: string
+      assessment_start_date:
+        type: string
+      geographic_region:
+        type: string
+      id:
+        type: integer
+      industry_sector:
+        type: string
+      number_of_employees:
+        type: string
+      number_of_operational_sites:
+        type: integer
+      practitioner:
+        type: string
+      profit:
+        type: number
+      risk_assessment_name:
+        type: string
+      sponsor:
+        type: string
+      stock_price:
+        type: number
+      target_environment:
         type: string
     type: object
   db.RiskCalculation:
@@ -282,6 +319,35 @@ definitions:
       threat_event:
         type: string
     type: object
+  interfaces.InputRiskAssessment:
+    properties:
+      annual_revenue:
+        type: number
+      assessment_end_date:
+        type: string
+      assessment_start_date:
+        type: string
+      geographic_region:
+        type: string
+      industry_sector:
+        type: string
+      number_of_employees:
+        type: string
+      number_of_operational_sites:
+        type: integer
+      practitioner:
+        type: string
+      profit:
+        type: number
+      risk_assessment_name:
+        type: string
+      sponsor:
+        type: string
+      stock_price:
+        type: number
+      target_environment:
+        type: string
+    type: object
   interfaces.InputThreatEventAssets:
     properties:
       affected_asset:
@@ -316,7 +382,7 @@ info:
   contact: {}
   description: This is a server for app.
   title: Qira
-  version: "1.0"
+  version: "2.0"
 paths:
   /api/aggregated-control-strength:
     get:
@@ -734,6 +800,28 @@ paths:
       summary: Create Asset
       tags:
       - 1 - Inventory
+  /api/create-risk-assessment:
+    post:
+      consumes:
+      - application/json
+      description: Create new Risk Assessment
+      parameters:
+      - description: Data for create new Risk Assessment
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.InputRiskAssessment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Risk Assessment Created
+          schema:
+            $ref: '#/definitions/db.RiskAssessment'
+      summary: Create Risk Assessment
+      tags:
+      - 0 - Environment
   /api/event/{id}:
     delete:
       consumes:
@@ -1031,6 +1119,90 @@ paths:
       summary: Retrieve All Risks
       tags:
       - 6 - Risk
+  /api/risk-assessment/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an existing Risk Assessment
+      parameters:
+      - description: Risk Assessment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Risk Assessment Deleted
+          schema:
+            $ref: '#/definitions/db.RiskAssessment'
+      summary: Delete Risk Assessment
+      tags:
+      - 0 - Environment
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a Risk Assessment by its ID
+      parameters:
+      - description: Risk Assessment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Risk Assessment Details
+          schema:
+            $ref: '#/definitions/db.RiskAssessment'
+      summary: Retrieve Risk Assessment by ID
+      tags:
+      - 0 - Environment
+    put:
+      consumes:
+      - application/json
+      description: Update an existing Risk Assessment
+      parameters:
+      - description: Risk Assessment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data to update Risk Assessment
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.InputRiskAssessment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Risk Assessment Updated
+          schema:
+            $ref: '#/definitions/db.RiskAssessment'
+      summary: Update Risk Assessment
+      tags:
+      - 0 - Environment
+  /api/risk-assessments:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all Risk Assessments
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of All Risk Assessments
+          schema:
+            items:
+              $ref: '#/definitions/db.RiskAssessment'
+            type: array
+      summary: Retrieve All Risk Assessments
+      tags:
+      - 0 - Environment
   /api/risk/{id}:
     get:
       consumes:

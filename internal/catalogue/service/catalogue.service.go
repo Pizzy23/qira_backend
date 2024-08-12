@@ -112,41 +112,43 @@ func DeleteEventService(c *gin.Context, eventID int64) error {
 
 	// Obter o evento de ameaça para usar seu nome no filtro de relevância
 	var threatEvent db.ThreatEventCatalog
-	has, err := engine.(*xorm.Engine).ID(eventID).Get(&threatEvent)
+	found, err := db.GetByID(engine.(*xorm.Engine), &threatEvent, eventID)
 	if err != nil {
 		return err
 	}
-	if !has {
+	if !found {
 		return errors.New("threat event not found")
 	}
 
-	if _, err := engine.(*xorm.Engine).Where("threat_event_id = ?", eventID).Delete(&db.Frequency{}); err != nil {
+	if err := db.Delete(engine.(*xorm.Engine), &db.Frequency{}, map[string]interface{}{"threat_event_id": eventID}); err != nil {
 		return err
 	}
 
-	if _, err := engine.(*xorm.Engine).Where("threat_event_id = ?", eventID).Delete(&db.LossHigh{}); err != nil {
-		return err
-	}
-	if _, err := engine.(*xorm.Engine).Where("threat_event_id = ?", eventID).Delete(&db.LossHighGranular{}); err != nil {
-		return err
-	}
-	if _, err := engine.(*xorm.Engine).Where("threat_event_id = ?", eventID).Delete(&db.LossHighTotal{}); err != nil {
+	if err := db.Delete(engine.(*xorm.Engine), &db.LossHigh{}, map[string]interface{}{"threat_event_id": eventID}); err != nil {
 		return err
 	}
 
-	if _, err := engine.(*xorm.Engine).Where("threat_id = ?", eventID).Delete(&db.ThreatEventAssets{}); err != nil {
+	if err := db.Delete(engine.(*xorm.Engine), &db.LossHighGranular{}, map[string]interface{}{"threat_event_id": eventID}); err != nil {
 		return err
 	}
 
-	if _, err := engine.(*xorm.Engine).Where("threat_event_id = ?", eventID).Delete(&db.RiskCalculation{}); err != nil {
+	if err := db.Delete(engine.(*xorm.Engine), &db.LossHighTotal{}, map[string]interface{}{"threat_event_id": eventID}); err != nil {
 		return err
 	}
 
-	if _, err := engine.(*xorm.Engine).Where("type_of_attack = ?", threatEvent.ThreatEvent).Delete(&db.Relevance{}); err != nil {
+	if err := db.Delete(engine.(*xorm.Engine), &db.ThreatEventAssets{}, map[string]interface{}{"threat_id": eventID}); err != nil {
 		return err
 	}
 
-	if _, err := engine.(*xorm.Engine).ID(eventID).Delete(&db.ThreatEventCatalog{}); err != nil {
+	if err := db.Delete(engine.(*xorm.Engine), &db.RiskCalculation{}, map[string]interface{}{"threat_event_id": eventID}); err != nil {
+		return err
+	}
+
+	if err := db.Delete(engine.(*xorm.Engine), &db.Relevance{}, map[string]interface{}{"type_of_attack": threatEvent.ThreatEvent}); err != nil {
+		return err
+	}
+
+	if err := db.Delete(engine.(*xorm.Engine), &db.ThreatEventCatalog{}, map[string]interface{}{"id": eventID}); err != nil {
 		return err
 	}
 

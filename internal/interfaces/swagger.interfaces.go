@@ -233,3 +233,19 @@ type LossExceedance struct {
 	Risk float64 `json:"risk" `
 	Loss int64   `json:"loss" `
 }
+
+type InputRiskAssessment struct {
+	RiskAssessmentName       string  `json:"risk_assessment_name"`
+	Practitioner             string  `json:"practitioner"`
+	AssessmentStartDate      string  `json:"assessment_start_date"`
+	AssessmentEndDate        string  `json:"assessment_end_date"`
+	Sponsor                  string  `json:"sponsor"`
+	TargetEnvironment        string  `json:"target_environment"`
+	Profit                   float64 `json:"profit"`
+	AnnualRevenue            float64 `json:"annual_revenue"`
+	StockPrice               float64 `json:"stock_price"`
+	IndustrySector           string  `json:"industry_sector"`
+	GeographicRegion         string  `json:"geographic_region"`
+	NumberOfOperationalSites int     `json:"number_of_operational_sites"`
+	NumberOfEmployees        string  `json:"number_of_employees"`
+}
