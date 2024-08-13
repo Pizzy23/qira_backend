@@ -16,7 +16,7 @@ func CreateLossHighGranularService(c *gin.Context, LossHigh interfaces.InputLoss
 	}
 
 	var existingLoss db.LossHighGranular
-	found, err := engine.(*xorm.Engine).Where("threat_event_id = ? AND loss_type = ? AND impact = ? AND loss_edit_number",
+	found, err := engine.(*xorm.Engine).Where("threat_event_id = ? AND loss_type = ? AND impact = ? AND loss_edit_number = ?",
 		id, LossHigh.LossType, LossHigh.Impact, LossHigh.LossEditNumber).Get(&existingLoss)
 	if err != nil {
 		return err
