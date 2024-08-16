@@ -12,6 +12,7 @@ import (
 
 func PullEventService(c *gin.Context) {
 	var res []db.ThreatEventAssets
+	var threatEvents []db.ThreatEventCatalog
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Response", "Database connection not found")
@@ -19,8 +20,38 @@ func PullEventService(c *gin.Context) {
 		return
 	}
 
-	if err := db.InScope(engine.(*xorm.Engine).NewSession(), &res); err != nil {
+	if err := db.InScope(engine.(*xorm.Engine).NewSession(), &threatEvents); err != nil {
 		c.Set("Response", "Error fetching threat events")
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	for _, threatEvent := range threatEvents {
+		var existingEvent db.ThreatEventAssets
+		found, err := db.GetByEventID(engine.(*xorm.Engine), &existingEvent, threatEvent.ID)
+		if err != nil {
+			c.Set("Response", "Error checking event existence")
+			c.Status(http.StatusInternalServerError)
+			return
+		}
+
+		if !found {
+			newEvent := db.ThreatEventAssets{
+				ThreatID:      threatEvent.ID,
+				ThreatEvent:   threatEvent.ThreatEvent,
+				AffectedAsset: "Generic asset",
+			}
+
+			if err := db.Create(engine.(*xorm.Engine), &newEvent); err != nil {
+				c.Set("Response", "Error inserting new threat event with generic asset")
+				c.Status(http.StatusInternalServerError)
+				return
+			}
+		}
+	}
+
+	if err := db.GetAll(engine.(*xorm.Engine), &res); err != nil {
+		c.Set("Response", "Error fetching updated threat event assets")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
@@ -35,30 +66,6 @@ func PullEventService(c *gin.Context) {
 			}
 		}
 		eventMap[item.ThreatID].AffectedAsset = append(eventMap[item.ThreatID].AffectedAsset, item.AffectedAsset)
-	}
-
-	for _, item := range res {
-		var existingEvent db.ThreatEventAssets
-		found, err := db.GetByEventID(engine.(*xorm.Engine), &existingEvent, item.ThreatID)
-		if err != nil {
-			c.Set("Response", "Error checking event existence")
-			c.Status(http.StatusInternalServerError)
-			return
-		}
-
-		if !found {
-			newEvent := db.ThreatEventAssets{
-				ThreatID:      item.ThreatID,
-				ThreatEvent:   item.ThreatEvent,
-				AffectedAsset: "Generic asset",
-			}
-
-			if err := db.Create(engine.(*xorm.Engine), &newEvent); err != nil {
-				c.Set("Response", "Error inserting new threat event with generic asset")
-				c.Status(http.StatusInternalServerError)
-				return
-			}
-		}
 	}
 
 	var output []interfaces.OutPutThreatEventAssets
