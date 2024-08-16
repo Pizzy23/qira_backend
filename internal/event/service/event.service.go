@@ -39,7 +39,7 @@ func PullEventService(c *gin.Context) {
 
 	for _, item := range res {
 		var existingEvent db.ThreatEventAssets
-		found, err := db.GetByID(engine.(*xorm.Engine), &existingEvent, item.ThreatID)
+		found, err := db.GetByEventID(engine.(*xorm.Engine), &existingEvent, item.ThreatID)
 		if err != nil {
 			c.Set("Response", "Error checking event existence")
 			c.Status(http.StatusInternalServerError)
