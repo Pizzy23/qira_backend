@@ -82,8 +82,14 @@ func GetByEventIDAndRiskType(engine *xorm.Engine, table interface{}, eventId int
 	found, err := engine.Where("threat_event_id = ? AND risk_type = ?", eventId, riskType).Get(table)
 	return found, err
 }
+
 func GetByEventID(engine *xorm.Engine, table interface{}, eventId int64) (bool, error) {
 	found, err := engine.Where("threat_event_id = ?", eventId).Get(table)
+	return found, err
+}
+
+func GetByCatalogueID(engine *xorm.Engine, table interface{}, eventId int64) (bool, error) {
+	found, err := engine.Where("threat_id = ?", eventId).Get(table)
 	return found, err
 }
 
