@@ -72,7 +72,7 @@ func PullAllEventService(c *gin.Context) {
 
 	for _, event := range threatEvents {
 		var frequency db.Frequency
-		found, err := db.GetByEventIDAndRiskType(engine.(*xorm.Engine), &frequency, event.ID, "")
+		found, err := db.GetByEventID(engine.(*xorm.Engine), &frequency, event.ID)
 		if err != nil {
 			c.Set("Response", "Error fetching frequency")
 			c.Status(http.StatusInternalServerError)

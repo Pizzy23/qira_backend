@@ -82,6 +82,10 @@ func GetByEventIDAndRiskType(engine *xorm.Engine, table interface{}, eventId int
 	found, err := engine.Where("threat_event_id = ? AND risk_type = ?", eventId, riskType).Get(table)
 	return found, err
 }
+func GetByEventID(engine *xorm.Engine, table interface{}, eventId int64) (bool, error) {
+	found, err := engine.Where("threat_event_id = ?", eventId).Get(table)
+	return found, err
+}
 
 func GetAllWithCondition(engine *xorm.Engine, tableSlice interface{}, condition string, args ...interface{}) error {
 	return engine.Where(condition, args...).Find(tableSlice)
