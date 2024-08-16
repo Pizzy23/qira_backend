@@ -58,6 +58,7 @@ func saveResultsPropused(engine *xorm.Engine, results []db.Propused) error {
 
 	return session.Commit()
 }
+
 func saveResultsStrength(engine *xorm.Engine, results []db.Control) error {
 	session := engine.NewSession()
 	defer session.Close()
@@ -199,6 +200,7 @@ func validateStrengthDataExist(engine *xorm.Engine, finalResults []db.Control) (
 
 	return dataToUpdate, dataToAdd, nil
 }
+
 func validateProposedDataExist(engine *xorm.Engine, finalResults []db.Propused) ([]db.Propused, []db.Propused, error) {
 	var existingProposedData []db.Propused
 	err := engine.Find(&existingProposedData)

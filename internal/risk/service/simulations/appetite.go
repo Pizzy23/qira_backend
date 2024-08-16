@@ -73,7 +73,7 @@ func UploadLossData(c *gin.Context, lossData []interfaces.LossExceedance) {
 			continue
 		}
 
-		if has && existing.Risk == 0 {
+		if has && existing.Risk == 0 || has && existing.Loss != ld.Loss {
 			existing.Risk = ld.Risk
 			existing.Loss = ld.Loss
 			if _, err := engine.(*xorm.Engine).ID(existing.ID).Update(&existing); err != nil {
