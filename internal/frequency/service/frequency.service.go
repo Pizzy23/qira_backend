@@ -54,20 +54,54 @@ func EditFrequencyService(c *gin.Context, freq interfaces.InputFrequency, Threat
 }
 
 func PullAllEventService(c *gin.Context) {
-	var frequency []db.Frequency
+	var frequencies []db.Frequency
+	var threatEvents []db.ThreatEventCatalog
 	engine, exists := c.Get("db")
+
 	if !exists {
 		c.Set("Response", "Database connection not found")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
-	if err := db.GetAll(engine.(*xorm.Engine), &frequency); err != nil {
-		c.Set("Response", "Response")
+	if err := db.InScope(engine.(*xorm.Engine).NewSession(), &threatEvents); err != nil {
+		c.Set("Response", "Error fetching threat events")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	c.Set("Response", frequency)
+
+	for _, event := range threatEvents {
+		var frequency db.Frequency
+		found, err := db.GetByEventIDAndRiskType(engine.(*xorm.Engine), &frequency, event.ID, "")
+		if err != nil {
+			c.Set("Response", "Error fetching frequency")
+			c.Status(http.StatusInternalServerError)
+			return
+		}
+
+		if !found {
+			newFrequency := db.Frequency{
+				ThreatEventID:         event.ID,
+				ThreatEvent:           event.ThreatEvent,
+				MinFrequency:          0.0,
+				MaxFrequency:          0.0,
+				MostLikelyFrequency:   0.0,
+				SupportingInformation: "Default information",
+			}
+
+			if err := db.Create(engine.(*xorm.Engine), &newFrequency); err != nil {
+				c.Set("Response", "Error inserting new frequency")
+				c.Status(http.StatusInternalServerError)
+				return
+			}
+
+			frequencies = append(frequencies, newFrequency)
+		} else {
+			frequencies = append(frequencies, frequency)
+		}
+	}
+
+	c.Set("Response", frequencies)
 	c.Status(http.StatusOK)
 }
 
