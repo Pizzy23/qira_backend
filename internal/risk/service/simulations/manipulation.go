@@ -26,12 +26,12 @@ func retrieveFrequencyAndLossEntries(dbEngine *xorm.Engine, threatEvent string, 
 			return nil, nil, err
 		}
 	} else if lossType == "LossHigh" {
-		err := dbEngine.Where("threat_event = ? AND loss_type = ?", threatEvent, "LossHigh").Find(&losses)
+		err := dbEngine.Where("threat_event = ? AND type_of_loss = ?", threatEvent, "LossHigh").Find(&losses)
 		if err != nil {
 			return nil, nil, err
 		}
 	} else if lossType == "Granular" {
-		err := dbEngine.Where("threat_event = ? AND loss_type = ?", threatEvent, "Granular").Find(&losses)
+		err := dbEngine.Where("threat_event = ? AND type_of_loss = ?", threatEvent, "Granular").Find(&losses)
 		if err != nil {
 			return nil, nil, err
 		}
