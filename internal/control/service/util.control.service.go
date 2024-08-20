@@ -49,6 +49,7 @@ func saveResultsPropused(engine *xorm.Engine, results []db.Propused) error {
 				return err
 			}
 		} else {
+			result.ID = 0
 			if _, err := engine.Insert(&result); err != nil {
 				session.Rollback()
 				return err
@@ -82,6 +83,7 @@ func saveResultsStrength(engine *xorm.Engine, results []db.Control) error {
 				return err
 			}
 		} else {
+			result.ID = 0
 			if _, err := engine.Insert(&result); err != nil {
 				session.Rollback()
 				return err
