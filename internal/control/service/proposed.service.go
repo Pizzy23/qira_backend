@@ -83,8 +83,10 @@ func PullAllControlProposed(c *gin.Context) {
 		Porcent      float64
 	}
 
-	controlStrengths := []ControlProposed{}
+	controlProposed := []ControlProposed{}
 	totalRelevanceMap := make(map[string]float64)
+
+	allZero := make(map[string]bool)
 
 	for _, control := range controls {
 		impl, implExists := implMap[control.ID]
@@ -124,20 +126,27 @@ func PullAllControlProposed(c *gin.Context) {
 
 			porcent := CalculateValue(relevanceValue/100.0, currentValue/100.0)
 
-			controlStrengths = append(controlStrengths, ControlProposed{
+			controlProposed = append(controlProposed, ControlProposed{
 				ControlID:    control.ID,
 				Information:  control.Information,
 				TypeOfAttack: strings.Title(lowerCaseTypeOfAttack),
 				Proposed:     porcent,
 				Porcent:      porcent,
 			})
+
+			// Checando se todos os valores são zero
+			if porcent == 0 {
+				allZero[typeOfAttack] = true
+			} else {
+				allZero[typeOfAttack] = false
+			}
 		}
 	}
 
-	controlStrengthMap := make(map[string]float64)
+	controlProposedMap := make(map[string]float64)
 	porcentMap := make(map[int64]float64)
-	for _, result := range controlStrengths {
-		controlStrengthMap[result.TypeOfAttack] += result.Proposed
+	for _, result := range controlProposed {
+		controlProposedMap[result.TypeOfAttack] += result.Proposed
 		porcentMap[result.ControlID] = result.Porcent
 	}
 
@@ -158,37 +167,36 @@ func PullAllControlProposed(c *gin.Context) {
 		}
 	}
 
-	for _, control := range controls {
-		if _, found := relevanceMap[control.ID]; !found && controlInScopeMap[control.ID] {
-			for _, relevance := range relevances {
-				if relevance.ControlID == control.ID {
-					finalResults = append(finalResults, db.Propused{
-						ControlID:    control.ID,
-						TypeOfAttack: strings.Title(strings.ToLower(relevance.TypeOfAttack)),
-						Porcent:      "0%",
-					})
-				}
-			}
-		}
-	}
-
-	for typeOfAttack, totalStrength := range controlStrengthMap {
+	for typeOfAttack, totalStrength := range controlProposedMap {
 		totalRelevance := totalRelevanceMap[strings.ToLower(typeOfAttack)]
-		notPorcent := (totalStrength * 100.0)
-		aggregated := (notPorcent / totalRelevance) * 100.0
-		controlGap := 100.0 - int(aggregated)
+		if allZero[typeOfAttack] {
+			finalResults = append(finalResults, db.Propused{
+				ControlID:    -1,
+				TypeOfAttack: strings.Title(typeOfAttack),
+				Aggregate:    "0%",
+			})
+			finalResults = append(finalResults, db.Propused{
+				ControlID:    -2,
+				TypeOfAttack: strings.Title(typeOfAttack),
+				ControlGap:   "100%",
+			})
+		} else {
+			notPorcent := (totalStrength * 100.0)
+			aggregated := (notPorcent / totalRelevance) * 100.0
+			controlGap := 100.0 - int(aggregated)
 
-		finalResults = append(finalResults, db.Propused{
-			ControlID:    -1,
-			TypeOfAttack: strings.Title(typeOfAttack),
-			Aggregate:    fmt.Sprintf("%d%%", int(aggregated)),
-		})
+			finalResults = append(finalResults, db.Propused{
+				ControlID:    -1,
+				TypeOfAttack: strings.Title(typeOfAttack),
+				Aggregate:    fmt.Sprintf("%d%%", int(aggregated)),
+			})
 
-		finalResults = append(finalResults, db.Propused{
-			ControlID:    -2,
-			TypeOfAttack: strings.Title(typeOfAttack),
-			ControlGap:   fmt.Sprintf("%d%%", controlGap),
-		})
+			finalResults = append(finalResults, db.Propused{
+				ControlID:    -2,
+				TypeOfAttack: strings.Title(typeOfAttack),
+				ControlGap:   fmt.Sprintf("%d%%", controlGap),
+			})
+		}
 	}
 
 	dataToUpdate, dataToAdd, err := validateProposedDataExist(engine.(*xorm.Engine), finalResults)

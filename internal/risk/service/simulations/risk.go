@@ -64,7 +64,7 @@ func MonteCarloSimulationRisk(c *gin.Context, threatEvent string, lossType strin
 			ihRiskMin += totalMinFreq / (gapValue / 100)
 			ihRiskMax += totalMaxFreq / (gapValue / 100)
 			ihRiskEstimate += totalPertFreq / (gapValue / 100)
-		} else if gap.TypeOfAttack == "Loss" {
+		} else if gap.TypeOfAttack == lossType {
 			ihRiskMin += totalMinLoss / (gapValue / 100)
 			ihRiskMax += totalMaxLoss / (gapValue / 100)
 			ihRiskEstimate += totalPertLoss / (gapValue / 100)

@@ -19,12 +19,12 @@ func retrieveFrequencyAndLossEntries(dbEngine *xorm.Engine, threatEvent string, 
 	var frequencies []db.Frequency
 	var losses []db.LossHigh
 
-	if lossType == "Singular" {
-		err := dbEngine.Where("threat_event = ?", threatEvent).Find(&frequencies)
-		if err != nil {
-			return nil, nil, err
-		}
+	err := dbEngine.Where("threat_event = ?", threatEvent).Find(&frequencies)
+	if err != nil {
+		return nil, nil, err
+	}
 
+	if lossType == "Singular" {
 		err = dbEngine.Where("threat_event = ?", threatEvent).Find(&losses)
 		if err != nil {
 			return nil, nil, err

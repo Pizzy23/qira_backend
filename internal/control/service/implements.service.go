@@ -114,8 +114,8 @@ func PullAllImplements(c *gin.Context) {
 				ControlID:       control.ID,
 				Current:         0,
 				Proposed:        0,
-				PercentCurrent:  "",
-				PercentProposed: "",
+				PercentCurrent:  "3%",
+				PercentProposed: "3%",
 				Cost:            0,
 			}
 			newImplementations = append(newImplementations, newImpl)
