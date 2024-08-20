@@ -94,7 +94,5 @@ func UploadLossData(c *gin.Context, lossData []interfaces.LossExceedance) {
 			}
 		}
 	}
-
-	c.Set("Response", "LossExceedance Updated")
-	c.Status(http.StatusCreated)
+	c.JSON(http.StatusCreated, "LossExceedance Updated")
 }
