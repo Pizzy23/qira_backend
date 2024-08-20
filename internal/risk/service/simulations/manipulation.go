@@ -4,13 +4,16 @@ import (
 	"errors"
 	"qira/db"
 	"reflect"
+	"strings"
 
 	"xorm.io/xorm"
 )
 
-func retrieveFrequencyAndLossEntries(dbEngine *xorm.Engine, threatEvent string, lossType string) ([]db.Frequency, []db.LossHigh, error) {
+func retrieveFrequencyAndLossEntries(dbEngine *xorm.Engine, threatEvent string, lossType string) ([]db.Frequency, []db.LossHighTotal, error) {
 	var frequencies []db.Frequency
-	var losses []db.LossHigh
+	var losses []db.LossHighTotal
+
+	threatEvent = strings.ReplaceAll(threatEvent, "\xa0", " ")
 
 	err := dbEngine.Where("threat_event = ?", threatEvent).Find(&frequencies)
 	if err != nil {

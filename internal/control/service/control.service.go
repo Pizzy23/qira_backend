@@ -26,10 +26,6 @@ func CreateControlService(c *gin.Context, control interfaces.InputControlLibrary
 		return err
 	}
 
-	if err := createTables(engine.(*xorm.Engine), &controlInput); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -61,57 +57,6 @@ func UpdateControlService(c *gin.Context, controlID int64, control interfaces.In
 
 	if _, err := engine.ID(controlID).Update(&existingControl); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-func createTables(engine *xorm.Engine, control *db.ControlLibrary) error {
-	var events []db.RiskController
-	if err := db.GetAll(engine, &events); err != nil {
-		return err
-	}
-
-	var relevances []db.Relevance
-	var propuseds []db.Propused
-	var controls []db.Control
-
-	for _, e := range events {
-		relevances = append(relevances, db.Relevance{
-			ControlID:    control.ID,
-			TypeOfAttack: e.Name,
-			Porcent:      0,
-		})
-		propuseds = append(propuseds, db.Propused{
-			ControlID:    control.ID,
-			TypeOfAttack: e.Name,
-			Porcent:      "0",
-			Aggregate:    "0",
-			ControlGap:   "0",
-		})
-		controls = append(controls, db.Control{
-			ControlID:    control.ID,
-			TypeOfAttack: e.Name,
-			Porcent:      "0",
-			Aggregate:    "0",
-			ControlGap:   "0",
-		})
-	}
-
-	if len(relevances) > 0 {
-		if _, err := engine.Insert(&relevances); err != nil {
-			return err
-		}
-	}
-	if len(propuseds) > 0 {
-		if _, err := engine.Insert(&propuseds); err != nil {
-			return err
-		}
-	}
-	if len(controls) > 0 {
-		if _, err := engine.Insert(&controls); err != nil {
-			return err
-		}
 	}
 
 	return nil

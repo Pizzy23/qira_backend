@@ -20,8 +20,8 @@ func CreateEventService(c *gin.Context, event interfaces.InputThreatEventCatalog
 
 	event = util.SanitizeInputCatalogue(&event)
 	eventDB := db.ThreatEventCatalog{
-		ThreatGroup: event.ThreatGroup,
-		ThreatEvent: event.ThreatEvent,
+		ThreatGroup: util.CleanString(event.ThreatGroup),
+		ThreatEvent: util.CleanString(event.ThreatEvent),
 		Description: event.Description,
 		InScope:     event.InScope,
 	}
@@ -33,7 +33,7 @@ func CreateEventService(c *gin.Context, event interfaces.InputThreatEventCatalog
 	eventID := eventDB.ID
 
 	RiskController := db.RiskController{
-		Name: event.ThreatEvent,
+		Name: util.CleanString(event.ThreatEvent),
 	}
 
 	if err := db.Create(engine.(*xorm.Engine), RiskController); err != nil {
@@ -42,13 +42,13 @@ func CreateEventService(c *gin.Context, event interfaces.InputThreatEventCatalog
 
 	frequencyInput := db.Frequency{
 		ThreatEventID: eventID,
-		ThreatEvent:   event.ThreatEvent,
+		ThreatEvent:   util.CleanString(event.ThreatEvent),
 		MinFrequency:  0,
 		MaxFrequency:  0,
 	}
 	EventAssets := db.ThreatEventAssets{
 		ThreatID:    eventID,
-		ThreatEvent: event.ThreatEvent,
+		ThreatEvent: util.CleanString(event.ThreatEvent),
 	}
 
 	if err := frequency.CreateFrequencyService(c, frequencyInput); err != nil {
