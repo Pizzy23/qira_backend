@@ -1,19 +1,12 @@
 package simulation
 
 import (
+	"errors"
 	"qira/db"
+	"reflect"
 
 	"xorm.io/xorm"
 )
-
-func lossZero(loss []db.LossHighTotal) bool {
-	for _, l := range loss {
-		if l.MinimumLoss != 0 || l.MaximumLoss != 0 || l.MostLikelyLoss != 0 {
-			return false
-		}
-	}
-	return true
-}
 
 func retrieveFrequencyAndLossEntries(dbEngine *xorm.Engine, threatEvent string, lossType string) ([]db.Frequency, []db.LossHigh, error) {
 	var frequencies []db.Frequency
@@ -42,4 +35,58 @@ func retrieveFrequencyAndLossEntries(dbEngine *xorm.Engine, threatEvent string, 
 	}
 
 	return frequencies, losses, nil
+}
+
+func validateSimulationData(input interface{}) error {
+	val := reflect.ValueOf(input)
+
+	var hasZeroFreq, hasZeroLoss, hasZeroProposed bool
+
+	minFreq := val.FieldByName("FrequencyMin")
+	pertFreq := val.FieldByName("FrequencyEstimate")
+	maxFreq := val.FieldByName("FrequencyMax")
+
+	minLoss := val.FieldByName("LossMin")
+	pertLoss := val.FieldByName("LossEstimate")
+	maxLoss := val.FieldByName("LossMax")
+
+	proposedMin := val.FieldByName("ProposedMin")
+	proposedPert := val.FieldByName("ProposedPert")
+	proposedMax := val.FieldByName("ProposedMax")
+
+	if minFreq.IsValid() && pertFreq.IsValid() && maxFreq.IsValid() {
+		if minFreq.Float() == 0 && pertFreq.Float() == 0 && maxFreq.Float() == 0 {
+			hasZeroFreq = true
+		} else if minFreq.Float() == 0 && maxFreq.Float() == 0 {
+			return errors.New("Min and Max Frequency values cannot both be zero")
+		} else if pertFreq.Float() == 0 {
+			return errors.New("Pert Frequency value cannot be zero")
+		}
+	}
+
+	if minLoss.IsValid() && pertLoss.IsValid() && maxLoss.IsValid() {
+		if minLoss.Float() == 0 && pertLoss.Float() == 0 && maxLoss.Float() == 0 {
+			hasZeroLoss = true
+		} else if minLoss.Float() == 0 && maxLoss.Float() == 0 {
+			return errors.New("Min and Max Loss values cannot both be zero")
+		} else if pertLoss.Float() == 0 {
+			return errors.New("Pert Loss value cannot be zero")
+		}
+	}
+
+	if proposedMin.IsValid() && proposedPert.IsValid() && proposedMax.IsValid() {
+		if proposedMin.Float() == 0 && proposedPert.Float() == 0 && proposedMax.Float() == 0 {
+			hasZeroProposed = true
+		} else if proposedMin.Float() == 0 && proposedMax.Float() == 0 {
+			return errors.New("Min and Max Proposed values cannot both be zero")
+		} else if proposedPert.Float() == 0 {
+			return errors.New("Pert Proposed value cannot be zero")
+		}
+	}
+
+	if hasZeroFreq && hasZeroLoss && hasZeroProposed {
+		return errors.New("All frequency, loss, and proposed values cannot be zero")
+	}
+
+	return nil
 }

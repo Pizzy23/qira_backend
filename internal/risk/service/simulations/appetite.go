@@ -54,6 +54,11 @@ func MonteCarloSimulationAppetite(c *gin.Context, lossType string) {
 		LossExceedance:    lossEc,
 	}
 
+	if err := validateSimulationData(finalResponse); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	c.JSON(http.StatusOK, finalResponse)
 }
 

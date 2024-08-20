@@ -50,6 +50,9 @@ func MonteCarloSimulationAggregated(c *gin.Context, lossType string) {
 		LossMin:           totalMinLoss,
 		LossEstimate:      totalPertLoss,
 	}
-
+	if err := validateSimulationData(finalResponse); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(http.StatusOK, finalResponse)
 }

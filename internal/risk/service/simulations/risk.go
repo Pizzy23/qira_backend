@@ -100,5 +100,10 @@ func MonteCarloSimulationRisk(c *gin.Context, threatEvent string, lossType strin
 		LossExceedance: lossEc,
 	}
 
+	if err := validateSimulationData(finalResponse); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	c.JSON(http.StatusOK, finalResponse)
 }
