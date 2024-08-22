@@ -449,6 +449,45 @@ const docTemplate = `{
                     }
                 }
             },
+            "put": {
+                "description": "Update an Event Catalogue by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "2 - Catalogue"
+                ],
+                "summary": "Update Event Catalogue by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Data for updating the Event Catalogue",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/interfaces.InputThreatEventCatalogue"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated Event Details",
+                        "schema": {
+                            "$ref": "#/definitions/db.ThreatEventCatalog"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "Delete an Event by its ID",
                 "consumes": [

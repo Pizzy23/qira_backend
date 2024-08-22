@@ -689,6 +689,32 @@ paths:
       summary: Retrieve Catalogue by ID
       tags:
       - 2 - Catalogue
+    put:
+      consumes:
+      - application/json
+      description: Update an Event Catalogue by its ID
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data for updating the Event Catalogue
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.InputThreatEventCatalogue'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated Event Details
+          schema:
+            $ref: '#/definitions/db.ThreatEventCatalog'
+      summary: Update Event Catalogue by ID
+      tags:
+      - 2 - Catalogue
   /api/control:
     post:
       consumes:
