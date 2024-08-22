@@ -84,3 +84,38 @@ func DeleteEventId(c *gin.Context) {
 	}
 	catalogue.DeleteEventService(c, id)
 }
+
+// @Summary Update Event Catalogue by ID
+// @Description Update an Event Catalogue by its ID
+// @Tags 2 - Catalogue
+// @Accept json
+// @Produce json
+// @Param id path int true "Event ID"
+// @Param request body interfaces.InputThreatEventCatalogue true "Data for updating the Event Catalogue"
+// @Success 200 {object} db.ThreatEventCatalog "Updated Event Details"
+// @Router /api/catalogue/{id} [put]
+func UpdateEvent(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.Set("Response", "Invalid event ID")
+		c.Status(http.StatusBadRequest)
+		return
+	}
+
+	var updatedEvent interfaces.InputThreatEventCatalogue
+	if err := c.ShouldBindJSON(&updatedEvent); err != nil {
+		c.Set("Response", "Invalid JSON payload")
+		c.Status(http.StatusBadRequest)
+		return
+	}
+
+	if err := catalogue.UpdateEventService(c, id, updatedEvent); err != nil {
+		c.Set("Response", err.Error())
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	c.Set("Response", "Event updated successfully")
+	c.Status(http.StatusOK)
+}

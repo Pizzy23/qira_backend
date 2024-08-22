@@ -154,3 +154,30 @@ func DeleteEventService(c *gin.Context, eventID int64) error {
 
 	return nil
 }
+
+func UpdateEventService(c *gin.Context, id int, updatedEvent interfaces.InputThreatEventCatalogue) error {
+	engine, exists := c.Get("db")
+	if !exists {
+		return errors.New("database connection not found")
+	}
+
+	var event db.ThreatEventCatalog
+	found, err := db.GetByID(engine.(*xorm.Engine), &event, int64(id))
+	if err != nil {
+		return err
+	}
+	if !found {
+		return errors.New("event not found")
+	}
+
+	event.ThreatGroup = util.CleanString(updatedEvent.ThreatGroup)
+	event.ThreatEvent = util.CleanString(updatedEvent.ThreatEvent)
+	event.Description = updatedEvent.Description
+	event.InScope = updatedEvent.InScope
+
+	if err := db.UpdateByID(engine.(*xorm.Engine), &event, int64(id)); err != nil {
+		return err
+	}
+
+	return nil
+}
