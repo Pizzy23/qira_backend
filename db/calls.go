@@ -103,3 +103,8 @@ func InScope(engine *xorm.Session, tableSlice interface{}) error {
 	}
 	return nil
 }
+
+func UpdateByCatalogue(engine *xorm.Engine, table interface{}, id int64) error {
+	_, err := engine.ID(id).Cols("threat_group", "threat_event", "description", "in_scope").Update(table)
+	return err
+}

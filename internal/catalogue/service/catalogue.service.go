@@ -175,7 +175,7 @@ func UpdateEventService(c *gin.Context, id int, updatedEvent interfaces.InputThr
 	event.Description = updatedEvent.Description
 	event.InScope = updatedEvent.InScope
 
-	if err := db.UpdateByID(engine.(*xorm.Engine), &event, int64(id)); err != nil {
+	if err := db.UpdateByCatalogue(engine.(*xorm.Engine), &event, int64(id)); err != nil {
 		return err
 	}
 
