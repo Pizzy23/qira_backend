@@ -31,6 +31,10 @@ func CreateRiskService(c *gin.Context, typeLoss string) ([]db.RiskCalculation, e
 	var riskCalculations []db.RiskCalculation
 
 	for _, event := range threatEvents {
+		if !event.InScope {
+			continue
+		}
+
 		var loss db.LossHighTotal
 		var freq db.Frequency
 
