@@ -37,13 +37,11 @@ func EditFrequencyService(c *gin.Context, freq interfaces.InputFrequency, Threat
 		return errors.New("threat event mismatch or not found")
 	}
 
-	// Atualizar campos relevantes
 	existingFreq.MinFrequency = freq.MinFrequency
 	existingFreq.MaxFrequency = freq.MaxFrequency
 	existingFreq.MostLikelyFrequency = freq.MostCommonFrequency
 	existingFreq.SupportingInformation = freq.SupportInformation
 
-	// Usar ID para garantir que estamos atualizando o registro correto
 	if err := db.UpdateByID(engine.(*xorm.Engine), &existingFreq, existingFreq.ID); err != nil {
 		return err
 	}

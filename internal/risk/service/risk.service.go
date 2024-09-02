@@ -10,6 +10,7 @@ import (
 
 func PullAllRisk(c *gin.Context, typeLoss string) {
 	var calcRisk []db.RiskCalculation
+	var events []db.ThreatEventCatalog
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Response", "Database connection not found")
@@ -24,6 +25,12 @@ func PullAllRisk(c *gin.Context, typeLoss string) {
 		return
 	}
 
+	if err := db.InScope(engine.(*xorm.Engine).NewSession(), &events); err != nil {
+		c.Set("Response", "Error fetching threat events")
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
 	if err := db.GetAll(engine.(*xorm.Engine), &calcRisk); err != nil {
 		c.Set("Response", err.Error())
 		c.Status(http.StatusInternalServerError)
@@ -31,12 +38,13 @@ func PullAllRisk(c *gin.Context, typeLoss string) {
 	}
 
 	var filteredRisk []db.RiskCalculation
-	for _, risk := range calcRisk {
-		if risk.Categorie == typeLoss {
-			filteredRisk = append(filteredRisk, risk)
+	for _, event := range events {
+		for _, risk := range calcRisk {
+			if risk.Categorie == typeLoss && risk.ThreatEvent == event.ThreatEvent {
+				filteredRisk = append(filteredRisk, risk)
+			}
 		}
 	}
-
 	c.Set("Response", filteredRisk)
 	c.Status(http.StatusOK)
 }

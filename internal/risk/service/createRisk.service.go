@@ -28,8 +28,6 @@ func CreateRiskService(c *gin.Context, typeLoss string) ([]db.RiskCalculation, e
 		return nil, err
 	}
 
-	var riskCalculations []db.RiskCalculation
-
 	for _, event := range threatEvents {
 		if !event.InScope {
 			continue
@@ -110,11 +108,6 @@ func CreateRiskService(c *gin.Context, typeLoss string) ([]db.RiskCalculation, e
 
 	// Filtrar os resultados para retornar apenas a categoria solicitada
 	var filteredRiskCalculations []db.RiskCalculation
-	for _, risk := range riskCalculations {
-		if risk.Categorie == typeLoss {
-			filteredRiskCalculations = append(filteredRiskCalculations, risk)
-		}
-	}
 
 	return filteredRiskCalculations, nil
 }

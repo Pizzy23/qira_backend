@@ -134,7 +134,6 @@ func PullAllControlProposed(c *gin.Context) {
 				Porcent:      porcent,
 			})
 
-			// Checando se todos os valores são zero
 			if porcent == 0 {
 				allZero[typeOfAttack] = true
 			} else {

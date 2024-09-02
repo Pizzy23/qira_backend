@@ -110,7 +110,6 @@ func DeleteEventService(c *gin.Context, eventID int64) error {
 		return errors.New("database connection not found")
 	}
 
-	// Obter o evento de ameaça para usar seu nome no filtro de relevância
 	var threatEvent db.ThreatEventCatalog
 	found, err := db.GetByID(engine.(*xorm.Engine), &threatEvent, eventID)
 	if err != nil {
