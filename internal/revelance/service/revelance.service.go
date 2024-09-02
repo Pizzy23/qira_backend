@@ -30,40 +30,53 @@ func PullAllRelevance(c *gin.Context) {
 	var (
 		threatEvents []db.ThreatEventCatalog
 		controls     []db.ControlLibrary
+		relevances   []db.Relevance
 	)
 
+	// Buscar eventos de ameaça
 	if err := db.InScope(session, &threatEvents); err != nil {
-		c.Set("Response", err.Error())
+		c.Set("Response", "Error fetching threat events")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
+	// Buscar controles
 	if err := db.InScope(session, &controls); err != nil {
-		c.Set("Response", err.Error())
+		c.Set("Response", "Error fetching controls")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
-	var relevances []db.Relevance
+	// Buscar relevâncias
 	if err := session.Find(&relevances); err != nil {
-		session.Rollback()
-		c.Set("Response", err.Error())
+		c.Set("Response", "Error fetching relevances")
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
-	existingRelevanceMap := make(map[string]bool)
-	for _, relevance := range relevances {
-		key := fmt.Sprintf("%d-%s", relevance.ControlID, relevance.TypeOfAttack)
-		existingRelevanceMap[key] = true
+	// Filtro de relevâncias baseado nos eventos de ameaça
+	var filteredRelevances []db.Relevance
+	for _, event := range threatEvents {
+		for _, relevance := range relevances {
+			if relevance.TypeOfAttack == event.ThreatEvent {
+				filteredRelevances = append(filteredRelevances, relevance)
+			}
+		}
 	}
 
-	newRelevances := []db.Relevance{}
-
+	// Validar relevâncias filtradas com os controles
 	for _, event := range threatEvents {
 		for _, control := range controls {
 			key := fmt.Sprintf("%d-%s", control.ID, event.ThreatEvent)
-			if !existingRelevanceMap[key] {
+			found := false
+			for _, relevance := range filteredRelevances {
+				if fmt.Sprintf("%d-%s", relevance.ControlID, relevance.TypeOfAttack) == key {
+					found = true
+					break
+				}
+			}
+			// Se não encontrar uma relevância existente, cria uma nova
+			if !found {
 				newRelevance := db.Relevance{
 					ControlID:    control.ID,
 					Information:  control.Information,
@@ -76,7 +89,7 @@ func PullAllRelevance(c *gin.Context) {
 					c.Status(http.StatusInternalServerError)
 					return
 				}
-				newRelevances = append(newRelevances, newRelevance)
+				filteredRelevances = append(filteredRelevances, newRelevance)
 			}
 		}
 	}
@@ -88,9 +101,7 @@ func PullAllRelevance(c *gin.Context) {
 		return
 	}
 
-	relevances = append(relevances, newRelevances...)
-
-	c.Set("Response", relevances)
+	c.Set("Response", filteredRelevances)
 	c.Status(http.StatusOK)
 }
 
