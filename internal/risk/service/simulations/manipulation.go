@@ -102,7 +102,7 @@ func calculationRisk(risks []db.RiskCalculation, events []db.ThreatEventCatalog,
 		return OutputProcess{}, errors.New("not have events")
 	}
 
-	if len(risks) == 0 {
+	if len(risks) != 0 {
 		for _, event := range events {
 			for _, risk := range risks {
 				if risk.RiskType == "Frequency" && risk.Categorie == lossType && risk.ThreatEvent == event.ThreatEvent {
