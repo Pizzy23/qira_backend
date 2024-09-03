@@ -12,45 +12,43 @@ import (
 
 func MonteCarloSimulationAppetite(c *gin.Context, lossType string) {
 	var riskCalculations []db.RiskCalculation
+	var events []db.ThreatEventCatalog
+
 	engine, exists := c.Get("db")
 	if !exists {
 		c.JSON(http.StatusInternalServerError, "Database connection not found")
 		return
 	}
+
 	if err := db.GetAll(engine.(*xorm.Engine), &riskCalculations); err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	var totalMinFreq, totalPertFreq, totalMaxFreq float64
-	var totalMinLoss, totalPertLoss, totalMaxLoss float64
+	if err := db.InScope(engine.(*xorm.Engine).NewSession(), &events); err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
 
-	for _, risk := range riskCalculations {
-		if risk.RiskType == "Frequency" && risk.Categorie == lossType {
-			totalMinFreq += risk.Min
-			totalPertFreq += risk.Estimate
-			totalMaxFreq += risk.Max
-		} else if risk.Categorie == lossType {
-			totalMinLoss += risk.Min
-			totalPertLoss += risk.Estimate
-			totalMaxLoss += risk.Max
-		}
+	finalResult, err := calculationRisk(riskCalculations, events, lossType)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	var lossEc []db.LossExceedance
 	if err := db.GetAll(engine.(*xorm.Engine), &lossEc); err != nil {
-		c.Set("Response", err.Error())
-		c.Status(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	finalResponse := FrontEndResponseAppLoss{
-		FrequencyMax:      totalMaxFreq,
-		FrequencyMin:      totalMinFreq,
-		FrequencyEstimate: totalPertFreq,
-		LossMax:           totalMaxLoss,
-		LossMin:           totalMinLoss,
-		LossEstimate:      totalPertLoss,
+		FrequencyMax:      finalResult.FrequencyMax,
+		FrequencyMin:      finalResult.FrequencyMin,
+		FrequencyEstimate: finalResult.FrequencyEstimate,
+		LossMax:           finalResult.LossMax,
+		LossMin:           finalResult.LossMin,
+		LossEstimate:      finalResult.LossEstimate,
 		LossExceedance:    lossEc,
 	}
 
@@ -65,8 +63,7 @@ func MonteCarloSimulationAppetite(c *gin.Context, lossType string) {
 func UploadLossData(c *gin.Context, lossData []interfaces.LossExceedance) {
 	engine, exists := c.Get("db")
 	if !exists {
-		c.Set("Response", "Database not found")
-		c.Status(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database not found"})
 		return
 	}
 

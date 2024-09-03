@@ -26,32 +26,15 @@ func MonteCarloSimulation(c *gin.Context, threatEvent string, lossType string) {
 		return
 	}
 
-	var totalMinFreq, totalPertFreq, totalMaxFreq float64
-	var totalMinLoss, totalPertLoss, totalMaxLoss float64
-
-	for _, freq := range freq {
-		totalMinFreq += freq.MinFrequency
-		totalPertFreq += freq.MostLikelyFrequency
-		totalMaxFreq += freq.MaxFrequency
+	final, err := calculationLossAndFreq(freq, loss)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
-	for _, loss := range loss {
-		totalMinLoss += loss.MinimumLoss
-		totalPertLoss += loss.MostLikelyLoss
-		totalMaxLoss += loss.MaximumLoss
-	}
-
-	finalResponse := FrontEndResponse{
-		FrequencyMax:      totalMaxFreq,
-		FrequencyMin:      totalMinFreq,
-		FrequencyEstimate: totalPertFreq,
-		LossMax:           totalMaxLoss,
-		LossMin:           totalMinLoss,
-		LossEstimate:      totalPertLoss,
-	}
-	if err := validateSimulationData(finalResponse); err != nil {
+	if err := validateSimulationData(final); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, finalResponse)
+	c.JSON(http.StatusOK, final)
 }

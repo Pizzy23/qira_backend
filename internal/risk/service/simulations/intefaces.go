@@ -50,3 +50,12 @@ type FrontEndResponseAppReport struct {
 	ProposedPert   float64             `json:"ProposedPert"`
 	LossExceedance []db.LossExceedance `json:"LossExceedance"`
 }
+
+type OutputProcess struct {
+	FrequencyMax      float64 `json:"FrequencyMax"`
+	FrequencyMin      float64 `json:"FrequencyMin"`
+	FrequencyEstimate float64 `json:"FrequencyEstimate"`
+	LossMax           float64 `json:"LossMax"`
+	LossMin           float64 `json:"LossMin"`
+	LossEstimate      float64 `json:"LossEstimate"`
+}

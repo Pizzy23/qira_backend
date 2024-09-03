@@ -37,19 +37,10 @@ func MonteCarloSimulationRisk(c *gin.Context, threatEvent string, lossType strin
 		return
 	}
 
-	var totalMinFreq, totalPertFreq, totalMaxFreq float64
-	var totalMinLoss, totalPertLoss, totalMaxLoss float64
-
-	for _, freq := range frequencies {
-		totalMinFreq += freq.MinFrequency
-		totalPertFreq += freq.MostLikelyFrequency
-		totalMaxFreq += freq.MaxFrequency
-	}
-
-	for _, loss := range losses {
-		totalMinLoss += loss.MinimumLoss
-		totalPertLoss += loss.MostLikelyLoss
-		totalMaxLoss += loss.MaximumLoss
+	final, err := calculationLossAndFreq(frequencies, losses)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
 	var ihRiskMin, ihRiskMax, ihRiskEstimate float64
@@ -61,13 +52,13 @@ func MonteCarloSimulationRisk(c *gin.Context, threatEvent string, lossType strin
 			return
 		}
 		if gap.TypeOfAttack == "Frequency" {
-			ihRiskMin += totalMinFreq / (gapValue / 100)
-			ihRiskMax += totalMaxFreq / (gapValue / 100)
-			ihRiskEstimate += totalPertFreq / (gapValue / 100)
+			ihRiskMin += final.FrequencyMin / (gapValue / 100)
+			ihRiskMax += final.FrequencyMax / (gapValue / 100)
+			ihRiskEstimate += final.FrequencyEstimate / (gapValue / 100)
 		} else if gap.TypeOfAttack == lossType {
-			ihRiskMin += totalMinLoss / (gapValue / 100)
-			ihRiskMax += totalMaxLoss / (gapValue / 100)
-			ihRiskEstimate += totalPertLoss / (gapValue / 100)
+			ihRiskMin += final.FrequencyMin / (gapValue / 100)
+			ihRiskMax += final.FrequencyMax / (gapValue / 100)
+			ihRiskEstimate += final.LossEstimate / (gapValue / 100)
 		}
 	}
 
@@ -88,8 +79,7 @@ func MonteCarloSimulationRisk(c *gin.Context, threatEvent string, lossType strin
 
 	var lossEc []db.LossExceedance
 	if err := dbEngine.Find(&lossEc); err != nil {
-		c.Set("Response", err.Error())
-		c.Status(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 

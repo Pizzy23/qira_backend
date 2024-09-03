@@ -10,6 +10,8 @@ import (
 
 func MonteCarloSimulationAggregated(c *gin.Context, lossType string) {
 	var riskCalculations []db.RiskCalculation
+	var events []db.ThreatEventCatalog
+
 	engine, exists := c.Get("db")
 	if !exists {
 		c.JSON(http.StatusInternalServerError, "Database connection not found")
@@ -27,32 +29,20 @@ func MonteCarloSimulationAggregated(c *gin.Context, lossType string) {
 		return
 	}
 
-	var totalMinFreq, totalPertFreq, totalMaxFreq float64
-	var totalMinLoss, totalPertLoss, totalMaxLoss float64
-
-	for _, risk := range riskCalculations {
-		if risk.RiskType == "Frequency" && risk.Categorie == lossType {
-			totalMinFreq += risk.Min
-			totalPertFreq += risk.Estimate
-			totalMaxFreq += risk.Max
-		} else if risk.Categorie == lossType {
-			totalMinLoss += risk.Min
-			totalPertLoss += risk.Estimate
-			totalMaxLoss += risk.Max
-		}
+	if err := db.InScope(dbEngine.NewSession(), &events); err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
 	}
 
-	finalResponse := FrontEndResponseAgg{
-		FrequencyMax:      totalMaxFreq,
-		FrequencyMin:      totalMinFreq,
-		FrequencyEstimate: totalPertFreq,
-		LossMax:           totalMaxLoss,
-		LossMin:           totalMinLoss,
-		LossEstimate:      totalPertLoss,
-	}
-	if err := validateSimulationData(finalResponse); err != nil {
+	finalResult, err := calculationRisk(riskCalculations, events, lossType)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, finalResponse)
+
+	if err := validateSimulationData(finalResult); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, finalResult)
 }

@@ -61,9 +61,9 @@ func validateSimulationData(input interface{}) error {
 		if minFreq.Float() == 0 && pertFreq.Float() == 0 && maxFreq.Float() == 0 {
 			hasZeroFreq = true
 		} else if minFreq.Float() == 0 && maxFreq.Float() == 0 {
-			return errors.New("Min and Max Frequency values cannot both be zero")
+			return errors.New("min and Max Frequency values cannot both be zero")
 		} else if pertFreq.Float() == 0 {
-			return errors.New("Pert Frequency value cannot be zero")
+			return errors.New("pert Frequency value cannot be zero")
 		}
 	}
 
@@ -71,9 +71,9 @@ func validateSimulationData(input interface{}) error {
 		if minLoss.Float() == 0 && pertLoss.Float() == 0 && maxLoss.Float() == 0 {
 			hasZeroLoss = true
 		} else if minLoss.Float() == 0 && maxLoss.Float() == 0 {
-			return errors.New("Min and Max Loss values cannot both be zero")
+			return errors.New("min and Max Loss values cannot both be zero")
 		} else if pertLoss.Float() == 0 {
-			return errors.New("Pert Loss value cannot be zero")
+			return errors.New("pert Loss value cannot be zero")
 		}
 	}
 
@@ -81,15 +81,84 @@ func validateSimulationData(input interface{}) error {
 		if proposedMin.Float() == 0 && proposedPert.Float() == 0 && proposedMax.Float() == 0 {
 			hasZeroProposed = true
 		} else if proposedMin.Float() == 0 && proposedMax.Float() == 0 {
-			return errors.New("Min and Max Proposed values cannot both be zero")
+			return errors.New("min and Max Loss values cannot both be zero")
 		} else if proposedPert.Float() == 0 {
-			return errors.New("Pert Proposed value cannot be zero")
+			return errors.New("pert Proposed value cannot be zero")
 		}
 	}
 
 	if hasZeroFreq && hasZeroLoss && hasZeroProposed {
-		return errors.New("All frequency, loss, and proposed values cannot be zero")
+		return errors.New("all frequency, loss, and proposed values cannot be zero")
 	}
 
 	return nil
+}
+
+func calculationRisk(risks []db.RiskCalculation, events []db.ThreatEventCatalog, lossType string) (OutputProcess, error) {
+	var totalMinFreq, totalPertFreq, totalMaxFreq float64
+	var totalMinLoss, totalPertLoss, totalMaxLoss float64
+
+	if len(events) == 0 {
+		return OutputProcess{}, errors.New("not have events")
+	}
+
+	if len(risks) == 0 {
+		for _, event := range events {
+			for _, risk := range risks {
+				if risk.RiskType == "Frequency" && risk.Categorie == lossType && risk.ThreatEvent == event.ThreatEvent {
+					totalMinFreq += risk.Min
+					totalPertFreq += risk.Estimate
+					totalMaxFreq += risk.Max
+				} else if risk.Categorie == lossType && risk.ThreatEvent == event.ThreatEvent {
+					totalMinLoss += risk.Min
+					totalPertLoss += risk.Estimate
+					totalMaxLoss += risk.Max
+				}
+			}
+		}
+	}
+
+	finalResponse := OutputProcess{
+		FrequencyMax:      totalMaxFreq,
+		FrequencyMin:      totalMinFreq,
+		FrequencyEstimate: totalPertFreq,
+		LossMax:           totalMaxLoss,
+		LossMin:           totalMinLoss,
+		LossEstimate:      totalPertLoss,
+	}
+	return finalResponse, nil
+}
+
+func calculationLossAndFreq(frequencies []db.Frequency, losses []db.LossHighTotal) (OutputProcess, error) {
+	var totalMinFreq, totalPertFreq, totalMaxFreq float64
+	var totalMinLoss, totalPertLoss, totalMaxLoss float64
+
+	if len(frequencies) == 0 {
+		return OutputProcess{}, errors.New("not have frequencies")
+	}
+
+	if len(losses) == 0 {
+		return OutputProcess{}, errors.New("not have losses")
+	}
+
+	for _, freq := range frequencies {
+		totalMinFreq += freq.MinFrequency
+		totalPertFreq += freq.MostLikelyFrequency
+		totalMaxFreq += freq.MaxFrequency
+	}
+
+	for _, loss := range losses {
+		totalMinLoss += loss.MinimumLoss
+		totalPertLoss += loss.MostLikelyLoss
+		totalMaxLoss += loss.MaximumLoss
+	}
+	finalResponse := OutputProcess{
+		FrequencyMax:      totalMaxFreq,
+		FrequencyMin:      totalMinFreq,
+		FrequencyEstimate: totalPertFreq,
+		LossMax:           totalMaxLoss,
+		LossMin:           totalMinLoss,
+		LossEstimate:      totalPertLoss,
+	}
+	return finalResponse, nil
 }
