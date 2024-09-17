@@ -47,28 +47,6 @@ func PullAllControl(c *gin.Context) {
 	control.PullAllControl(c)
 }
 
-// @Summary Retrieve All Control
-// @Description Retrieve all Event
-// @Tags 10 - Control Strength
-// @Accept json
-// @Produce json
-// @Success 200 {object} db.ControlLibrary "List of All Event"
-// @Router /api/all-stren [get]
-func PullStren(c *gin.Context) {
-	control.Stren(c)
-}
-
-// @Summary Retrieve All Control
-// @Description Retrieve all Event
-// @Tags 11 - Control Proposed
-// @Accept json
-// @Produce json
-// @Success 200 {object} db.ControlLibrary "List of All Event"
-// @Router /api/all-prupu [get]
-func PullPrupu(c *gin.Context) {
-	control.Prupu(c)
-}
-
 // @Summary Retrieve Control by ID
 // @Description Retrieve an Event by its ID
 // @Tags 7 - Control

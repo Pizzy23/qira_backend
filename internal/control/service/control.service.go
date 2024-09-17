@@ -30,6 +30,7 @@ func CreateControlService(c *gin.Context, control interfaces.InputControlLibrary
 }
 
 func UpdateControlService(c *gin.Context, controlID int64, control interfaces.InputControlLibrary) error {
+	// Obter a conexão com o banco de dados do contexto
 	engineInterface, exists := c.Get("db")
 	if !exists {
 		return errors.New("database connection not found")
@@ -40,6 +41,7 @@ func UpdateControlService(c *gin.Context, controlID int64, control interfaces.In
 		return errors.New("invalid database connection")
 	}
 
+	// Buscar o registro existente
 	var existingControl db.ControlLibrary
 	has, err := engine.ID(controlID).Get(&existingControl)
 	if err != nil {
@@ -55,6 +57,7 @@ func UpdateControlService(c *gin.Context, controlID int64, control interfaces.In
 	existingControl.Information = control.Information
 	existingControl.InScope = control.InScope
 
+	// Tentar atualizar o registro no banco de dados
 	if _, err := engine.ID(controlID).Update(&existingControl); err != nil {
 		return err
 	}
@@ -64,42 +67,6 @@ func UpdateControlService(c *gin.Context, controlID int64, control interfaces.In
 
 func PullAllControl(c *gin.Context) {
 	var controls []db.ControlLibrary
-	engine, exists := c.Get("db")
-	if !exists {
-		c.Set("Response", "Database connection not found")
-		c.Status(http.StatusInternalServerError)
-		return
-	}
-
-	if err := db.GetAll(engine.(*xorm.Engine), &controls); err != nil {
-		c.Set("Response", err.Error())
-		c.Status(http.StatusInternalServerError)
-		return
-	}
-	c.Set("Response", controls)
-	c.Status(http.StatusOK)
-}
-
-func Stren(c *gin.Context) {
-	var controls []db.Control
-	engine, exists := c.Get("db")
-	if !exists {
-		c.Set("Response", "Database connection not found")
-		c.Status(http.StatusInternalServerError)
-		return
-	}
-
-	if err := db.GetAll(engine.(*xorm.Engine), &controls); err != nil {
-		c.Set("Response", err.Error())
-		c.Status(http.StatusInternalServerError)
-		return
-	}
-	c.Set("Response", controls)
-	c.Status(http.StatusOK)
-}
-
-func Prupu(c *gin.Context) {
-	var controls []db.Propused
 	engine, exists := c.Get("db")
 	if !exists {
 		c.Set("Response", "Database connection not found")
