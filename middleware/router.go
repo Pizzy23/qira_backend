@@ -112,8 +112,6 @@ func SetupRouter() *gin.Engine {
 	auth.GET("/aggregated-control-strength", control.PullAggregatedControlStrength)
 	auth.GET("/all-proposed", control.PullAllControlProposed)
 	auth.GET("/all-strength", control.PullAllControlStrength)
-	auth.GET("/all-prupu", control.PullPrupu)
-	auth.GET("/all-stren", control.PullStren)
 
 	auth.PUT("/upload-appetite", risk.UploadAppetite)
 	return r
