@@ -51,15 +51,14 @@ func MonteCarloSimulationRisk(c *gin.Context, threatEvent string, lossType strin
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error parsing control gap value"})
 			return
 		}
-		if gap.TypeOfAttack == "Frequency" {
-			ihRiskMin += final.FrequencyMin / (gapValue / 100)
-			ihRiskMax += final.FrequencyMax / (gapValue / 100)
-			ihRiskEstimate += final.FrequencyEstimate / (gapValue / 100)
-		} else if gap.TypeOfAttack == lossType {
-			ihRiskMin += final.FrequencyMin / (gapValue / 100)
-			ihRiskMax += final.FrequencyMax / (gapValue / 100)
-			ihRiskEstimate += final.LossEstimate / (gapValue / 100)
-		}
+
+		ihRiskMin += final.FrequencyMin / (gapValue / 100)
+		ihRiskMax += final.FrequencyMax / (gapValue / 100)
+		ihRiskEstimate += final.FrequencyEstimate / (gapValue / 100)
+		ihRiskMin += final.LossMin / (gapValue / 100)
+		ihRiskMax += final.LossMax / (gapValue / 100)
+		ihRiskEstimate += final.LossEstimate / (gapValue / 100)
+
 	}
 
 	var proposedMin, proposedMax, proposedEstimate float64
@@ -70,11 +69,9 @@ func MonteCarloSimulationRisk(c *gin.Context, threatEvent string, lossType strin
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error parsing control gap value"})
 			return
 		}
-		if gap.TypeOfAttack == "Proposed" {
-			proposedMin += ihRiskMin * (gapValue / 100)
-			proposedMax += ihRiskMax * (gapValue / 100)
-			proposedEstimate += ihRiskEstimate * (gapValue / 100)
-		}
+		proposedMin += ihRiskMin * (gapValue / 100)
+		proposedMax += ihRiskMax * (gapValue / 100)
+		proposedEstimate += ihRiskEstimate * (gapValue / 100)
 	}
 
 	var lossEc []db.LossExceedance

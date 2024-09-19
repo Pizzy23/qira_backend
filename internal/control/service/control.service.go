@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"qira/db"
 	"qira/internal/interfaces"
+	"qira/util"
 
 	"github.com/gin-gonic/gin"
 	"xorm.io/xorm"
@@ -29,19 +30,20 @@ func CreateControlService(c *gin.Context, control interfaces.InputControlLibrary
 	return nil
 }
 
-func UpdateControlService(c *gin.Context, controlID int64, control interfaces.InputControlLibrary) error {
+func UpdateControlService(c *gin.Context, controlID int64, updatedControl interfaces.InputControlLibrary) error {
 	// Obter a conexão com o banco de dados do contexto
 	engineInterface, exists := c.Get("db")
 	if !exists {
 		return errors.New("database connection not found")
 	}
 
+	// Verificar se a interface recuperada é do tipo *xorm.Engine
 	engine, ok := engineInterface.(*xorm.Engine)
 	if !ok {
 		return errors.New("invalid database connection")
 	}
 
-	// Buscar o registro existente
+	// Buscar o controle existente pelo ID
 	var existingControl db.ControlLibrary
 	has, err := engine.ID(controlID).Get(&existingControl)
 	if err != nil {
@@ -51,15 +53,20 @@ func UpdateControlService(c *gin.Context, controlID int64, control interfaces.In
 		return errors.New("control not found")
 	}
 
-	// Atualizar os campos existentes com os novos valores
-	existingControl.ControlType = control.ControlType
-	existingControl.ControlReference = control.ControlReference
-	existingControl.Information = control.Information
-	existingControl.InScope = control.InScope
+	// Atualizar os campos do controle existente com os novos valores
+	existingControl.ControlType = util.CleanString(updatedControl.ControlType)
+	existingControl.ControlReference = util.CleanString(updatedControl.ControlReference)
+	existingControl.Information = updatedControl.Information
+	existingControl.InScope = updatedControl.InScope // Aqui estamos garantindo que 'InScope' seja atualizado corretamente
 
-	// Tentar atualizar o registro no banco de dados
-	if _, err := engine.ID(controlID).Update(&existingControl); err != nil {
+	// Atualizar o controle no banco de dados
+	rowsAffected, err := engine.ID(controlID).Cols("control_type", "control_reference", "information", "in_scope").Update(&existingControl)
+	if err != nil {
 		return err
+	}
+
+	if rowsAffected == 0 {
+		return errors.New("no rows were updated")
 	}
 
 	return nil
